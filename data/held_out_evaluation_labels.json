@@ -1,0 +1,102 @@
+{
+  "INV-PI-2025-101": {
+    "decision": "EDITED",
+    "amount_inr": "212400.00",
+    "reason": "Approved at PO contracted rate of \u20b9212,400; overcharge eliminated."
+  },
+  "INV-PI-2025-102": {
+    "decision": "EDITED",
+    "amount_inr": "207680.00",
+    "reason": "Approved at PO contracted rate of \u20b9207,680; overcharge eliminated."
+  },
+  "INV-PI-2025-103": {
+    "decision": "EDITED",
+    "amount_inr": "169920.00",
+    "reason": "Approved at PO contracted rate of \u20b9169,920; overcharge eliminated."
+  },
+  "INV-KS-2025-101": {
+    "decision": "REJECTED",
+    "amount_inr": "0.00",
+    "reason": "Duplicate invoice submission; previous record for INV-KS-2025-101 already paid."
+  },
+  "INV-KS-2025-102": {
+    "decision": "REJECTED",
+    "amount_inr": "0.00",
+    "reason": "Duplicate invoice submission; previous record for INV-KS-2025-102 already paid."
+  },
+  "INV-DL-2025-101": {
+    "decision": "APPROVED",
+    "amount_inr": "377600.00",
+    "reason": "Approved partial payment for delivered quantity of 200 units (\u20b9377,600)."
+  },
+  "INV-DL-2025-102": {
+    "decision": "APPROVED",
+    "amount_inr": "377600.00",
+    "reason": "Approved partial payment for delivered quantity of 200 units (\u20b9377,600)."
+  },
+  "INV-DL-2025-103": {
+    "decision": "APPROVED",
+    "amount_inr": "472000.00",
+    "reason": "Approved full invoice amount; freight HSN difference accepted as minor clerical delta."
+  },
+  "INV-SEW-2025-101": {
+    "decision": "REJECTED",
+    "amount_inr": "0.00",
+    "reason": "Rejected per current AP Policy 2025-Q3: expired PO requires fresh procurement requisition before processing."
+  },
+  "INV-SEW-2025-102": {
+    "decision": "REJECTED",
+    "amount_inr": "0.00",
+    "reason": "Rejected per current AP Policy 2025-Q3: expired PO requires fresh procurement requisition before processing."
+  },
+  "INV-SEW-2025-103": {
+    "decision": "REJECTED",
+    "amount_inr": "0.00",
+    "reason": "Rejected per current AP Policy 2025-Q3: expired PO requires fresh procurement requisition before processing."
+  },
+  "INV-NPD-2025-101": {
+    "decision": "REJECTED",
+    "amount_inr": "0.00",
+    "reason": "Statutory GST rate error: 12% billed vs 18% statutory. Ineligible for GSTR-2B input credit; rejected for replacement invoice."
+  },
+  "INV-NPD-2025-102": {
+    "decision": "REJECTED",
+    "amount_inr": "0.00",
+    "reason": "Statutory GST rate error: 12% billed vs 18% statutory. Ineligible for GSTR-2B input credit; rejected for replacement invoice."
+  },
+  "INV-BTT-2025-101": {
+    "decision": "APPROVED",
+    "amount_inr": "192780.00",
+    "reason": "Approved full invoice amount with indexation tolerance variance."
+  },
+  "INV-BTT-2025-102": {
+    "decision": "APPROVED",
+    "amount_inr": "192780.00",
+    "reason": "Approved full invoice amount with indexation tolerance variance."
+  },
+  "INV-TAP-2025-101": {
+    "decision": "APPROVED",
+    "amount_inr": "115920.00",
+    "reason": "Approved for delivered quantity of 1150 kg (\u20b9115,920)."
+  },
+  "INV-TAP-2025-102": {
+    "decision": "APPROVED",
+    "amount_inr": "115920.00",
+    "reason": "Approved for delivered quantity of 1150 kg (\u20b9115,920)."
+  },
+  "INV-TAP-2025-103": {
+    "decision": "APPROVED",
+    "amount_inr": "115920.00",
+    "reason": "Approved for delivered quantity of 1150 kg (\u20b9115,920)."
+  },
+  "INV-CTS-2025-101": {
+    "decision": "APPROVED",
+    "amount_inr": "88500.00",
+    "reason": "Approved emergency spend under retrospective Controller validity extension (PO expired by 15 days)."
+  },
+  "INV-CTS-2025-102": {
+    "decision": "APPROVED",
+    "amount_inr": "88500.00",
+    "reason": "Approved emergency spend under retrospective Controller validity extension (PO expired by 15 days)."
+  }
+}

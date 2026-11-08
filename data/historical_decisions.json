@@ -1,0 +1,4106 @@
+[
+  {
+    "invoice": {
+      "invoice_number": "INV-PI-2024-001",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "invoice_date": "2024-07-25",
+      "po_number": "PO-IT-2024-001",
+      "grn_number": null,
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "1560.00",
+      "quantity": 50,
+      "total_excl_tax_inr": "78000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "14040.00",
+      "total_inr": "92040.00"
+    },
+    "po": {
+      "po_number": "PO-IT-2024-001",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "issue_date": "2024-07-05",
+      "valid_until": "2024-09-03",
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "1500.00",
+      "quantity": 50,
+      "total_excl_tax_inr": "75000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "13500.00",
+      "total_inr": "88500.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "1560.00",
+        "expected_value": "1500.00",
+        "delta_inr": "3540.00",
+        "message": "Price mismatch: billed unit rate \u20b91,560.00 exceeds PO rate \u20b91,500.00 by \u20b960.00 (+4.0% overcharge; gross discrepancy \u20b93,540.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "1560.00",
+          "expected_value": "1500.00",
+          "delta_inr": "3540.00",
+          "message": "Price mismatch: billed unit rate \u20b91,560.00 exceeds PO rate \u20b91,500.00 by \u20b960.00 (+4.0% overcharge; gross discrepancy \u20b93,540.00)."
+        }
+      ],
+      "invoice_number": "INV-PI-2024-001",
+      "po_number": "PO-IT-2024-001",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "invoice_amount_inr": "92040.00",
+      "expected_amount_inr": "88500.00",
+      "explanation": "Price mismatch: billed unit rate \u20b91,560.00 exceeds PO rate \u20b91,500.00 by \u20b960.00 (+4.0% overcharge; gross discrepancy \u20b93,540.00)."
+    },
+    "decision": "EDITED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved at PO contracted rate of \u20b988,500; vendor advised of contracted pricing ceiling.",
+    "outcome_inr": "88500.00",
+    "outcome_note": "paid at contracted rate (saving \u20b93,540)",
+    "timestamp": "2024-07-25T11:30:00Z",
+    "document_id": "decision-INV-PI-2024-001",
+    "tags": [
+      "vendor:prabhav-infosystems-pvt-ltd",
+      "exception:price_mismatch",
+      "decision:edited",
+      "gstin:27AABCP4821K1ZT",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-CTS-2024-001",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "invoice_date": "2024-07-25",
+      "po_number": "PO-EMRG-2024-001",
+      "grn_number": null,
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "po": {
+      "po_number": "PO-EMRG-2024-001",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "issue_date": "2024-06-02",
+      "valid_until": "2024-07-02",
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2024-07-25",
+        "expected_value": "2024-07-02",
+        "delta_inr": "100300.00",
+        "message": "Purchase order PO-EMRG-2024-001 expired on 2024-07-02. Invoice dated 2024-07-25 submitted 23 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2024-07-25",
+          "expected_value": "2024-07-02",
+          "delta_inr": "100300.00",
+          "message": "Purchase order PO-EMRG-2024-001 expired on 2024-07-02. Invoice dated 2024-07-25 submitted 23 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-CTS-2024-001",
+      "po_number": "PO-EMRG-2024-001",
+      "vendor_name": "Chintamani Tech Solutions",
+      "invoice_amount_inr": "100300.00",
+      "expected_amount_inr": "100300.00",
+      "explanation": "Purchase order PO-EMRG-2024-001 expired on 2024-07-02. Invoice dated 2024-07-25 submitted 23 days after validity expiry."
+    },
+    "decision": "APPROVED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Approved emergency infrastructure support despite expired PO validity (23 days overdue); Controller granted retrospective validity extension.",
+    "outcome_inr": "100300.00",
+    "outcome_note": "paid \u20b9100,300 under expired PO emergency approval protocol",
+    "timestamp": "2024-07-25T18:30:00Z",
+    "document_id": "decision-INV-CTS-2024-001",
+    "tags": [
+      "vendor:chintamani-tech-solutions",
+      "exception:po_expired",
+      "decision:approved",
+      "gstin:32AAACC4219P1ZW",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-DL-2024-001",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "invoice_date": "2024-07-26",
+      "po_number": "PO-LOG-2024-001",
+      "grn_number": "GRN-DL-001",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1500.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "300000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "54000.00",
+      "total_inr": "354000.00"
+    },
+    "po": {
+      "po_number": "PO-LOG-2024-001",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "issue_date": "2024-07-12",
+      "valid_until": "2024-09-10",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1500.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "300000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "54000.00",
+      "total_inr": "354000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-DL-001",
+      "po_number": "PO-LOG-2024-001",
+      "receipt_date": "2024-07-20",
+      "received_quantity": 170,
+      "accepted_quantity": 170,
+      "rejected_quantity": 0,
+      "inspection_notes": "Shipment intake verified: 170 of 200 metric ton units received."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 200,
+        "expected_value": 170,
+        "delta_inr": "53100.00",
+        "message": "Quantity shortfall: GRN GRN-DL-001 accepted 170 units vs invoice billed 200 units (shortfall of 30 units; disputed value \u20b953,100.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 200,
+          "expected_value": 170,
+          "delta_inr": "53100.00",
+          "message": "Quantity shortfall: GRN GRN-DL-001 accepted 170 units vs invoice billed 200 units (shortfall of 30 units; disputed value \u20b953,100.00)."
+        }
+      ],
+      "invoice_number": "INV-DL-2024-001",
+      "po_number": "PO-LOG-2024-001",
+      "vendor_name": "Devanshi Logistics LLP",
+      "invoice_amount_inr": "354000.00",
+      "expected_amount_inr": "300900.00",
+      "explanation": "Quantity shortfall: GRN GRN-DL-001 accepted 170 units vs invoice billed 200 units (shortfall of 30 units; disputed value \u20b953,100.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved partial payment strictly for 170 verified received units. Remaining 30 units cancelled.",
+    "outcome_inr": "300900.00",
+    "outcome_note": "paid \u20b9300,900 for 170/200 units",
+    "timestamp": "2024-07-26T16:45:00Z",
+    "document_id": "decision-INV-DL-2024-001",
+    "tags": [
+      "vendor:devanshi-logistics-llp",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:09AABCD2914R1ZP",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-BTT-2024-001",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "invoice_date": "2024-08-03",
+      "po_number": "PO-TEX-2024-001",
+      "grn_number": "GRN-BTT-001",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "357.00",
+      "quantity": 800,
+      "total_excl_tax_inr": "285600.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "14280.00",
+      "total_inr": "299880.00"
+    },
+    "po": {
+      "po_number": "PO-TEX-2024-001",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "issue_date": "2024-07-20",
+      "valid_until": "2024-09-18",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "350.00",
+      "quantity": 800,
+      "total_excl_tax_inr": "280000.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "14000.00",
+      "total_inr": "294000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-BTT-001",
+      "po_number": "PO-TEX-2024-001",
+      "receipt_date": "2024-07-30",
+      "received_quantity": 800,
+      "accepted_quantity": 800,
+      "rejected_quantity": 0,
+      "inspection_notes": "Fabric rolls received, thread density verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "357.00",
+        "expected_value": "350.00",
+        "delta_inr": "5880.00",
+        "message": "Price mismatch: billed unit rate \u20b9357.00 exceeds PO rate \u20b9350.00 by \u20b97.00 (+2.0% overcharge; gross discrepancy \u20b95,880.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "357.00",
+          "expected_value": "350.00",
+          "delta_inr": "5880.00",
+          "message": "Price mismatch: billed unit rate \u20b9357.00 exceeds PO rate \u20b9350.00 by \u20b97.00 (+2.0% overcharge; gross discrepancy \u20b95,880.00)."
+        }
+      ],
+      "invoice_number": "INV-BTT-2024-001",
+      "po_number": "PO-TEX-2024-001",
+      "vendor_name": "Bhavna Textile Traders",
+      "invoice_amount_inr": "299880.00",
+      "expected_amount_inr": "294000.00",
+      "explanation": "Price mismatch: billed unit rate \u20b9357.00 exceeds PO rate \u20b9350.00 by \u20b97.00 (+2.0% overcharge; gross discrepancy \u20b95,880.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved with \u20b95,880 cost-center variance booked to textile cotton indexation tolerance.",
+    "outcome_inr": "299880.00",
+    "outcome_note": "paid full invoice \u20b9299,880 with indexation variance",
+    "timestamp": "2024-08-03T12:00:00Z",
+    "document_id": "decision-INV-BTT-2024-001",
+    "tags": [
+      "vendor:bhavna-textile-traders",
+      "exception:price_mismatch",
+      "decision:approved",
+      "gstin:06AABCB5592F1ZL",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-PI-2024-002",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "invoice_date": "2024-08-18",
+      "po_number": "PO-IT-2024-002",
+      "grn_number": null,
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "2050.00",
+      "quantity": 75,
+      "total_excl_tax_inr": "153750.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "27675.00",
+      "total_inr": "181425.00"
+    },
+    "po": {
+      "po_number": "PO-IT-2024-002",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "issue_date": "2024-08-05",
+      "valid_until": "2024-10-04",
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "2000.00",
+      "quantity": 75,
+      "total_excl_tax_inr": "150000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "27000.00",
+      "total_inr": "177000.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "2050.00",
+        "expected_value": "2000.00",
+        "delta_inr": "4425.00",
+        "message": "Price mismatch: billed unit rate \u20b92,050.00 exceeds PO rate \u20b92,000.00 by \u20b950.00 (+2.5% overcharge; gross discrepancy \u20b94,425.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "2050.00",
+          "expected_value": "2000.00",
+          "delta_inr": "4425.00",
+          "message": "Price mismatch: billed unit rate \u20b92,050.00 exceeds PO rate \u20b92,000.00 by \u20b950.00 (+2.5% overcharge; gross discrepancy \u20b94,425.00)."
+        }
+      ],
+      "invoice_number": "INV-PI-2024-002",
+      "po_number": "PO-IT-2024-002",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "invoice_amount_inr": "181425.00",
+      "expected_amount_inr": "177000.00",
+      "explanation": "Price mismatch: billed unit rate \u20b92,050.00 exceeds PO rate \u20b92,000.00 by \u20b950.00 (+2.5% overcharge; gross discrepancy \u20b94,425.00)."
+    },
+    "decision": "EDITED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved at PO contracted rate of \u20b9177,000; vendor advised of contracted pricing ceiling.",
+    "outcome_inr": "177000.00",
+    "outcome_note": "paid at contracted rate (saving \u20b94,425)",
+    "timestamp": "2024-08-18T11:30:00Z",
+    "document_id": "decision-INV-PI-2024-002",
+    "tags": [
+      "vendor:prabhav-infosystems-pvt-ltd",
+      "exception:price_mismatch",
+      "decision:edited",
+      "gstin:27AABCP4821K1ZT",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-KS-2024-001",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "invoice_date": "2024-09-08",
+      "po_number": "PO-PROC-2024-001",
+      "grn_number": "GRN-KS-001",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "2500.00",
+      "quantity": 20,
+      "total_excl_tax_inr": "50000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "9000.00",
+      "total_inr": "59000.00"
+    },
+    "po": {
+      "po_number": "PO-PROC-2024-001",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "issue_date": "2024-08-10",
+      "valid_until": "2024-10-09",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "2500.00",
+      "quantity": 20,
+      "total_excl_tax_inr": "50000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "9000.00",
+      "total_inr": "59000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-KS-001",
+      "po_number": "PO-PROC-2024-001",
+      "receipt_date": "2024-08-20",
+      "received_quantity": 20,
+      "accepted_quantity": 20,
+      "rejected_quantity": 0,
+      "inspection_notes": "Delivered in good condition, hardware barcode verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "DUPLICATE_INVOICE",
+      "primary_discrepancy": {
+        "exception_type": "DUPLICATE_INVOICE",
+        "field": "invoice_number",
+        "invoice_value": "INV-KS-2024-001",
+        "expected_value": "NOT_PREVIOUSLY_PAID",
+        "delta_inr": "59000.00",
+        "message": "Duplicate invoice submission: invoice number INV-KS-2024-001 has already been processed / cleared for payment in the ledger."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "DUPLICATE_INVOICE",
+          "field": "invoice_number",
+          "invoice_value": "INV-KS-2024-001",
+          "expected_value": "NOT_PREVIOUSLY_PAID",
+          "delta_inr": "59000.00",
+          "message": "Duplicate invoice submission: invoice number INV-KS-2024-001 has already been processed / cleared for payment in the ledger."
+        }
+      ],
+      "invoice_number": "INV-KS-2024-001",
+      "po_number": "PO-PROC-2024-001",
+      "vendor_name": "Kamalnath Supplies Co",
+      "invoice_amount_inr": "59000.00",
+      "expected_amount_inr": "0.00",
+      "explanation": "Duplicate invoice submission: invoice number INV-KS-2024-001 has already been processed / cleared for payment in the ledger."
+    },
+    "decision": "REJECTED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Duplicate invoice; original INV-KS-2024-001 cleared in prior payment cycle. Vendor notified to cancel.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 duplicate rejected",
+    "timestamp": "2024-08-25T14:15:00Z",
+    "document_id": "decision-INV-KS-2024-001",
+    "tags": [
+      "vendor:kamalnath-supplies-co",
+      "exception:duplicate_invoice",
+      "decision:rejected",
+      "gstin:29AABCK7735M1ZQ",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-CTS-2024-002",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "invoice_date": "2024-08-25",
+      "po_number": "PO-EMRG-2024-002",
+      "grn_number": null,
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "65000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "65000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "11700.00",
+      "total_inr": "76700.00"
+    },
+    "po": {
+      "po_number": "PO-EMRG-2024-002",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "issue_date": "2024-07-14",
+      "valid_until": "2024-08-13",
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "65000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "65000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "11700.00",
+      "total_inr": "76700.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2024-08-25",
+        "expected_value": "2024-08-13",
+        "delta_inr": "76700.00",
+        "message": "Purchase order PO-EMRG-2024-002 expired on 2024-08-13. Invoice dated 2024-08-25 submitted 12 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2024-08-25",
+          "expected_value": "2024-08-13",
+          "delta_inr": "76700.00",
+          "message": "Purchase order PO-EMRG-2024-002 expired on 2024-08-13. Invoice dated 2024-08-25 submitted 12 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-CTS-2024-002",
+      "po_number": "PO-EMRG-2024-002",
+      "vendor_name": "Chintamani Tech Solutions",
+      "invoice_amount_inr": "76700.00",
+      "expected_amount_inr": "76700.00",
+      "explanation": "Purchase order PO-EMRG-2024-002 expired on 2024-08-13. Invoice dated 2024-08-25 submitted 12 days after validity expiry."
+    },
+    "decision": "APPROVED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Approved emergency infrastructure support despite expired PO validity (12 days overdue); Controller granted retrospective validity extension.",
+    "outcome_inr": "76700.00",
+    "outcome_note": "paid \u20b976,700 under expired PO emergency approval protocol",
+    "timestamp": "2024-08-25T18:30:00Z",
+    "document_id": "decision-INV-CTS-2024-002",
+    "tags": [
+      "vendor:chintamani-tech-solutions",
+      "exception:po_expired",
+      "decision:approved",
+      "gstin:32AAACC4219P1ZW",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-DL-2024-002",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "invoice_date": "2024-08-26",
+      "po_number": "PO-LOG-2024-002",
+      "grn_number": "GRN-DL-002",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1500.00",
+      "quantity": 400,
+      "total_excl_tax_inr": "600000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "108000.00",
+      "total_inr": "708000.00"
+    },
+    "po": {
+      "po_number": "PO-LOG-2024-002",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "issue_date": "2024-08-12",
+      "valid_until": "2024-10-11",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1500.00",
+      "quantity": 400,
+      "total_excl_tax_inr": "600000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "108000.00",
+      "total_inr": "708000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-DL-002",
+      "po_number": "PO-LOG-2024-002",
+      "receipt_date": "2024-08-20",
+      "received_quantity": 340,
+      "accepted_quantity": 340,
+      "rejected_quantity": 0,
+      "inspection_notes": "Shipment intake verified: 340 of 400 metric ton units received."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 400,
+        "expected_value": 340,
+        "delta_inr": "106200.00",
+        "message": "Quantity shortfall: GRN GRN-DL-002 accepted 340 units vs invoice billed 400 units (shortfall of 60 units; disputed value \u20b9106,200.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 400,
+          "expected_value": 340,
+          "delta_inr": "106200.00",
+          "message": "Quantity shortfall: GRN GRN-DL-002 accepted 340 units vs invoice billed 400 units (shortfall of 60 units; disputed value \u20b9106,200.00)."
+        }
+      ],
+      "invoice_number": "INV-DL-2024-002",
+      "po_number": "PO-LOG-2024-002",
+      "vendor_name": "Devanshi Logistics LLP",
+      "invoice_amount_inr": "708000.00",
+      "expected_amount_inr": "601800.00",
+      "explanation": "Quantity shortfall: GRN GRN-DL-002 accepted 340 units vs invoice billed 400 units (shortfall of 60 units; disputed value \u20b9106,200.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved partial payment strictly for 340 verified received units. Remaining 60 units cancelled.",
+    "outcome_inr": "601800.00",
+    "outcome_note": "paid \u20b9601,800 for 340/400 units",
+    "timestamp": "2024-08-26T16:45:00Z",
+    "document_id": "decision-INV-DL-2024-002",
+    "tags": [
+      "vendor:devanshi-logistics-llp",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:09AABCD2914R1ZP",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-NPD-2024-001",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "invoice_date": "2024-08-30",
+      "po_number": "PO-PHARM-2024-001",
+      "grn_number": "GRN-NPD-001",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "1200.00",
+      "quantity": 150,
+      "total_excl_tax_inr": "180000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "21600.00",
+      "total_inr": "201600.00"
+    },
+    "po": {
+      "po_number": "PO-PHARM-2024-001",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "issue_date": "2024-08-18",
+      "valid_until": "2024-10-17",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "1200.00",
+      "quantity": 150,
+      "total_excl_tax_inr": "180000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "32400.00",
+      "total_inr": "212400.00"
+    },
+    "grn": {
+      "grn_number": "GRN-NPD-001",
+      "po_number": "PO-PHARM-2024-001",
+      "receipt_date": "2024-08-26",
+      "received_quantity": 150,
+      "accepted_quantity": 150,
+      "rejected_quantity": 0,
+      "inspection_notes": "Cold-chain temperature logs intact, reagents approved."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "GST_RATE_ERROR",
+      "primary_discrepancy": {
+        "exception_type": "GST_RATE_ERROR",
+        "field": "gst_rate",
+        "invoice_value": "0.12",
+        "expected_value": "0.18",
+        "delta_inr": "-10800.00",
+        "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-10,800.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "GST_RATE_ERROR",
+          "field": "gst_rate",
+          "invoice_value": "0.12",
+          "expected_value": "0.18",
+          "delta_inr": "-10800.00",
+          "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-10,800.00)."
+        }
+      ],
+      "invoice_number": "INV-NPD-2024-001",
+      "po_number": "PO-PHARM-2024-001",
+      "vendor_name": "Narmada Pharma Distributors",
+      "invoice_amount_inr": "201600.00",
+      "expected_amount_inr": "212400.00",
+      "explanation": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-10,800.00)."
+    },
+    "decision": "REJECTED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Statutory GST rate mismatch (12% invoiced vs 18% applicable). Cannot claim ITC on incorrect invoice; returned for credit note / revised tax invoice.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 rejected for revised tax invoice to preserve ITC",
+    "timestamp": "2024-08-30T15:30:00Z",
+    "document_id": "decision-INV-NPD-2024-001",
+    "tags": [
+      "vendor:narmada-pharma-distributors",
+      "exception:gst_rate_error",
+      "decision:rejected",
+      "gstin:33AAACN3047J1ZE",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-BTT-2024-002",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "invoice_date": "2024-09-03",
+      "po_number": "PO-TEX-2024-002",
+      "grn_number": "GRN-BTT-002",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "256.25",
+      "quantity": 500,
+      "total_excl_tax_inr": "128125.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "6406.25",
+      "total_inr": "134531.25"
+    },
+    "po": {
+      "po_number": "PO-TEX-2024-002",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "issue_date": "2024-08-20",
+      "valid_until": "2024-10-19",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "250.00",
+      "quantity": 500,
+      "total_excl_tax_inr": "125000.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "6250.00",
+      "total_inr": "131250.00"
+    },
+    "grn": {
+      "grn_number": "GRN-BTT-002",
+      "po_number": "PO-TEX-2024-002",
+      "receipt_date": "2024-08-30",
+      "received_quantity": 500,
+      "accepted_quantity": 500,
+      "rejected_quantity": 0,
+      "inspection_notes": "Fabric rolls received, thread density verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "256.25",
+        "expected_value": "250.00",
+        "delta_inr": "3281.25",
+        "message": "Price mismatch: billed unit rate \u20b9256.25 exceeds PO rate \u20b9250.00 by \u20b96.25 (+2.5% overcharge; gross discrepancy \u20b93,281.25)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "256.25",
+          "expected_value": "250.00",
+          "delta_inr": "3281.25",
+          "message": "Price mismatch: billed unit rate \u20b9256.25 exceeds PO rate \u20b9250.00 by \u20b96.25 (+2.5% overcharge; gross discrepancy \u20b93,281.25)."
+        }
+      ],
+      "invoice_number": "INV-BTT-2024-002",
+      "po_number": "PO-TEX-2024-002",
+      "vendor_name": "Bhavna Textile Traders",
+      "invoice_amount_inr": "134531.25",
+      "expected_amount_inr": "131250.00",
+      "explanation": "Price mismatch: billed unit rate \u20b9256.25 exceeds PO rate \u20b9250.00 by \u20b96.25 (+2.5% overcharge; gross discrepancy \u20b93,281.25)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved with \u20b93,281 cost-center variance booked to textile cotton indexation tolerance.",
+    "outcome_inr": "134531.25",
+    "outcome_note": "paid full invoice \u20b9134,531 with indexation variance",
+    "timestamp": "2024-09-03T12:00:00Z",
+    "document_id": "decision-INV-BTT-2024-002",
+    "tags": [
+      "vendor:bhavna-textile-traders",
+      "exception:price_mismatch",
+      "decision:approved",
+      "gstin:06AABCB5592F1ZL",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-TAP-2024-001",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "invoice_date": "2024-09-03",
+      "po_number": "PO-AGRO-2024-001",
+      "grn_number": "GRN-TAP-001",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "100.00",
+      "quantity": 2000,
+      "total_excl_tax_inr": "200000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "24000.00",
+      "total_inr": "224000.00"
+    },
+    "po": {
+      "po_number": "PO-AGRO-2024-001",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "issue_date": "2024-08-22",
+      "valid_until": "2024-10-21",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "100.00",
+      "quantity": 2000,
+      "total_excl_tax_inr": "200000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "24000.00",
+      "total_inr": "224000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-TAP-001",
+      "po_number": "PO-AGRO-2024-001",
+      "receipt_date": "2024-08-30",
+      "received_quantity": 1900,
+      "accepted_quantity": 1900,
+      "rejected_quantity": 0,
+      "inspection_notes": "Weighbridge slip attached: 1900 kg verified in intact 50kg bags."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 2000,
+        "expected_value": 1900,
+        "delta_inr": "11200.00",
+        "message": "Quantity shortfall: GRN GRN-TAP-001 accepted 1900 units vs invoice billed 2000 units (shortfall of 100 units; disputed value \u20b911,200.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 2000,
+          "expected_value": 1900,
+          "delta_inr": "11200.00",
+          "message": "Quantity shortfall: GRN GRN-TAP-001 accepted 1900 units vs invoice billed 2000 units (shortfall of 100 units; disputed value \u20b911,200.00)."
+        }
+      ],
+      "invoice_number": "INV-TAP-2024-001",
+      "po_number": "PO-AGRO-2024-001",
+      "vendor_name": "Triveni Agro Processors",
+      "invoice_amount_inr": "224000.00",
+      "expected_amount_inr": "212800.00",
+      "explanation": "Quantity shortfall: GRN GRN-TAP-001 accepted 1900 units vs invoice billed 2000 units (shortfall of 100 units; disputed value \u20b911,200.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved for actual delivered weight of 1900 kg; debit note raised for 100 kg packing unit shortfall.",
+    "outcome_inr": "212800.00",
+    "outcome_note": "paid \u20b9212,800 for actual delivered 1900 kg",
+    "timestamp": "2024-09-03T14:00:00Z",
+    "document_id": "decision-INV-TAP-2024-001",
+    "tags": [
+      "vendor:triveni-agro-processors",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:21AABCT8841N1ZS",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-SEW-2024-001",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "invoice_date": "2024-09-05",
+      "po_number": "PO-ENG-2024-001",
+      "grn_number": "GRN-SEW-001",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "25000.00",
+      "quantity": 8,
+      "total_excl_tax_inr": "200000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "36000.00",
+      "total_inr": "236000.00"
+    },
+    "po": {
+      "po_number": "PO-ENG-2024-001",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "issue_date": "2024-07-15",
+      "valid_until": "2024-08-14",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "25000.00",
+      "quantity": 8,
+      "total_excl_tax_inr": "200000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "36000.00",
+      "total_inr": "236000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-SEW-001",
+      "po_number": "PO-ENG-2024-001",
+      "receipt_date": "2024-09-03",
+      "received_quantity": 8,
+      "accepted_quantity": 8,
+      "rejected_quantity": 0,
+      "inspection_notes": "Caliper inspection passed; components meet drawing specs."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2024-09-05",
+        "expected_value": "2024-08-14",
+        "delta_inr": "236000.00",
+        "message": "Purchase order PO-ENG-2024-001 expired on 2024-08-14. Invoice dated 2024-09-05 submitted 22 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2024-09-05",
+          "expected_value": "2024-08-14",
+          "delta_inr": "236000.00",
+          "message": "Purchase order PO-ENG-2024-001 expired on 2024-08-14. Invoice dated 2024-09-05 submitted 22 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-SEW-2024-001",
+      "po_number": "PO-ENG-2024-001",
+      "vendor_name": "Suryakant Engineering Works",
+      "invoice_amount_inr": "236000.00",
+      "expected_amount_inr": "236000.00",
+      "explanation": "Purchase order PO-ENG-2024-001 expired on 2024-08-14. Invoice dated 2024-09-05 submitted 22 days after validity expiry."
+    },
+    "decision": "ESCALATED",
+    "approver_role": "CFO",
+    "human_reason": "One-time grace extension granted by CFO due to critical component necessity. Retrospective extension approved.",
+    "outcome_inr": "236000.00",
+    "outcome_note": "paid \u20b9236,000 under CFO executive exception",
+    "timestamp": "2024-09-05T17:00:00Z",
+    "document_id": "decision-INV-SEW-2024-001",
+    "tags": [
+      "vendor:suryakant-engineering-works",
+      "exception:po_expired",
+      "decision:escalated",
+      "gstin:24AABCS6183H1ZG",
+      "approver:cfo"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-PI-2024-003",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "invoice_date": "2024-09-25",
+      "po_number": "PO-IT-2024-003",
+      "grn_number": null,
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "1537.50",
+      "quantity": 120,
+      "total_excl_tax_inr": "184500.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "33210.00",
+      "total_inr": "217710.00"
+    },
+    "po": {
+      "po_number": "PO-IT-2024-003",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "issue_date": "2024-09-05",
+      "valid_until": "2024-11-04",
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "1500.00",
+      "quantity": 120,
+      "total_excl_tax_inr": "180000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "32400.00",
+      "total_inr": "212400.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "1537.50",
+        "expected_value": "1500.00",
+        "delta_inr": "5310.00",
+        "message": "Price mismatch: billed unit rate \u20b91,537.50 exceeds PO rate \u20b91,500.00 by \u20b937.50 (+2.5% overcharge; gross discrepancy \u20b95,310.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "1537.50",
+          "expected_value": "1500.00",
+          "delta_inr": "5310.00",
+          "message": "Price mismatch: billed unit rate \u20b91,537.50 exceeds PO rate \u20b91,500.00 by \u20b937.50 (+2.5% overcharge; gross discrepancy \u20b95,310.00)."
+        }
+      ],
+      "invoice_number": "INV-PI-2024-003",
+      "po_number": "PO-IT-2024-003",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "invoice_amount_inr": "217710.00",
+      "expected_amount_inr": "212400.00",
+      "explanation": "Price mismatch: billed unit rate \u20b91,537.50 exceeds PO rate \u20b91,500.00 by \u20b937.50 (+2.5% overcharge; gross discrepancy \u20b95,310.00)."
+    },
+    "decision": "EDITED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved at PO contracted rate of \u20b9212,400; vendor advised of contracted pricing ceiling.",
+    "outcome_inr": "212400.00",
+    "outcome_note": "paid at contracted rate (saving \u20b95,310)",
+    "timestamp": "2024-09-25T11:30:00Z",
+    "document_id": "decision-INV-PI-2024-003",
+    "tags": [
+      "vendor:prabhav-infosystems-pvt-ltd",
+      "exception:price_mismatch",
+      "decision:edited",
+      "gstin:27AABCP4821K1ZT",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-KS-2024-002",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "invoice_date": "2024-10-09",
+      "po_number": "PO-PROC-2024-002",
+      "grn_number": "GRN-KS-002",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "2500.00",
+      "quantity": 20,
+      "total_excl_tax_inr": "50000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "9000.00",
+      "total_inr": "59000.00"
+    },
+    "po": {
+      "po_number": "PO-PROC-2024-002",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "issue_date": "2024-09-10",
+      "valid_until": "2024-11-09",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "2500.00",
+      "quantity": 20,
+      "total_excl_tax_inr": "50000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "9000.00",
+      "total_inr": "59000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-KS-002",
+      "po_number": "PO-PROC-2024-002",
+      "receipt_date": "2024-09-20",
+      "received_quantity": 20,
+      "accepted_quantity": 20,
+      "rejected_quantity": 0,
+      "inspection_notes": "Delivered in good condition, hardware barcode verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "DUPLICATE_INVOICE",
+      "primary_discrepancy": {
+        "exception_type": "DUPLICATE_INVOICE",
+        "field": "invoice_number",
+        "invoice_value": "INV-KS-2024-002",
+        "expected_value": "NOT_PREVIOUSLY_PAID",
+        "delta_inr": "59000.00",
+        "message": "Duplicate invoice submission: invoice number INV-KS-2024-002 has already been processed / cleared for payment in the ledger."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "DUPLICATE_INVOICE",
+          "field": "invoice_number",
+          "invoice_value": "INV-KS-2024-002",
+          "expected_value": "NOT_PREVIOUSLY_PAID",
+          "delta_inr": "59000.00",
+          "message": "Duplicate invoice submission: invoice number INV-KS-2024-002 has already been processed / cleared for payment in the ledger."
+        }
+      ],
+      "invoice_number": "INV-KS-2024-002",
+      "po_number": "PO-PROC-2024-002",
+      "vendor_name": "Kamalnath Supplies Co",
+      "invoice_amount_inr": "59000.00",
+      "expected_amount_inr": "0.00",
+      "explanation": "Duplicate invoice submission: invoice number INV-KS-2024-002 has already been processed / cleared for payment in the ledger."
+    },
+    "decision": "REJECTED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Duplicate invoice; original INV-KS-2024-002 cleared in prior payment cycle. Vendor notified to cancel.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 duplicate rejected",
+    "timestamp": "2024-09-25T14:15:00Z",
+    "document_id": "decision-INV-KS-2024-002",
+    "tags": [
+      "vendor:kamalnath-supplies-co",
+      "exception:duplicate_invoice",
+      "decision:rejected",
+      "gstin:29AABCK7735M1ZQ",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-CTS-2024-003",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "invoice_date": "2024-09-25",
+      "po_number": "PO-EMRG-2024-003",
+      "grn_number": null,
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "po": {
+      "po_number": "PO-EMRG-2024-003",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "issue_date": "2024-08-04",
+      "valid_until": "2024-09-03",
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2024-09-25",
+        "expected_value": "2024-09-03",
+        "delta_inr": "100300.00",
+        "message": "Purchase order PO-EMRG-2024-003 expired on 2024-09-03. Invoice dated 2024-09-25 submitted 22 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2024-09-25",
+          "expected_value": "2024-09-03",
+          "delta_inr": "100300.00",
+          "message": "Purchase order PO-EMRG-2024-003 expired on 2024-09-03. Invoice dated 2024-09-25 submitted 22 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-CTS-2024-003",
+      "po_number": "PO-EMRG-2024-003",
+      "vendor_name": "Chintamani Tech Solutions",
+      "invoice_amount_inr": "100300.00",
+      "expected_amount_inr": "100300.00",
+      "explanation": "Purchase order PO-EMRG-2024-003 expired on 2024-09-03. Invoice dated 2024-09-25 submitted 22 days after validity expiry."
+    },
+    "decision": "APPROVED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Approved emergency infrastructure support despite expired PO validity (22 days overdue); Controller granted retrospective validity extension.",
+    "outcome_inr": "100300.00",
+    "outcome_note": "paid \u20b9100,300 under expired PO emergency approval protocol",
+    "timestamp": "2024-09-25T18:30:00Z",
+    "document_id": "decision-INV-CTS-2024-003",
+    "tags": [
+      "vendor:chintamani-tech-solutions",
+      "exception:po_expired",
+      "decision:approved",
+      "gstin:32AAACC4219P1ZW",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-DL-2024-003",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "invoice_date": "2024-09-26",
+      "po_number": "PO-LOG-2024-003",
+      "grn_number": "GRN-DL-003",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1500.00",
+      "quantity": 400,
+      "total_excl_tax_inr": "600000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "108000.00",
+      "total_inr": "708000.00"
+    },
+    "po": {
+      "po_number": "PO-LOG-2024-003",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "issue_date": "2024-09-12",
+      "valid_until": "2024-11-11",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1500.00",
+      "quantity": 400,
+      "total_excl_tax_inr": "600000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "108000.00",
+      "total_inr": "708000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-DL-003",
+      "po_number": "PO-LOG-2024-003",
+      "receipt_date": "2024-09-20",
+      "received_quantity": 300,
+      "accepted_quantity": 300,
+      "rejected_quantity": 0,
+      "inspection_notes": "Shipment intake verified: 300 of 400 metric ton units received."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 400,
+        "expected_value": 300,
+        "delta_inr": "177000.00",
+        "message": "Quantity shortfall: GRN GRN-DL-003 accepted 300 units vs invoice billed 400 units (shortfall of 100 units; disputed value \u20b9177,000.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 400,
+          "expected_value": 300,
+          "delta_inr": "177000.00",
+          "message": "Quantity shortfall: GRN GRN-DL-003 accepted 300 units vs invoice billed 400 units (shortfall of 100 units; disputed value \u20b9177,000.00)."
+        }
+      ],
+      "invoice_number": "INV-DL-2024-003",
+      "po_number": "PO-LOG-2024-003",
+      "vendor_name": "Devanshi Logistics LLP",
+      "invoice_amount_inr": "708000.00",
+      "expected_amount_inr": "531000.00",
+      "explanation": "Quantity shortfall: GRN GRN-DL-003 accepted 300 units vs invoice billed 400 units (shortfall of 100 units; disputed value \u20b9177,000.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved partial payment strictly for 300 verified received units. Remaining 100 units cancelled.",
+    "outcome_inr": "531000.00",
+    "outcome_note": "paid \u20b9531,000 for 300/400 units",
+    "timestamp": "2024-09-26T16:45:00Z",
+    "document_id": "decision-INV-DL-2024-003",
+    "tags": [
+      "vendor:devanshi-logistics-llp",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:09AABCD2914R1ZP",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-NPD-2024-002",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "invoice_date": "2024-09-30",
+      "po_number": "PO-PHARM-2024-002",
+      "grn_number": "GRN-NPD-002",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "1200.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "240000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "28800.00",
+      "total_inr": "268800.00"
+    },
+    "po": {
+      "po_number": "PO-PHARM-2024-002",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "issue_date": "2024-09-18",
+      "valid_until": "2024-11-17",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "1200.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "240000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "43200.00",
+      "total_inr": "283200.00"
+    },
+    "grn": {
+      "grn_number": "GRN-NPD-002",
+      "po_number": "PO-PHARM-2024-002",
+      "receipt_date": "2024-09-26",
+      "received_quantity": 200,
+      "accepted_quantity": 200,
+      "rejected_quantity": 0,
+      "inspection_notes": "Cold-chain temperature logs intact, reagents approved."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "GST_RATE_ERROR",
+      "primary_discrepancy": {
+        "exception_type": "GST_RATE_ERROR",
+        "field": "gst_rate",
+        "invoice_value": "0.12",
+        "expected_value": "0.18",
+        "delta_inr": "-14400.00",
+        "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-14,400.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "GST_RATE_ERROR",
+          "field": "gst_rate",
+          "invoice_value": "0.12",
+          "expected_value": "0.18",
+          "delta_inr": "-14400.00",
+          "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-14,400.00)."
+        }
+      ],
+      "invoice_number": "INV-NPD-2024-002",
+      "po_number": "PO-PHARM-2024-002",
+      "vendor_name": "Narmada Pharma Distributors",
+      "invoice_amount_inr": "268800.00",
+      "expected_amount_inr": "283200.00",
+      "explanation": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-14,400.00)."
+    },
+    "decision": "REJECTED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Statutory GST rate mismatch (12% invoiced vs 18% applicable). Cannot claim ITC on incorrect invoice; returned for credit note / revised tax invoice.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 rejected for revised tax invoice to preserve ITC",
+    "timestamp": "2024-09-30T15:30:00Z",
+    "document_id": "decision-INV-NPD-2024-002",
+    "tags": [
+      "vendor:narmada-pharma-distributors",
+      "exception:gst_rate_error",
+      "decision:rejected",
+      "gstin:33AAACN3047J1ZE",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-BTT-2024-003",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "invoice_date": "2024-10-04",
+      "po_number": "PO-TEX-2024-003",
+      "grn_number": "GRN-BTT-003",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "456.75",
+      "quantity": 800,
+      "total_excl_tax_inr": "365400.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "18270.00",
+      "total_inr": "383670.00"
+    },
+    "po": {
+      "po_number": "PO-TEX-2024-003",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "issue_date": "2024-09-20",
+      "valid_until": "2024-11-19",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "450.00",
+      "quantity": 800,
+      "total_excl_tax_inr": "360000.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "18000.00",
+      "total_inr": "378000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-BTT-003",
+      "po_number": "PO-TEX-2024-003",
+      "receipt_date": "2024-09-30",
+      "received_quantity": 800,
+      "accepted_quantity": 800,
+      "rejected_quantity": 0,
+      "inspection_notes": "Fabric rolls received, thread density verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "456.75",
+        "expected_value": "450.00",
+        "delta_inr": "5670.00",
+        "message": "Price mismatch: billed unit rate \u20b9456.75 exceeds PO rate \u20b9450.00 by \u20b96.75 (+1.5% overcharge; gross discrepancy \u20b95,670.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "456.75",
+          "expected_value": "450.00",
+          "delta_inr": "5670.00",
+          "message": "Price mismatch: billed unit rate \u20b9456.75 exceeds PO rate \u20b9450.00 by \u20b96.75 (+1.5% overcharge; gross discrepancy \u20b95,670.00)."
+        }
+      ],
+      "invoice_number": "INV-BTT-2024-003",
+      "po_number": "PO-TEX-2024-003",
+      "vendor_name": "Bhavna Textile Traders",
+      "invoice_amount_inr": "383670.00",
+      "expected_amount_inr": "378000.00",
+      "explanation": "Price mismatch: billed unit rate \u20b9456.75 exceeds PO rate \u20b9450.00 by \u20b96.75 (+1.5% overcharge; gross discrepancy \u20b95,670.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved with \u20b95,670 cost-center variance booked to textile cotton indexation tolerance.",
+    "outcome_inr": "383670.00",
+    "outcome_note": "paid full invoice \u20b9383,670 with indexation variance",
+    "timestamp": "2024-10-04T12:00:00Z",
+    "document_id": "decision-INV-BTT-2024-003",
+    "tags": [
+      "vendor:bhavna-textile-traders",
+      "exception:price_mismatch",
+      "decision:approved",
+      "gstin:06AABCB5592F1ZL",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-TAP-2024-002",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "invoice_date": "2024-10-04",
+      "po_number": "PO-AGRO-2024-002",
+      "grn_number": "GRN-TAP-002",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "100.00",
+      "quantity": 2000,
+      "total_excl_tax_inr": "200000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "24000.00",
+      "total_inr": "224000.00"
+    },
+    "po": {
+      "po_number": "PO-AGRO-2024-002",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "issue_date": "2024-09-22",
+      "valid_until": "2024-11-21",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "100.00",
+      "quantity": 2000,
+      "total_excl_tax_inr": "200000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "24000.00",
+      "total_inr": "224000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-TAP-002",
+      "po_number": "PO-AGRO-2024-002",
+      "receipt_date": "2024-09-30",
+      "received_quantity": 1900,
+      "accepted_quantity": 1900,
+      "rejected_quantity": 0,
+      "inspection_notes": "Weighbridge slip attached: 1900 kg verified in intact 50kg bags."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 2000,
+        "expected_value": 1900,
+        "delta_inr": "11200.00",
+        "message": "Quantity shortfall: GRN GRN-TAP-002 accepted 1900 units vs invoice billed 2000 units (shortfall of 100 units; disputed value \u20b911,200.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 2000,
+          "expected_value": 1900,
+          "delta_inr": "11200.00",
+          "message": "Quantity shortfall: GRN GRN-TAP-002 accepted 1900 units vs invoice billed 2000 units (shortfall of 100 units; disputed value \u20b911,200.00)."
+        }
+      ],
+      "invoice_number": "INV-TAP-2024-002",
+      "po_number": "PO-AGRO-2024-002",
+      "vendor_name": "Triveni Agro Processors",
+      "invoice_amount_inr": "224000.00",
+      "expected_amount_inr": "212800.00",
+      "explanation": "Quantity shortfall: GRN GRN-TAP-002 accepted 1900 units vs invoice billed 2000 units (shortfall of 100 units; disputed value \u20b911,200.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved for actual delivered weight of 1900 kg; debit note raised for 100 kg packing unit shortfall.",
+    "outcome_inr": "212800.00",
+    "outcome_note": "paid \u20b9212,800 for actual delivered 1900 kg",
+    "timestamp": "2024-10-04T14:00:00Z",
+    "document_id": "decision-INV-TAP-2024-002",
+    "tags": [
+      "vendor:triveni-agro-processors",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:21AABCT8841N1ZS",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-PI-2025-004",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "invoice_date": "2024-10-15",
+      "po_number": "PO-IT-2025-004",
+      "grn_number": null,
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "1545.00",
+      "quantity": 75,
+      "total_excl_tax_inr": "115875.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "20857.50",
+      "total_inr": "136732.50"
+    },
+    "po": {
+      "po_number": "PO-IT-2025-004",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "issue_date": "2024-10-05",
+      "valid_until": "2024-12-04",
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "1500.00",
+      "quantity": 75,
+      "total_excl_tax_inr": "112500.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "20250.00",
+      "total_inr": "132750.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "1545.00",
+        "expected_value": "1500.00",
+        "delta_inr": "3982.50",
+        "message": "Price mismatch: billed unit rate \u20b91,545.00 exceeds PO rate \u20b91,500.00 by \u20b945.00 (+3.0% overcharge; gross discrepancy \u20b93,982.50)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "1545.00",
+          "expected_value": "1500.00",
+          "delta_inr": "3982.50",
+          "message": "Price mismatch: billed unit rate \u20b91,545.00 exceeds PO rate \u20b91,500.00 by \u20b945.00 (+3.0% overcharge; gross discrepancy \u20b93,982.50)."
+        }
+      ],
+      "invoice_number": "INV-PI-2025-004",
+      "po_number": "PO-IT-2025-004",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "invoice_amount_inr": "136732.50",
+      "expected_amount_inr": "132750.00",
+      "explanation": "Price mismatch: billed unit rate \u20b91,545.00 exceeds PO rate \u20b91,500.00 by \u20b945.00 (+3.0% overcharge; gross discrepancy \u20b93,982.50)."
+    },
+    "decision": "EDITED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved at PO contracted rate of \u20b9132,750; vendor advised of contracted pricing ceiling.",
+    "outcome_inr": "132750.00",
+    "outcome_note": "paid at contracted rate (saving \u20b93,982)",
+    "timestamp": "2024-10-15T11:30:00Z",
+    "document_id": "decision-INV-PI-2025-004",
+    "tags": [
+      "vendor:prabhav-infosystems-pvt-ltd",
+      "exception:price_mismatch",
+      "decision:edited",
+      "gstin:27AABCP4821K1ZT",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-KS-2024-003",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "invoice_date": "2024-11-08",
+      "po_number": "PO-PROC-2024-003",
+      "grn_number": "GRN-KS-003",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "4500.00",
+      "quantity": 30,
+      "total_excl_tax_inr": "135000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "24300.00",
+      "total_inr": "159300.00"
+    },
+    "po": {
+      "po_number": "PO-PROC-2024-003",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "issue_date": "2024-10-10",
+      "valid_until": "2024-12-09",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "4500.00",
+      "quantity": 30,
+      "total_excl_tax_inr": "135000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "24300.00",
+      "total_inr": "159300.00"
+    },
+    "grn": {
+      "grn_number": "GRN-KS-003",
+      "po_number": "PO-PROC-2024-003",
+      "receipt_date": "2024-10-20",
+      "received_quantity": 30,
+      "accepted_quantity": 30,
+      "rejected_quantity": 0,
+      "inspection_notes": "Delivered in good condition, hardware barcode verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "DUPLICATE_INVOICE",
+      "primary_discrepancy": {
+        "exception_type": "DUPLICATE_INVOICE",
+        "field": "invoice_number",
+        "invoice_value": "INV-KS-2024-003",
+        "expected_value": "NOT_PREVIOUSLY_PAID",
+        "delta_inr": "159300.00",
+        "message": "Duplicate invoice submission: invoice number INV-KS-2024-003 has already been processed / cleared for payment in the ledger."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "DUPLICATE_INVOICE",
+          "field": "invoice_number",
+          "invoice_value": "INV-KS-2024-003",
+          "expected_value": "NOT_PREVIOUSLY_PAID",
+          "delta_inr": "159300.00",
+          "message": "Duplicate invoice submission: invoice number INV-KS-2024-003 has already been processed / cleared for payment in the ledger."
+        }
+      ],
+      "invoice_number": "INV-KS-2024-003",
+      "po_number": "PO-PROC-2024-003",
+      "vendor_name": "Kamalnath Supplies Co",
+      "invoice_amount_inr": "159300.00",
+      "expected_amount_inr": "0.00",
+      "explanation": "Duplicate invoice submission: invoice number INV-KS-2024-003 has already been processed / cleared for payment in the ledger."
+    },
+    "decision": "REJECTED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Duplicate invoice; original INV-KS-2024-003 cleared in prior payment cycle. Vendor notified to cancel.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 duplicate rejected",
+    "timestamp": "2024-10-25T14:15:00Z",
+    "document_id": "decision-INV-KS-2024-003",
+    "tags": [
+      "vendor:kamalnath-supplies-co",
+      "exception:duplicate_invoice",
+      "decision:rejected",
+      "gstin:29AABCK7735M1ZQ",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-CTS-2025-004",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "invoice_date": "2024-10-25",
+      "po_number": "PO-EMRG-2025-004",
+      "grn_number": null,
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "po": {
+      "po_number": "PO-EMRG-2025-004",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "issue_date": "2024-09-01",
+      "valid_until": "2024-10-01",
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2024-10-25",
+        "expected_value": "2024-10-01",
+        "delta_inr": "100300.00",
+        "message": "Purchase order PO-EMRG-2025-004 expired on 2024-10-01. Invoice dated 2024-10-25 submitted 24 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2024-10-25",
+          "expected_value": "2024-10-01",
+          "delta_inr": "100300.00",
+          "message": "Purchase order PO-EMRG-2025-004 expired on 2024-10-01. Invoice dated 2024-10-25 submitted 24 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-CTS-2025-004",
+      "po_number": "PO-EMRG-2025-004",
+      "vendor_name": "Chintamani Tech Solutions",
+      "invoice_amount_inr": "100300.00",
+      "expected_amount_inr": "100300.00",
+      "explanation": "Purchase order PO-EMRG-2025-004 expired on 2024-10-01. Invoice dated 2024-10-25 submitted 24 days after validity expiry."
+    },
+    "decision": "APPROVED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Approved emergency infrastructure support despite expired PO validity (24 days overdue); Controller granted retrospective validity extension.",
+    "outcome_inr": "100300.00",
+    "outcome_note": "paid \u20b9100,300 under expired PO emergency approval protocol",
+    "timestamp": "2024-10-25T18:30:00Z",
+    "document_id": "decision-INV-CTS-2025-004",
+    "tags": [
+      "vendor:chintamani-tech-solutions",
+      "exception:po_expired",
+      "decision:approved",
+      "gstin:32AAACC4219P1ZW",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-DL-2025-004",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "invoice_date": "2024-10-26",
+      "po_number": "PO-LOG-2025-004",
+      "grn_number": "GRN-DL-004",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1800.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "360000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "64800.00",
+      "total_inr": "424800.00"
+    },
+    "po": {
+      "po_number": "PO-LOG-2025-004",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "issue_date": "2024-10-12",
+      "valid_until": "2024-12-11",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1800.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "360000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "64800.00",
+      "total_inr": "424800.00"
+    },
+    "grn": {
+      "grn_number": "GRN-DL-004",
+      "po_number": "PO-LOG-2025-004",
+      "receipt_date": "2024-10-20",
+      "received_quantity": 150,
+      "accepted_quantity": 150,
+      "rejected_quantity": 0,
+      "inspection_notes": "Shipment intake verified: 150 of 200 metric ton units received."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 200,
+        "expected_value": 150,
+        "delta_inr": "106200.00",
+        "message": "Quantity shortfall: GRN GRN-DL-004 accepted 150 units vs invoice billed 200 units (shortfall of 50 units; disputed value \u20b9106,200.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 200,
+          "expected_value": 150,
+          "delta_inr": "106200.00",
+          "message": "Quantity shortfall: GRN GRN-DL-004 accepted 150 units vs invoice billed 200 units (shortfall of 50 units; disputed value \u20b9106,200.00)."
+        }
+      ],
+      "invoice_number": "INV-DL-2025-004",
+      "po_number": "PO-LOG-2025-004",
+      "vendor_name": "Devanshi Logistics LLP",
+      "invoice_amount_inr": "424800.00",
+      "expected_amount_inr": "318600.00",
+      "explanation": "Quantity shortfall: GRN GRN-DL-004 accepted 150 units vs invoice billed 200 units (shortfall of 50 units; disputed value \u20b9106,200.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved partial payment strictly for 150 verified received units. Remaining 50 units cancelled.",
+    "outcome_inr": "318600.00",
+    "outcome_note": "paid \u20b9318,600 for 150/200 units",
+    "timestamp": "2024-10-26T16:45:00Z",
+    "document_id": "decision-INV-DL-2025-004",
+    "tags": [
+      "vendor:devanshi-logistics-llp",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:09AABCD2914R1ZP",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-NPD-2024-003",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "invoice_date": "2024-10-30",
+      "po_number": "PO-PHARM-2024-003",
+      "grn_number": "GRN-NPD-003",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "1600.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "320000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "38400.00",
+      "total_inr": "358400.00"
+    },
+    "po": {
+      "po_number": "PO-PHARM-2024-003",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "issue_date": "2024-10-18",
+      "valid_until": "2024-12-17",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "1600.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "320000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "57600.00",
+      "total_inr": "377600.00"
+    },
+    "grn": {
+      "grn_number": "GRN-NPD-003",
+      "po_number": "PO-PHARM-2024-003",
+      "receipt_date": "2024-10-26",
+      "received_quantity": 200,
+      "accepted_quantity": 200,
+      "rejected_quantity": 0,
+      "inspection_notes": "Cold-chain temperature logs intact, reagents approved."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "GST_RATE_ERROR",
+      "primary_discrepancy": {
+        "exception_type": "GST_RATE_ERROR",
+        "field": "gst_rate",
+        "invoice_value": "0.12",
+        "expected_value": "0.18",
+        "delta_inr": "-19200.00",
+        "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-19,200.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "GST_RATE_ERROR",
+          "field": "gst_rate",
+          "invoice_value": "0.12",
+          "expected_value": "0.18",
+          "delta_inr": "-19200.00",
+          "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-19,200.00)."
+        }
+      ],
+      "invoice_number": "INV-NPD-2024-003",
+      "po_number": "PO-PHARM-2024-003",
+      "vendor_name": "Narmada Pharma Distributors",
+      "invoice_amount_inr": "358400.00",
+      "expected_amount_inr": "377600.00",
+      "explanation": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-19,200.00)."
+    },
+    "decision": "REJECTED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Statutory GST rate mismatch (12% invoiced vs 18% applicable). Cannot claim ITC on incorrect invoice; returned for credit note / revised tax invoice.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 rejected for revised tax invoice to preserve ITC",
+    "timestamp": "2024-10-30T15:30:00Z",
+    "document_id": "decision-INV-NPD-2024-003",
+    "tags": [
+      "vendor:narmada-pharma-distributors",
+      "exception:gst_rate_error",
+      "decision:rejected",
+      "gstin:33AAACN3047J1ZE",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-BTT-2025-004",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "invoice_date": "2024-11-03",
+      "po_number": "PO-TEX-2025-004",
+      "grn_number": "GRN-BTT-004",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "459.00",
+      "quantity": 800,
+      "total_excl_tax_inr": "367200.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "18360.00",
+      "total_inr": "385560.00"
+    },
+    "po": {
+      "po_number": "PO-TEX-2025-004",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "issue_date": "2024-10-20",
+      "valid_until": "2024-12-19",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "450.00",
+      "quantity": 800,
+      "total_excl_tax_inr": "360000.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "18000.00",
+      "total_inr": "378000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-BTT-004",
+      "po_number": "PO-TEX-2025-004",
+      "receipt_date": "2024-10-30",
+      "received_quantity": 800,
+      "accepted_quantity": 800,
+      "rejected_quantity": 0,
+      "inspection_notes": "Fabric rolls received, thread density verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "459.00",
+        "expected_value": "450.00",
+        "delta_inr": "7560.00",
+        "message": "Price mismatch: billed unit rate \u20b9459.00 exceeds PO rate \u20b9450.00 by \u20b99.00 (+2.0% overcharge; gross discrepancy \u20b97,560.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "459.00",
+          "expected_value": "450.00",
+          "delta_inr": "7560.00",
+          "message": "Price mismatch: billed unit rate \u20b9459.00 exceeds PO rate \u20b9450.00 by \u20b99.00 (+2.0% overcharge; gross discrepancy \u20b97,560.00)."
+        }
+      ],
+      "invoice_number": "INV-BTT-2025-004",
+      "po_number": "PO-TEX-2025-004",
+      "vendor_name": "Bhavna Textile Traders",
+      "invoice_amount_inr": "385560.00",
+      "expected_amount_inr": "378000.00",
+      "explanation": "Price mismatch: billed unit rate \u20b9459.00 exceeds PO rate \u20b9450.00 by \u20b99.00 (+2.0% overcharge; gross discrepancy \u20b97,560.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved with \u20b97,560 cost-center variance booked to textile cotton indexation tolerance.",
+    "outcome_inr": "385560.00",
+    "outcome_note": "paid full invoice \u20b9385,560 with indexation variance",
+    "timestamp": "2024-11-03T12:00:00Z",
+    "document_id": "decision-INV-BTT-2025-004",
+    "tags": [
+      "vendor:bhavna-textile-traders",
+      "exception:price_mismatch",
+      "decision:approved",
+      "gstin:06AABCB5592F1ZL",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-TAP-2024-003",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "invoice_date": "2024-11-03",
+      "po_number": "PO-AGRO-2024-003",
+      "grn_number": "GRN-TAP-003",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "100.00",
+      "quantity": 1500,
+      "total_excl_tax_inr": "150000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "18000.00",
+      "total_inr": "168000.00"
+    },
+    "po": {
+      "po_number": "PO-AGRO-2024-003",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "issue_date": "2024-10-22",
+      "valid_until": "2024-12-21",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "100.00",
+      "quantity": 1500,
+      "total_excl_tax_inr": "150000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "18000.00",
+      "total_inr": "168000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-TAP-003",
+      "po_number": "PO-AGRO-2024-003",
+      "receipt_date": "2024-10-30",
+      "received_quantity": 1400,
+      "accepted_quantity": 1400,
+      "rejected_quantity": 0,
+      "inspection_notes": "Weighbridge slip attached: 1400 kg verified in intact 50kg bags."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 1500,
+        "expected_value": 1400,
+        "delta_inr": "11200.00",
+        "message": "Quantity shortfall: GRN GRN-TAP-003 accepted 1400 units vs invoice billed 1500 units (shortfall of 100 units; disputed value \u20b911,200.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 1500,
+          "expected_value": 1400,
+          "delta_inr": "11200.00",
+          "message": "Quantity shortfall: GRN GRN-TAP-003 accepted 1400 units vs invoice billed 1500 units (shortfall of 100 units; disputed value \u20b911,200.00)."
+        }
+      ],
+      "invoice_number": "INV-TAP-2024-003",
+      "po_number": "PO-AGRO-2024-003",
+      "vendor_name": "Triveni Agro Processors",
+      "invoice_amount_inr": "168000.00",
+      "expected_amount_inr": "156800.00",
+      "explanation": "Quantity shortfall: GRN GRN-TAP-003 accepted 1400 units vs invoice billed 1500 units (shortfall of 100 units; disputed value \u20b911,200.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved for actual delivered weight of 1400 kg; debit note raised for 100 kg packing unit shortfall.",
+    "outcome_inr": "156800.00",
+    "outcome_note": "paid \u20b9156,800 for actual delivered 1400 kg",
+    "timestamp": "2024-11-03T14:00:00Z",
+    "document_id": "decision-INV-TAP-2024-003",
+    "tags": [
+      "vendor:triveni-agro-processors",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:21AABCT8841N1ZS",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-PI-2025-005",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "invoice_date": "2024-11-23",
+      "po_number": "PO-IT-2025-005",
+      "grn_number": null,
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "1567.50",
+      "quantity": 75,
+      "total_excl_tax_inr": "117562.50",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "21161.25",
+      "total_inr": "138723.75"
+    },
+    "po": {
+      "po_number": "PO-IT-2025-005",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "issue_date": "2024-11-05",
+      "valid_until": "2025-01-04",
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "1500.00",
+      "quantity": 75,
+      "total_excl_tax_inr": "112500.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "20250.00",
+      "total_inr": "132750.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "1567.50",
+        "expected_value": "1500.00",
+        "delta_inr": "5973.75",
+        "message": "Price mismatch: billed unit rate \u20b91,567.50 exceeds PO rate \u20b91,500.00 by \u20b967.50 (+4.5% overcharge; gross discrepancy \u20b95,973.75)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "1567.50",
+          "expected_value": "1500.00",
+          "delta_inr": "5973.75",
+          "message": "Price mismatch: billed unit rate \u20b91,567.50 exceeds PO rate \u20b91,500.00 by \u20b967.50 (+4.5% overcharge; gross discrepancy \u20b95,973.75)."
+        }
+      ],
+      "invoice_number": "INV-PI-2025-005",
+      "po_number": "PO-IT-2025-005",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "invoice_amount_inr": "138723.75",
+      "expected_amount_inr": "132750.00",
+      "explanation": "Price mismatch: billed unit rate \u20b91,567.50 exceeds PO rate \u20b91,500.00 by \u20b967.50 (+4.5% overcharge; gross discrepancy \u20b95,973.75)."
+    },
+    "decision": "EDITED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved at PO contracted rate of \u20b9132,750; vendor advised of contracted pricing ceiling.",
+    "outcome_inr": "132750.00",
+    "outcome_note": "paid at contracted rate (saving \u20b95,974)",
+    "timestamp": "2024-11-23T11:30:00Z",
+    "document_id": "decision-INV-PI-2025-005",
+    "tags": [
+      "vendor:prabhav-infosystems-pvt-ltd",
+      "exception:price_mismatch",
+      "decision:edited",
+      "gstin:27AABCP4821K1ZT",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-KS-2025-004",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "invoice_date": "2024-12-09",
+      "po_number": "PO-PROC-2025-004",
+      "grn_number": "GRN-KS-004",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "4500.00",
+      "quantity": 10,
+      "total_excl_tax_inr": "45000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "8100.00",
+      "total_inr": "53100.00"
+    },
+    "po": {
+      "po_number": "PO-PROC-2025-004",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "issue_date": "2024-11-10",
+      "valid_until": "2025-01-09",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "4500.00",
+      "quantity": 10,
+      "total_excl_tax_inr": "45000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "8100.00",
+      "total_inr": "53100.00"
+    },
+    "grn": {
+      "grn_number": "GRN-KS-004",
+      "po_number": "PO-PROC-2025-004",
+      "receipt_date": "2024-11-20",
+      "received_quantity": 10,
+      "accepted_quantity": 10,
+      "rejected_quantity": 0,
+      "inspection_notes": "Delivered in good condition, hardware barcode verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "DUPLICATE_INVOICE",
+      "primary_discrepancy": {
+        "exception_type": "DUPLICATE_INVOICE",
+        "field": "invoice_number",
+        "invoice_value": "INV-KS-2025-004",
+        "expected_value": "NOT_PREVIOUSLY_PAID",
+        "delta_inr": "53100.00",
+        "message": "Duplicate invoice submission: invoice number INV-KS-2025-004 has already been processed / cleared for payment in the ledger."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "DUPLICATE_INVOICE",
+          "field": "invoice_number",
+          "invoice_value": "INV-KS-2025-004",
+          "expected_value": "NOT_PREVIOUSLY_PAID",
+          "delta_inr": "53100.00",
+          "message": "Duplicate invoice submission: invoice number INV-KS-2025-004 has already been processed / cleared for payment in the ledger."
+        }
+      ],
+      "invoice_number": "INV-KS-2025-004",
+      "po_number": "PO-PROC-2025-004",
+      "vendor_name": "Kamalnath Supplies Co",
+      "invoice_amount_inr": "53100.00",
+      "expected_amount_inr": "0.00",
+      "explanation": "Duplicate invoice submission: invoice number INV-KS-2025-004 has already been processed / cleared for payment in the ledger."
+    },
+    "decision": "REJECTED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Duplicate invoice; original INV-KS-2025-004 cleared in prior payment cycle. Vendor notified to cancel.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 duplicate rejected",
+    "timestamp": "2024-11-25T14:15:00Z",
+    "document_id": "decision-INV-KS-2025-004",
+    "tags": [
+      "vendor:kamalnath-supplies-co",
+      "exception:duplicate_invoice",
+      "decision:rejected",
+      "gstin:29AABCK7735M1ZQ",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-CTS-2025-005",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "invoice_date": "2024-11-25",
+      "po_number": "PO-EMRG-2025-005",
+      "grn_number": null,
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "po": {
+      "po_number": "PO-EMRG-2025-005",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "issue_date": "2024-10-08",
+      "valid_until": "2024-11-07",
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2024-11-25",
+        "expected_value": "2024-11-07",
+        "delta_inr": "100300.00",
+        "message": "Purchase order PO-EMRG-2025-005 expired on 2024-11-07. Invoice dated 2024-11-25 submitted 18 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2024-11-25",
+          "expected_value": "2024-11-07",
+          "delta_inr": "100300.00",
+          "message": "Purchase order PO-EMRG-2025-005 expired on 2024-11-07. Invoice dated 2024-11-25 submitted 18 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-CTS-2025-005",
+      "po_number": "PO-EMRG-2025-005",
+      "vendor_name": "Chintamani Tech Solutions",
+      "invoice_amount_inr": "100300.00",
+      "expected_amount_inr": "100300.00",
+      "explanation": "Purchase order PO-EMRG-2025-005 expired on 2024-11-07. Invoice dated 2024-11-25 submitted 18 days after validity expiry."
+    },
+    "decision": "APPROVED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Approved emergency infrastructure support despite expired PO validity (18 days overdue); Controller granted retrospective validity extension.",
+    "outcome_inr": "100300.00",
+    "outcome_note": "paid \u20b9100,300 under expired PO emergency approval protocol",
+    "timestamp": "2024-11-25T18:30:00Z",
+    "document_id": "decision-INV-CTS-2025-005",
+    "tags": [
+      "vendor:chintamani-tech-solutions",
+      "exception:po_expired",
+      "decision:approved",
+      "gstin:32AAACC4219P1ZW",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-DL-2025-005",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "invoice_date": "2024-11-26",
+      "po_number": "PO-LOG-2025-005",
+      "grn_number": "GRN-DL-005",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1800.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "360000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "64800.00",
+      "total_inr": "424800.00"
+    },
+    "po": {
+      "po_number": "PO-LOG-2025-005",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "issue_date": "2024-11-12",
+      "valid_until": "2025-01-11",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996811",
+      "unit_price_inr": "1800.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "360000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "64800.00",
+      "total_inr": "424800.00"
+    },
+    "grn": {
+      "grn_number": "GRN-DL-005",
+      "po_number": "PO-LOG-2025-005",
+      "receipt_date": "2024-11-20",
+      "received_quantity": 200,
+      "accepted_quantity": 200,
+      "rejected_quantity": 0,
+      "inspection_notes": "Shipment intake verified: 200 of 200 metric ton units received."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "HSN_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "HSN_MISMATCH",
+        "field": "hsn_code",
+        "invoice_value": "996812",
+        "expected_value": "996811",
+        "delta_inr": null,
+        "message": "HSN code on invoice (996812) does not match PO contracted HSN (996811)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "HSN_MISMATCH",
+          "field": "hsn_code",
+          "invoice_value": "996812",
+          "expected_value": "996811",
+          "delta_inr": null,
+          "message": "HSN code on invoice (996812) does not match PO contracted HSN (996811)."
+        }
+      ],
+      "invoice_number": "INV-DL-2025-005",
+      "po_number": "PO-LOG-2025-005",
+      "vendor_name": "Devanshi Logistics LLP",
+      "invoice_amount_inr": "424800.00",
+      "expected_amount_inr": "424800.00",
+      "explanation": "HSN code on invoice (996812) does not match PO contracted HSN (996811)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "HSN code difference (996812 billed vs 996811 PO) reviewed and approved as minor clerical classification delta; GST rates match.",
+    "outcome_inr": "424800.00",
+    "outcome_note": "paid full invoice \u20b9424,800 with HSN clerical acceptance note",
+    "timestamp": "2024-11-26T16:45:00Z",
+    "document_id": "decision-INV-DL-2025-005",
+    "tags": [
+      "vendor:devanshi-logistics-llp",
+      "exception:hsn_mismatch",
+      "decision:approved",
+      "gstin:09AABCD2914R1ZP",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-NPD-2025-004",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "invoice_date": "2024-11-30",
+      "po_number": "PO-PHARM-2025-004",
+      "grn_number": "GRN-NPD-004",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "800.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "160000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "19200.00",
+      "total_inr": "179200.00"
+    },
+    "po": {
+      "po_number": "PO-PHARM-2025-004",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "issue_date": "2024-11-18",
+      "valid_until": "2025-01-17",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "800.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "160000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "28800.00",
+      "total_inr": "188800.00"
+    },
+    "grn": {
+      "grn_number": "GRN-NPD-004",
+      "po_number": "PO-PHARM-2025-004",
+      "receipt_date": "2024-11-26",
+      "received_quantity": 200,
+      "accepted_quantity": 200,
+      "rejected_quantity": 0,
+      "inspection_notes": "Cold-chain temperature logs intact, reagents approved."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "GST_RATE_ERROR",
+      "primary_discrepancy": {
+        "exception_type": "GST_RATE_ERROR",
+        "field": "gst_rate",
+        "invoice_value": "0.12",
+        "expected_value": "0.18",
+        "delta_inr": "-9600.00",
+        "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-9,600.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "GST_RATE_ERROR",
+          "field": "gst_rate",
+          "invoice_value": "0.12",
+          "expected_value": "0.18",
+          "delta_inr": "-9600.00",
+          "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-9,600.00)."
+        }
+      ],
+      "invoice_number": "INV-NPD-2025-004",
+      "po_number": "PO-PHARM-2025-004",
+      "vendor_name": "Narmada Pharma Distributors",
+      "invoice_amount_inr": "179200.00",
+      "expected_amount_inr": "188800.00",
+      "explanation": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-9,600.00)."
+    },
+    "decision": "REJECTED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Statutory GST rate mismatch (12% invoiced vs 18% applicable). Cannot claim ITC on incorrect invoice; returned for credit note / revised tax invoice.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 rejected for revised tax invoice to preserve ITC",
+    "timestamp": "2024-11-30T15:30:00Z",
+    "document_id": "decision-INV-NPD-2025-004",
+    "tags": [
+      "vendor:narmada-pharma-distributors",
+      "exception:gst_rate_error",
+      "decision:rejected",
+      "gstin:33AAACN3047J1ZE",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-BTT-2025-005",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "invoice_date": "2024-12-04",
+      "po_number": "PO-TEX-2025-005",
+      "grn_number": "GRN-BTT-005",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "456.75",
+      "quantity": 800,
+      "total_excl_tax_inr": "365400.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "18270.00",
+      "total_inr": "383670.00"
+    },
+    "po": {
+      "po_number": "PO-TEX-2025-005",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "issue_date": "2024-11-20",
+      "valid_until": "2025-01-19",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "450.00",
+      "quantity": 800,
+      "total_excl_tax_inr": "360000.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "18000.00",
+      "total_inr": "378000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-BTT-005",
+      "po_number": "PO-TEX-2025-005",
+      "receipt_date": "2024-11-30",
+      "received_quantity": 800,
+      "accepted_quantity": 800,
+      "rejected_quantity": 0,
+      "inspection_notes": "Fabric rolls received, thread density verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "456.75",
+        "expected_value": "450.00",
+        "delta_inr": "5670.00",
+        "message": "Price mismatch: billed unit rate \u20b9456.75 exceeds PO rate \u20b9450.00 by \u20b96.75 (+1.5% overcharge; gross discrepancy \u20b95,670.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "456.75",
+          "expected_value": "450.00",
+          "delta_inr": "5670.00",
+          "message": "Price mismatch: billed unit rate \u20b9456.75 exceeds PO rate \u20b9450.00 by \u20b96.75 (+1.5% overcharge; gross discrepancy \u20b95,670.00)."
+        }
+      ],
+      "invoice_number": "INV-BTT-2025-005",
+      "po_number": "PO-TEX-2025-005",
+      "vendor_name": "Bhavna Textile Traders",
+      "invoice_amount_inr": "383670.00",
+      "expected_amount_inr": "378000.00",
+      "explanation": "Price mismatch: billed unit rate \u20b9456.75 exceeds PO rate \u20b9450.00 by \u20b96.75 (+1.5% overcharge; gross discrepancy \u20b95,670.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved with \u20b95,670 cost-center variance booked to textile cotton indexation tolerance.",
+    "outcome_inr": "383670.00",
+    "outcome_note": "paid full invoice \u20b9383,670 with indexation variance",
+    "timestamp": "2024-12-04T12:00:00Z",
+    "document_id": "decision-INV-BTT-2025-005",
+    "tags": [
+      "vendor:bhavna-textile-traders",
+      "exception:price_mismatch",
+      "decision:approved",
+      "gstin:06AABCB5592F1ZL",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-TAP-2025-004",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "invoice_date": "2024-12-04",
+      "po_number": "PO-AGRO-2025-004",
+      "grn_number": "GRN-TAP-004",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "60.00",
+      "quantity": 1000,
+      "total_excl_tax_inr": "60000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "7200.00",
+      "total_inr": "67200.00"
+    },
+    "po": {
+      "po_number": "PO-AGRO-2025-004",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "issue_date": "2024-11-22",
+      "valid_until": "2025-01-21",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "60.00",
+      "quantity": 1000,
+      "total_excl_tax_inr": "60000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "7200.00",
+      "total_inr": "67200.00"
+    },
+    "grn": {
+      "grn_number": "GRN-TAP-004",
+      "po_number": "PO-AGRO-2025-004",
+      "receipt_date": "2024-11-30",
+      "received_quantity": 900,
+      "accepted_quantity": 900,
+      "rejected_quantity": 0,
+      "inspection_notes": "Weighbridge slip attached: 900 kg verified in intact 50kg bags."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 1000,
+        "expected_value": 900,
+        "delta_inr": "6720.00",
+        "message": "Quantity shortfall: GRN GRN-TAP-004 accepted 900 units vs invoice billed 1000 units (shortfall of 100 units; disputed value \u20b96,720.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 1000,
+          "expected_value": 900,
+          "delta_inr": "6720.00",
+          "message": "Quantity shortfall: GRN GRN-TAP-004 accepted 900 units vs invoice billed 1000 units (shortfall of 100 units; disputed value \u20b96,720.00)."
+        }
+      ],
+      "invoice_number": "INV-TAP-2025-004",
+      "po_number": "PO-AGRO-2025-004",
+      "vendor_name": "Triveni Agro Processors",
+      "invoice_amount_inr": "67200.00",
+      "expected_amount_inr": "60480.00",
+      "explanation": "Quantity shortfall: GRN GRN-TAP-004 accepted 900 units vs invoice billed 1000 units (shortfall of 100 units; disputed value \u20b96,720.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved for actual delivered weight of 900 kg; debit note raised for 100 kg packing unit shortfall.",
+    "outcome_inr": "60480.00",
+    "outcome_note": "paid \u20b960,480 for actual delivered 900 kg",
+    "timestamp": "2024-12-04T14:00:00Z",
+    "document_id": "decision-INV-TAP-2025-004",
+    "tags": [
+      "vendor:triveni-agro-processors",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:21AABCT8841N1ZS",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-SEW-2024-002",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "invoice_date": "2024-12-06",
+      "po_number": "PO-ENG-2024-002",
+      "grn_number": "GRN-SEW-002",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 8,
+      "total_excl_tax_inr": "280000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "50400.00",
+      "total_inr": "330400.00"
+    },
+    "po": {
+      "po_number": "PO-ENG-2024-002",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "issue_date": "2024-10-20",
+      "valid_until": "2024-11-19",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 8,
+      "total_excl_tax_inr": "280000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "50400.00",
+      "total_inr": "330400.00"
+    },
+    "grn": {
+      "grn_number": "GRN-SEW-002",
+      "po_number": "PO-ENG-2024-002",
+      "receipt_date": "2024-12-04",
+      "received_quantity": 8,
+      "accepted_quantity": 8,
+      "rejected_quantity": 0,
+      "inspection_notes": "Caliper inspection passed; components meet drawing specs."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2024-12-06",
+        "expected_value": "2024-11-19",
+        "delta_inr": "330400.00",
+        "message": "Purchase order PO-ENG-2024-002 expired on 2024-11-19. Invoice dated 2024-12-06 submitted 17 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2024-12-06",
+          "expected_value": "2024-11-19",
+          "delta_inr": "330400.00",
+          "message": "Purchase order PO-ENG-2024-002 expired on 2024-11-19. Invoice dated 2024-12-06 submitted 17 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-SEW-2024-002",
+      "po_number": "PO-ENG-2024-002",
+      "vendor_name": "Suryakant Engineering Works",
+      "invoice_amount_inr": "330400.00",
+      "expected_amount_inr": "330400.00",
+      "explanation": "Purchase order PO-ENG-2024-002 expired on 2024-11-19. Invoice dated 2024-12-06 submitted 17 days after validity expiry."
+    },
+    "decision": "ESCALATED",
+    "approver_role": "CFO",
+    "human_reason": "One-time grace extension granted by CFO due to critical component necessity. Retrospective extension approved.",
+    "outcome_inr": "330400.00",
+    "outcome_note": "paid \u20b9330,400 under CFO executive exception",
+    "timestamp": "2024-12-06T17:00:00Z",
+    "document_id": "decision-INV-SEW-2024-002",
+    "tags": [
+      "vendor:suryakant-engineering-works",
+      "exception:po_expired",
+      "decision:escalated",
+      "gstin:24AABCS6183H1ZG",
+      "approver:cfo"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-PI-2025-006",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "invoice_date": "2024-12-18",
+      "po_number": "PO-IT-2025-006",
+      "grn_number": null,
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "3075.00",
+      "quantity": 100,
+      "total_excl_tax_inr": "307500.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "55350.00",
+      "total_inr": "362850.00"
+    },
+    "po": {
+      "po_number": "PO-IT-2025-006",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "gstin": "27AABCP4821K1ZT",
+      "issue_date": "2024-12-05",
+      "valid_until": "2025-02-03",
+      "item_description": "Senior IT Consulting & Cloud DevOps Retainer",
+      "hsn_code": "998314",
+      "unit_price_inr": "3000.00",
+      "quantity": 100,
+      "total_excl_tax_inr": "300000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "54000.00",
+      "total_inr": "354000.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "3075.00",
+        "expected_value": "3000.00",
+        "delta_inr": "8850.00",
+        "message": "Price mismatch: billed unit rate \u20b93,075.00 exceeds PO rate \u20b93,000.00 by \u20b975.00 (+2.5% overcharge; gross discrepancy \u20b98,850.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "3075.00",
+          "expected_value": "3000.00",
+          "delta_inr": "8850.00",
+          "message": "Price mismatch: billed unit rate \u20b93,075.00 exceeds PO rate \u20b93,000.00 by \u20b975.00 (+2.5% overcharge; gross discrepancy \u20b98,850.00)."
+        }
+      ],
+      "invoice_number": "INV-PI-2025-006",
+      "po_number": "PO-IT-2025-006",
+      "vendor_name": "Prabhav Infosystems Pvt Ltd",
+      "invoice_amount_inr": "362850.00",
+      "expected_amount_inr": "354000.00",
+      "explanation": "Price mismatch: billed unit rate \u20b93,075.00 exceeds PO rate \u20b93,000.00 by \u20b975.00 (+2.5% overcharge; gross discrepancy \u20b98,850.00)."
+    },
+    "decision": "EDITED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved at PO contracted rate of \u20b9354,000; vendor advised of contracted pricing ceiling.",
+    "outcome_inr": "354000.00",
+    "outcome_note": "paid at contracted rate (saving \u20b98,850)",
+    "timestamp": "2024-12-18T11:30:00Z",
+    "document_id": "decision-INV-PI-2025-006",
+    "tags": [
+      "vendor:prabhav-infosystems-pvt-ltd",
+      "exception:price_mismatch",
+      "decision:edited",
+      "gstin:27AABCP4821K1ZT",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-KS-2025-005",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "invoice_date": "2025-01-08",
+      "po_number": "PO-PROC-2025-005",
+      "grn_number": "GRN-KS-005",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "6000.00",
+      "quantity": 20,
+      "total_excl_tax_inr": "120000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "21600.00",
+      "total_inr": "141600.00"
+    },
+    "po": {
+      "po_number": "PO-PROC-2025-005",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "issue_date": "2024-12-10",
+      "valid_until": "2025-02-08",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "6000.00",
+      "quantity": 20,
+      "total_excl_tax_inr": "120000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "21600.00",
+      "total_inr": "141600.00"
+    },
+    "grn": {
+      "grn_number": "GRN-KS-005",
+      "po_number": "PO-PROC-2025-005",
+      "receipt_date": "2024-12-20",
+      "received_quantity": 20,
+      "accepted_quantity": 20,
+      "rejected_quantity": 0,
+      "inspection_notes": "Delivered in good condition, hardware barcode verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "DUPLICATE_INVOICE",
+      "primary_discrepancy": {
+        "exception_type": "DUPLICATE_INVOICE",
+        "field": "invoice_number",
+        "invoice_value": "INV-KS-2025-005",
+        "expected_value": "NOT_PREVIOUSLY_PAID",
+        "delta_inr": "141600.00",
+        "message": "Duplicate invoice submission: invoice number INV-KS-2025-005 has already been processed / cleared for payment in the ledger."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "DUPLICATE_INVOICE",
+          "field": "invoice_number",
+          "invoice_value": "INV-KS-2025-005",
+          "expected_value": "NOT_PREVIOUSLY_PAID",
+          "delta_inr": "141600.00",
+          "message": "Duplicate invoice submission: invoice number INV-KS-2025-005 has already been processed / cleared for payment in the ledger."
+        }
+      ],
+      "invoice_number": "INV-KS-2025-005",
+      "po_number": "PO-PROC-2025-005",
+      "vendor_name": "Kamalnath Supplies Co",
+      "invoice_amount_inr": "141600.00",
+      "expected_amount_inr": "0.00",
+      "explanation": "Duplicate invoice submission: invoice number INV-KS-2025-005 has already been processed / cleared for payment in the ledger."
+    },
+    "decision": "REJECTED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Duplicate invoice; original INV-KS-2025-005 cleared in prior payment cycle. Vendor notified to cancel.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 duplicate rejected",
+    "timestamp": "2024-12-25T14:15:00Z",
+    "document_id": "decision-INV-KS-2025-005",
+    "tags": [
+      "vendor:kamalnath-supplies-co",
+      "exception:duplicate_invoice",
+      "decision:rejected",
+      "gstin:29AABCK7735M1ZQ",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-CTS-2025-006",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "invoice_date": "2024-12-25",
+      "po_number": "PO-EMRG-2025-006",
+      "grn_number": null,
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "po": {
+      "po_number": "PO-EMRG-2025-006",
+      "vendor_name": "Chintamani Tech Solutions",
+      "gstin": "32AAACC4219P1ZW",
+      "issue_date": "2024-11-15",
+      "valid_until": "2024-12-15",
+      "item_description": "Emergency Cloud Database Incident Restoration Retainer",
+      "hsn_code": "998315",
+      "unit_price_inr": "85000.00",
+      "quantity": 1,
+      "total_excl_tax_inr": "85000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "15300.00",
+      "total_inr": "100300.00"
+    },
+    "grn": null,
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2024-12-25",
+        "expected_value": "2024-12-15",
+        "delta_inr": "100300.00",
+        "message": "Purchase order PO-EMRG-2025-006 expired on 2024-12-15. Invoice dated 2024-12-25 submitted 10 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2024-12-25",
+          "expected_value": "2024-12-15",
+          "delta_inr": "100300.00",
+          "message": "Purchase order PO-EMRG-2025-006 expired on 2024-12-15. Invoice dated 2024-12-25 submitted 10 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-CTS-2025-006",
+      "po_number": "PO-EMRG-2025-006",
+      "vendor_name": "Chintamani Tech Solutions",
+      "invoice_amount_inr": "100300.00",
+      "expected_amount_inr": "100300.00",
+      "explanation": "Purchase order PO-EMRG-2025-006 expired on 2024-12-15. Invoice dated 2024-12-25 submitted 10 days after validity expiry."
+    },
+    "decision": "APPROVED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Approved emergency infrastructure support despite expired PO validity (10 days overdue); Controller granted retrospective validity extension.",
+    "outcome_inr": "100300.00",
+    "outcome_note": "paid \u20b9100,300 under expired PO emergency approval protocol",
+    "timestamp": "2024-12-25T18:30:00Z",
+    "document_id": "decision-INV-CTS-2025-006",
+    "tags": [
+      "vendor:chintamani-tech-solutions",
+      "exception:po_expired",
+      "decision:approved",
+      "gstin:32AAACC4219P1ZW",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-DL-2025-006",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "invoice_date": "2024-12-26",
+      "po_number": "PO-LOG-2025-006",
+      "grn_number": "GRN-DL-006",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1500.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "300000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "54000.00",
+      "total_inr": "354000.00"
+    },
+    "po": {
+      "po_number": "PO-LOG-2025-006",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "issue_date": "2024-12-12",
+      "valid_until": "2025-02-10",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996811",
+      "unit_price_inr": "1500.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "300000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "54000.00",
+      "total_inr": "354000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-DL-006",
+      "po_number": "PO-LOG-2025-006",
+      "receipt_date": "2024-12-20",
+      "received_quantity": 200,
+      "accepted_quantity": 200,
+      "rejected_quantity": 0,
+      "inspection_notes": "Shipment intake verified: 200 of 200 metric ton units received."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "HSN_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "HSN_MISMATCH",
+        "field": "hsn_code",
+        "invoice_value": "996812",
+        "expected_value": "996811",
+        "delta_inr": null,
+        "message": "HSN code on invoice (996812) does not match PO contracted HSN (996811)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "HSN_MISMATCH",
+          "field": "hsn_code",
+          "invoice_value": "996812",
+          "expected_value": "996811",
+          "delta_inr": null,
+          "message": "HSN code on invoice (996812) does not match PO contracted HSN (996811)."
+        }
+      ],
+      "invoice_number": "INV-DL-2025-006",
+      "po_number": "PO-LOG-2025-006",
+      "vendor_name": "Devanshi Logistics LLP",
+      "invoice_amount_inr": "354000.00",
+      "expected_amount_inr": "354000.00",
+      "explanation": "HSN code on invoice (996812) does not match PO contracted HSN (996811)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "HSN code difference (996812 billed vs 996811 PO) reviewed and approved as minor clerical classification delta; GST rates match.",
+    "outcome_inr": "354000.00",
+    "outcome_note": "paid full invoice \u20b9354,000 with HSN clerical acceptance note",
+    "timestamp": "2024-12-26T16:45:00Z",
+    "document_id": "decision-INV-DL-2025-006",
+    "tags": [
+      "vendor:devanshi-logistics-llp",
+      "exception:hsn_mismatch",
+      "decision:approved",
+      "gstin:09AABCD2914R1ZP",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-NPD-2025-005",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "invoice_date": "2024-12-30",
+      "po_number": "PO-PHARM-2025-005",
+      "grn_number": "GRN-NPD-005",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "1200.00",
+      "quantity": 100,
+      "total_excl_tax_inr": "120000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "14400.00",
+      "total_inr": "134400.00"
+    },
+    "po": {
+      "po_number": "PO-PHARM-2025-005",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "issue_date": "2024-12-18",
+      "valid_until": "2025-02-16",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "1200.00",
+      "quantity": 100,
+      "total_excl_tax_inr": "120000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "21600.00",
+      "total_inr": "141600.00"
+    },
+    "grn": {
+      "grn_number": "GRN-NPD-005",
+      "po_number": "PO-PHARM-2025-005",
+      "receipt_date": "2024-12-26",
+      "received_quantity": 100,
+      "accepted_quantity": 100,
+      "rejected_quantity": 0,
+      "inspection_notes": "Cold-chain temperature logs intact, reagents approved."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "GST_RATE_ERROR",
+      "primary_discrepancy": {
+        "exception_type": "GST_RATE_ERROR",
+        "field": "gst_rate",
+        "invoice_value": "0.12",
+        "expected_value": "0.18",
+        "delta_inr": "-7200.00",
+        "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-7,200.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "GST_RATE_ERROR",
+          "field": "gst_rate",
+          "invoice_value": "0.12",
+          "expected_value": "0.18",
+          "delta_inr": "-7200.00",
+          "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-7,200.00)."
+        }
+      ],
+      "invoice_number": "INV-NPD-2025-005",
+      "po_number": "PO-PHARM-2025-005",
+      "vendor_name": "Narmada Pharma Distributors",
+      "invoice_amount_inr": "134400.00",
+      "expected_amount_inr": "141600.00",
+      "explanation": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-7,200.00)."
+    },
+    "decision": "REJECTED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Statutory GST rate mismatch (12% invoiced vs 18% applicable). Cannot claim ITC on incorrect invoice; returned for credit note / revised tax invoice.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 rejected for revised tax invoice to preserve ITC",
+    "timestamp": "2024-12-30T15:30:00Z",
+    "document_id": "decision-INV-NPD-2025-005",
+    "tags": [
+      "vendor:narmada-pharma-distributors",
+      "exception:gst_rate_error",
+      "decision:rejected",
+      "gstin:33AAACN3047J1ZE",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-BTT-2025-006",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "invoice_date": "2025-01-03",
+      "po_number": "PO-TEX-2025-006",
+      "grn_number": "GRN-BTT-006",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "355.25",
+      "quantity": 500,
+      "total_excl_tax_inr": "177625.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "8881.25",
+      "total_inr": "186506.25"
+    },
+    "po": {
+      "po_number": "PO-TEX-2025-006",
+      "vendor_name": "Bhavna Textile Traders",
+      "gstin": "06AABCB5592F1ZL",
+      "issue_date": "2024-12-20",
+      "valid_until": "2025-02-18",
+      "item_description": "Heavy Cotton Canvas & Safety Uniform Yardage",
+      "hsn_code": "52081190",
+      "unit_price_inr": "350.00",
+      "quantity": 500,
+      "total_excl_tax_inr": "175000.00",
+      "gst_rate": "0.05",
+      "gst_amount_inr": "8750.00",
+      "total_inr": "183750.00"
+    },
+    "grn": {
+      "grn_number": "GRN-BTT-006",
+      "po_number": "PO-TEX-2025-006",
+      "receipt_date": "2024-12-30",
+      "received_quantity": 500,
+      "accepted_quantity": 500,
+      "rejected_quantity": 0,
+      "inspection_notes": "Fabric rolls received, thread density verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PRICE_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "PRICE_MISMATCH",
+        "field": "unit_price_inr",
+        "invoice_value": "355.25",
+        "expected_value": "350.00",
+        "delta_inr": "2756.25",
+        "message": "Price mismatch: billed unit rate \u20b9355.25 exceeds PO rate \u20b9350.00 by \u20b95.25 (+1.5% overcharge; gross discrepancy \u20b92,756.25)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PRICE_MISMATCH",
+          "field": "unit_price_inr",
+          "invoice_value": "355.25",
+          "expected_value": "350.00",
+          "delta_inr": "2756.25",
+          "message": "Price mismatch: billed unit rate \u20b9355.25 exceeds PO rate \u20b9350.00 by \u20b95.25 (+1.5% overcharge; gross discrepancy \u20b92,756.25)."
+        }
+      ],
+      "invoice_number": "INV-BTT-2025-006",
+      "po_number": "PO-TEX-2025-006",
+      "vendor_name": "Bhavna Textile Traders",
+      "invoice_amount_inr": "186506.25",
+      "expected_amount_inr": "183750.00",
+      "explanation": "Price mismatch: billed unit rate \u20b9355.25 exceeds PO rate \u20b9350.00 by \u20b95.25 (+1.5% overcharge; gross discrepancy \u20b92,756.25)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved with \u20b92,756 cost-center variance booked to textile cotton indexation tolerance.",
+    "outcome_inr": "186506.25",
+    "outcome_note": "paid full invoice \u20b9186,506 with indexation variance",
+    "timestamp": "2025-01-03T12:00:00Z",
+    "document_id": "decision-INV-BTT-2025-006",
+    "tags": [
+      "vendor:bhavna-textile-traders",
+      "exception:price_mismatch",
+      "decision:approved",
+      "gstin:06AABCB5592F1ZL",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-TAP-2025-005",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "invoice_date": "2025-01-03",
+      "po_number": "PO-AGRO-2025-005",
+      "grn_number": "GRN-TAP-005",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "60.00",
+      "quantity": 1000,
+      "total_excl_tax_inr": "60000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "7200.00",
+      "total_inr": "67200.00"
+    },
+    "po": {
+      "po_number": "PO-AGRO-2025-005",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "issue_date": "2024-12-22",
+      "valid_until": "2025-02-20",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "60.00",
+      "quantity": 1000,
+      "total_excl_tax_inr": "60000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "7200.00",
+      "total_inr": "67200.00"
+    },
+    "grn": {
+      "grn_number": "GRN-TAP-005",
+      "po_number": "PO-AGRO-2025-005",
+      "receipt_date": "2024-12-30",
+      "received_quantity": 950,
+      "accepted_quantity": 950,
+      "rejected_quantity": 0,
+      "inspection_notes": "Weighbridge slip attached: 950 kg verified in intact 50kg bags."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 1000,
+        "expected_value": 950,
+        "delta_inr": "3360.00",
+        "message": "Quantity shortfall: GRN GRN-TAP-005 accepted 950 units vs invoice billed 1000 units (shortfall of 50 units; disputed value \u20b93,360.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 1000,
+          "expected_value": 950,
+          "delta_inr": "3360.00",
+          "message": "Quantity shortfall: GRN GRN-TAP-005 accepted 950 units vs invoice billed 1000 units (shortfall of 50 units; disputed value \u20b93,360.00)."
+        }
+      ],
+      "invoice_number": "INV-TAP-2025-005",
+      "po_number": "PO-AGRO-2025-005",
+      "vendor_name": "Triveni Agro Processors",
+      "invoice_amount_inr": "67200.00",
+      "expected_amount_inr": "63840.00",
+      "explanation": "Quantity shortfall: GRN GRN-TAP-005 accepted 950 units vs invoice billed 1000 units (shortfall of 50 units; disputed value \u20b93,360.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved for actual delivered weight of 950 kg; debit note raised for 50 kg packing unit shortfall.",
+    "outcome_inr": "63840.00",
+    "outcome_note": "paid \u20b963,840 for actual delivered 950 kg",
+    "timestamp": "2025-01-03T14:00:00Z",
+    "document_id": "decision-INV-TAP-2025-005",
+    "tags": [
+      "vendor:triveni-agro-processors",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:21AABCT8841N1ZS",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-KS-2025-006",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "invoice_date": "2025-03-11",
+      "po_number": "PO-PROC-2025-006",
+      "grn_number": "GRN-KS-006",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "6000.00",
+      "quantity": 10,
+      "total_excl_tax_inr": "60000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "10800.00",
+      "total_inr": "70800.00"
+    },
+    "po": {
+      "po_number": "PO-PROC-2025-006",
+      "vendor_name": "Kamalnath Supplies Co",
+      "gstin": "29AABCK7735M1ZQ",
+      "issue_date": "2025-02-10",
+      "valid_until": "2025-04-11",
+      "item_description": "High-Speed Ethernet Switches & Server Racks",
+      "hsn_code": "84714900",
+      "unit_price_inr": "6000.00",
+      "quantity": 10,
+      "total_excl_tax_inr": "60000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "10800.00",
+      "total_inr": "70800.00"
+    },
+    "grn": {
+      "grn_number": "GRN-KS-006",
+      "po_number": "PO-PROC-2025-006",
+      "receipt_date": "2025-02-20",
+      "received_quantity": 10,
+      "accepted_quantity": 10,
+      "rejected_quantity": 0,
+      "inspection_notes": "Delivered in good condition, hardware barcode verified."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "DUPLICATE_INVOICE",
+      "primary_discrepancy": {
+        "exception_type": "DUPLICATE_INVOICE",
+        "field": "invoice_number",
+        "invoice_value": "INV-KS-2025-006",
+        "expected_value": "NOT_PREVIOUSLY_PAID",
+        "delta_inr": "70800.00",
+        "message": "Duplicate invoice submission: invoice number INV-KS-2025-006 has already been processed / cleared for payment in the ledger."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "DUPLICATE_INVOICE",
+          "field": "invoice_number",
+          "invoice_value": "INV-KS-2025-006",
+          "expected_value": "NOT_PREVIOUSLY_PAID",
+          "delta_inr": "70800.00",
+          "message": "Duplicate invoice submission: invoice number INV-KS-2025-006 has already been processed / cleared for payment in the ledger."
+        }
+      ],
+      "invoice_number": "INV-KS-2025-006",
+      "po_number": "PO-PROC-2025-006",
+      "vendor_name": "Kamalnath Supplies Co",
+      "invoice_amount_inr": "70800.00",
+      "expected_amount_inr": "0.00",
+      "explanation": "Duplicate invoice submission: invoice number INV-KS-2025-006 has already been processed / cleared for payment in the ledger."
+    },
+    "decision": "REJECTED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Duplicate invoice; original INV-KS-2025-006 cleared in prior payment cycle. Vendor notified to cancel.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 duplicate rejected",
+    "timestamp": "2025-02-25T14:15:00Z",
+    "document_id": "decision-INV-KS-2025-006",
+    "tags": [
+      "vendor:kamalnath-supplies-co",
+      "exception:duplicate_invoice",
+      "decision:rejected",
+      "gstin:29AABCK7735M1ZQ",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-DL-2025-007",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "invoice_date": "2025-02-26",
+      "po_number": "PO-LOG-2025-007",
+      "grn_number": "GRN-DL-007",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996812",
+      "unit_price_inr": "1200.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "240000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "43200.00",
+      "total_inr": "283200.00"
+    },
+    "po": {
+      "po_number": "PO-LOG-2025-007",
+      "vendor_name": "Devanshi Logistics LLP",
+      "gstin": "09AABCD2914R1ZP",
+      "issue_date": "2025-02-12",
+      "valid_until": "2025-04-13",
+      "item_description": "Interstate Road Freight Transport (Full Truck Load)",
+      "hsn_code": "996811",
+      "unit_price_inr": "1200.00",
+      "quantity": 200,
+      "total_excl_tax_inr": "240000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "43200.00",
+      "total_inr": "283200.00"
+    },
+    "grn": {
+      "grn_number": "GRN-DL-007",
+      "po_number": "PO-LOG-2025-007",
+      "receipt_date": "2025-02-20",
+      "received_quantity": 200,
+      "accepted_quantity": 200,
+      "rejected_quantity": 0,
+      "inspection_notes": "Shipment intake verified: 200 of 200 metric ton units received."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "HSN_MISMATCH",
+      "primary_discrepancy": {
+        "exception_type": "HSN_MISMATCH",
+        "field": "hsn_code",
+        "invoice_value": "996812",
+        "expected_value": "996811",
+        "delta_inr": null,
+        "message": "HSN code on invoice (996812) does not match PO contracted HSN (996811)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "HSN_MISMATCH",
+          "field": "hsn_code",
+          "invoice_value": "996812",
+          "expected_value": "996811",
+          "delta_inr": null,
+          "message": "HSN code on invoice (996812) does not match PO contracted HSN (996811)."
+        }
+      ],
+      "invoice_number": "INV-DL-2025-007",
+      "po_number": "PO-LOG-2025-007",
+      "vendor_name": "Devanshi Logistics LLP",
+      "invoice_amount_inr": "283200.00",
+      "expected_amount_inr": "283200.00",
+      "explanation": "HSN code on invoice (996812) does not match PO contracted HSN (996811)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "HSN code difference (996812 billed vs 996811 PO) reviewed and approved as minor clerical classification delta; GST rates match.",
+    "outcome_inr": "283200.00",
+    "outcome_note": "paid full invoice \u20b9283,200 with HSN clerical acceptance note",
+    "timestamp": "2025-02-26T16:45:00Z",
+    "document_id": "decision-INV-DL-2025-007",
+    "tags": [
+      "vendor:devanshi-logistics-llp",
+      "exception:hsn_mismatch",
+      "decision:approved",
+      "gstin:09AABCD2914R1ZP",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-SEW-2025-003",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "invoice_date": "2025-02-27",
+      "po_number": "PO-ENG-2025-003",
+      "grn_number": "GRN-SEW-003",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "25000.00",
+      "quantity": 8,
+      "total_excl_tax_inr": "200000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "36000.00",
+      "total_inr": "236000.00"
+    },
+    "po": {
+      "po_number": "PO-ENG-2025-003",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "issue_date": "2025-01-10",
+      "valid_until": "2025-02-09",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "25000.00",
+      "quantity": 8,
+      "total_excl_tax_inr": "200000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "36000.00",
+      "total_inr": "236000.00"
+    },
+    "grn": {
+      "grn_number": "GRN-SEW-003",
+      "po_number": "PO-ENG-2025-003",
+      "receipt_date": "2025-02-25",
+      "received_quantity": 8,
+      "accepted_quantity": 8,
+      "rejected_quantity": 0,
+      "inspection_notes": "Caliper inspection passed; components meet drawing specs."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2025-02-27",
+        "expected_value": "2025-02-09",
+        "delta_inr": "236000.00",
+        "message": "Purchase order PO-ENG-2025-003 expired on 2025-02-09. Invoice dated 2025-02-27 submitted 18 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2025-02-27",
+          "expected_value": "2025-02-09",
+          "delta_inr": "236000.00",
+          "message": "Purchase order PO-ENG-2025-003 expired on 2025-02-09. Invoice dated 2025-02-27 submitted 18 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-SEW-2025-003",
+      "po_number": "PO-ENG-2025-003",
+      "vendor_name": "Suryakant Engineering Works",
+      "invoice_amount_inr": "236000.00",
+      "expected_amount_inr": "236000.00",
+      "explanation": "Purchase order PO-ENG-2025-003 expired on 2025-02-09. Invoice dated 2025-02-27 submitted 18 days after validity expiry."
+    },
+    "decision": "ESCALATED",
+    "approver_role": "CFO",
+    "human_reason": "One-time grace extension granted by CFO due to critical component necessity. Retrospective extension approved.",
+    "outcome_inr": "236000.00",
+    "outcome_note": "paid \u20b9236,000 under CFO executive exception",
+    "timestamp": "2025-02-27T17:00:00Z",
+    "document_id": "decision-INV-SEW-2025-003",
+    "tags": [
+      "vendor:suryakant-engineering-works",
+      "exception:po_expired",
+      "decision:escalated",
+      "gstin:24AABCS6183H1ZG",
+      "approver:cfo"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-NPD-2025-006",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "invoice_date": "2025-03-02",
+      "po_number": "PO-PHARM-2025-006",
+      "grn_number": "GRN-NPD-006",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "800.00",
+      "quantity": 100,
+      "total_excl_tax_inr": "80000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "9600.00",
+      "total_inr": "89600.00"
+    },
+    "po": {
+      "po_number": "PO-PHARM-2025-006",
+      "vendor_name": "Narmada Pharma Distributors",
+      "gstin": "33AAACN3047J1ZE",
+      "issue_date": "2025-02-18",
+      "valid_until": "2025-04-19",
+      "item_description": "Diagnostic Reagent Assay Kits & Laboratory Glassware",
+      "hsn_code": "30049099",
+      "unit_price_inr": "800.00",
+      "quantity": 100,
+      "total_excl_tax_inr": "80000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "14400.00",
+      "total_inr": "94400.00"
+    },
+    "grn": {
+      "grn_number": "GRN-NPD-006",
+      "po_number": "PO-PHARM-2025-006",
+      "receipt_date": "2025-02-26",
+      "received_quantity": 100,
+      "accepted_quantity": 100,
+      "rejected_quantity": 0,
+      "inspection_notes": "Cold-chain temperature logs intact, reagents approved."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "GST_RATE_ERROR",
+      "primary_discrepancy": {
+        "exception_type": "GST_RATE_ERROR",
+        "field": "gst_rate",
+        "invoice_value": "0.12",
+        "expected_value": "0.18",
+        "delta_inr": "-4800.00",
+        "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-4,800.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "GST_RATE_ERROR",
+          "field": "gst_rate",
+          "invoice_value": "0.12",
+          "expected_value": "0.18",
+          "delta_inr": "-4800.00",
+          "message": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-4,800.00)."
+        }
+      ],
+      "invoice_number": "INV-NPD-2025-006",
+      "po_number": "PO-PHARM-2025-006",
+      "vendor_name": "Narmada Pharma Distributors",
+      "invoice_amount_inr": "89600.00",
+      "expected_amount_inr": "94400.00",
+      "explanation": "Statutory GST rate mismatch: invoice applied 12.0% vs PO contracted rate 18.0% (tax delta: \u20b9-4,800.00)."
+    },
+    "decision": "REJECTED",
+    "approver_role": "FINANCE_CONTROLLER",
+    "human_reason": "Statutory GST rate mismatch (12% invoiced vs 18% applicable). Cannot claim ITC on incorrect invoice; returned for credit note / revised tax invoice.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 rejected for revised tax invoice to preserve ITC",
+    "timestamp": "2025-03-02T15:30:00Z",
+    "document_id": "decision-INV-NPD-2025-006",
+    "tags": [
+      "vendor:narmada-pharma-distributors",
+      "exception:gst_rate_error",
+      "decision:rejected",
+      "gstin:33AAACN3047J1ZE",
+      "approver:finance_controller"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-TAP-2025-006",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "invoice_date": "2025-03-06",
+      "po_number": "PO-AGRO-2025-006",
+      "grn_number": "GRN-TAP-006",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "60.00",
+      "quantity": 2000,
+      "total_excl_tax_inr": "120000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "14400.00",
+      "total_inr": "134400.00"
+    },
+    "po": {
+      "po_number": "PO-AGRO-2025-006",
+      "vendor_name": "Triveni Agro Processors",
+      "gstin": "21AABCT8841N1ZS",
+      "issue_date": "2025-02-22",
+      "valid_until": "2025-04-23",
+      "item_description": "Industrial Food-Grade Corn Starch & Dextrose Bags",
+      "hsn_code": "21069099",
+      "unit_price_inr": "60.00",
+      "quantity": 2000,
+      "total_excl_tax_inr": "120000.00",
+      "gst_rate": "0.12",
+      "gst_amount_inr": "14400.00",
+      "total_inr": "134400.00"
+    },
+    "grn": {
+      "grn_number": "GRN-TAP-006",
+      "po_number": "PO-AGRO-2025-006",
+      "receipt_date": "2025-03-02",
+      "received_quantity": 1950,
+      "accepted_quantity": 1950,
+      "rejected_quantity": 0,
+      "inspection_notes": "Weighbridge slip attached: 1950 kg verified in intact 50kg bags."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "QUANTITY_SHORTFALL",
+      "primary_discrepancy": {
+        "exception_type": "QUANTITY_SHORTFALL",
+        "field": "quantity",
+        "invoice_value": 2000,
+        "expected_value": 1950,
+        "delta_inr": "3360.00",
+        "message": "Quantity shortfall: GRN GRN-TAP-006 accepted 1950 units vs invoice billed 2000 units (shortfall of 50 units; disputed value \u20b93,360.00)."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "QUANTITY_SHORTFALL",
+          "field": "quantity",
+          "invoice_value": 2000,
+          "expected_value": 1950,
+          "delta_inr": "3360.00",
+          "message": "Quantity shortfall: GRN GRN-TAP-006 accepted 1950 units vs invoice billed 2000 units (shortfall of 50 units; disputed value \u20b93,360.00)."
+        }
+      ],
+      "invoice_number": "INV-TAP-2025-006",
+      "po_number": "PO-AGRO-2025-006",
+      "vendor_name": "Triveni Agro Processors",
+      "invoice_amount_inr": "134400.00",
+      "expected_amount_inr": "131040.00",
+      "explanation": "Quantity shortfall: GRN GRN-TAP-006 accepted 1950 units vs invoice billed 2000 units (shortfall of 50 units; disputed value \u20b93,360.00)."
+    },
+    "decision": "APPROVED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Approved for actual delivered weight of 1950 kg; debit note raised for 50 kg packing unit shortfall.",
+    "outcome_inr": "131040.00",
+    "outcome_note": "paid \u20b9131,040 for actual delivered 1950 kg",
+    "timestamp": "2025-03-06T14:00:00Z",
+    "document_id": "decision-INV-TAP-2025-006",
+    "tags": [
+      "vendor:triveni-agro-processors",
+      "exception:quantity_shortfall",
+      "decision:approved",
+      "gstin:21AABCT8841N1ZS",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-SEW-2025-004",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "invoice_date": "2025-06-09",
+      "po_number": "PO-ENG-2025-004",
+      "grn_number": "GRN-SEW-004",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 8,
+      "total_excl_tax_inr": "280000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "50400.00",
+      "total_inr": "330400.00"
+    },
+    "po": {
+      "po_number": "PO-ENG-2025-004",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "issue_date": "2025-04-15",
+      "valid_until": "2025-05-15",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 8,
+      "total_excl_tax_inr": "280000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "50400.00",
+      "total_inr": "330400.00"
+    },
+    "grn": {
+      "grn_number": "GRN-SEW-004",
+      "po_number": "PO-ENG-2025-004",
+      "receipt_date": "2025-06-07",
+      "received_quantity": 8,
+      "accepted_quantity": 8,
+      "rejected_quantity": 0,
+      "inspection_notes": "Caliper inspection passed; components meet drawing specs."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2025-06-09",
+        "expected_value": "2025-05-15",
+        "delta_inr": "330400.00",
+        "message": "Purchase order PO-ENG-2025-004 expired on 2025-05-15. Invoice dated 2025-06-09 submitted 25 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2025-06-09",
+          "expected_value": "2025-05-15",
+          "delta_inr": "330400.00",
+          "message": "Purchase order PO-ENG-2025-004 expired on 2025-05-15. Invoice dated 2025-06-09 submitted 25 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-SEW-2025-004",
+      "po_number": "PO-ENG-2025-004",
+      "vendor_name": "Suryakant Engineering Works",
+      "invoice_amount_inr": "330400.00",
+      "expected_amount_inr": "330400.00",
+      "explanation": "Purchase order PO-ENG-2025-004 expired on 2025-05-15. Invoice dated 2025-06-09 submitted 25 days after validity expiry."
+    },
+    "decision": "ESCALATED",
+    "approver_role": "CFO",
+    "human_reason": "One-time grace extension granted by CFO due to critical component necessity. Retrospective extension approved.",
+    "outcome_inr": "330400.00",
+    "outcome_note": "paid \u20b9330,400 under CFO executive exception",
+    "timestamp": "2025-06-09T17:00:00Z",
+    "document_id": "decision-INV-SEW-2025-004",
+    "tags": [
+      "vendor:suryakant-engineering-works",
+      "exception:po_expired",
+      "decision:escalated",
+      "gstin:24AABCS6183H1ZG",
+      "approver:cfo"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-SEW-2025-005",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "invoice_date": "2025-09-28",
+      "po_number": "PO-ENG-2025-005",
+      "grn_number": "GRN-SEW-005",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 5,
+      "total_excl_tax_inr": "175000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "31500.00",
+      "total_inr": "206500.00"
+    },
+    "po": {
+      "po_number": "PO-ENG-2025-005",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "issue_date": "2025-08-05",
+      "valid_until": "2025-09-04",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 5,
+      "total_excl_tax_inr": "175000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "31500.00",
+      "total_inr": "206500.00"
+    },
+    "grn": {
+      "grn_number": "GRN-SEW-005",
+      "po_number": "PO-ENG-2025-005",
+      "receipt_date": "2025-09-26",
+      "received_quantity": 5,
+      "accepted_quantity": 5,
+      "rejected_quantity": 0,
+      "inspection_notes": "Caliper inspection passed; components meet drawing specs."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2025-09-28",
+        "expected_value": "2025-09-04",
+        "delta_inr": "206500.00",
+        "message": "Purchase order PO-ENG-2025-005 expired on 2025-09-04. Invoice dated 2025-09-28 submitted 24 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2025-09-28",
+          "expected_value": "2025-09-04",
+          "delta_inr": "206500.00",
+          "message": "Purchase order PO-ENG-2025-005 expired on 2025-09-04. Invoice dated 2025-09-28 submitted 24 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-SEW-2025-005",
+      "po_number": "PO-ENG-2025-005",
+      "vendor_name": "Suryakant Engineering Works",
+      "invoice_amount_inr": "206500.00",
+      "expected_amount_inr": "206500.00",
+      "explanation": "Purchase order PO-ENG-2025-005 expired on 2025-09-04. Invoice dated 2025-09-28 submitted 24 days after validity expiry."
+    },
+    "decision": "REJECTED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Rejected per updated AP Policy 2025-Q3: expired PO requires fresh procurement requisition before processing.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 expired PO rejected under updated Q3 policy",
+    "timestamp": "2025-09-28T10:15:00Z",
+    "document_id": "decision-INV-SEW-2025-005",
+    "tags": [
+      "vendor:suryakant-engineering-works",
+      "exception:po_expired",
+      "decision:rejected",
+      "gstin:24AABCS6183H1ZG",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-SEW-2025-006",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "invoice_date": "2025-10-17",
+      "po_number": "PO-ENG-2025-006",
+      "grn_number": "GRN-SEW-006",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 5,
+      "total_excl_tax_inr": "175000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "31500.00",
+      "total_inr": "206500.00"
+    },
+    "po": {
+      "po_number": "PO-ENG-2025-006",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "issue_date": "2025-08-25",
+      "valid_until": "2025-09-24",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 5,
+      "total_excl_tax_inr": "175000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "31500.00",
+      "total_inr": "206500.00"
+    },
+    "grn": {
+      "grn_number": "GRN-SEW-006",
+      "po_number": "PO-ENG-2025-006",
+      "receipt_date": "2025-10-15",
+      "received_quantity": 5,
+      "accepted_quantity": 5,
+      "rejected_quantity": 0,
+      "inspection_notes": "Caliper inspection passed; components meet drawing specs."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2025-10-17",
+        "expected_value": "2025-09-24",
+        "delta_inr": "206500.00",
+        "message": "Purchase order PO-ENG-2025-006 expired on 2025-09-24. Invoice dated 2025-10-17 submitted 23 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2025-10-17",
+          "expected_value": "2025-09-24",
+          "delta_inr": "206500.00",
+          "message": "Purchase order PO-ENG-2025-006 expired on 2025-09-24. Invoice dated 2025-10-17 submitted 23 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-SEW-2025-006",
+      "po_number": "PO-ENG-2025-006",
+      "vendor_name": "Suryakant Engineering Works",
+      "invoice_amount_inr": "206500.00",
+      "expected_amount_inr": "206500.00",
+      "explanation": "Purchase order PO-ENG-2025-006 expired on 2025-09-24. Invoice dated 2025-10-17 submitted 23 days after validity expiry."
+    },
+    "decision": "REJECTED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Rejected per updated AP Policy 2025-Q3: expired PO requires fresh procurement requisition before processing.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 expired PO rejected under updated Q3 policy",
+    "timestamp": "2025-10-17T10:15:00Z",
+    "document_id": "decision-INV-SEW-2025-006",
+    "tags": [
+      "vendor:suryakant-engineering-works",
+      "exception:po_expired",
+      "decision:rejected",
+      "gstin:24AABCS6183H1ZG",
+      "approver:ap_manager"
+    ]
+  },
+  {
+    "invoice": {
+      "invoice_number": "INV-SEW-2025-007",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "invoice_date": "2025-11-01",
+      "po_number": "PO-ENG-2025-007",
+      "grn_number": "GRN-SEW-007",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 5,
+      "total_excl_tax_inr": "175000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "31500.00",
+      "total_inr": "206500.00"
+    },
+    "po": {
+      "po_number": "PO-ENG-2025-007",
+      "vendor_name": "Suryakant Engineering Works",
+      "gstin": "24AABCS6183H1ZG",
+      "issue_date": "2025-09-15",
+      "valid_until": "2025-10-15",
+      "item_description": "High-Tolerance CNC Machined Bearing Brackets",
+      "hsn_code": "73269099",
+      "unit_price_inr": "35000.00",
+      "quantity": 5,
+      "total_excl_tax_inr": "175000.00",
+      "gst_rate": "0.18",
+      "gst_amount_inr": "31500.00",
+      "total_inr": "206500.00"
+    },
+    "grn": {
+      "grn_number": "GRN-SEW-007",
+      "po_number": "PO-ENG-2025-007",
+      "receipt_date": "2025-10-30",
+      "received_quantity": 5,
+      "accepted_quantity": 5,
+      "rejected_quantity": 0,
+      "inspection_notes": "Caliper inspection passed; components meet drawing specs."
+    },
+    "match_result": {
+      "is_match": false,
+      "exception_type": "PO_EXPIRED",
+      "primary_discrepancy": {
+        "exception_type": "PO_EXPIRED",
+        "field": "invoice_date",
+        "invoice_value": "2025-11-01",
+        "expected_value": "2025-10-15",
+        "delta_inr": "206500.00",
+        "message": "Purchase order PO-ENG-2025-007 expired on 2025-10-15. Invoice dated 2025-11-01 submitted 17 days after validity expiry."
+      },
+      "all_discrepancies": [
+        {
+          "exception_type": "PO_EXPIRED",
+          "field": "invoice_date",
+          "invoice_value": "2025-11-01",
+          "expected_value": "2025-10-15",
+          "delta_inr": "206500.00",
+          "message": "Purchase order PO-ENG-2025-007 expired on 2025-10-15. Invoice dated 2025-11-01 submitted 17 days after validity expiry."
+        }
+      ],
+      "invoice_number": "INV-SEW-2025-007",
+      "po_number": "PO-ENG-2025-007",
+      "vendor_name": "Suryakant Engineering Works",
+      "invoice_amount_inr": "206500.00",
+      "expected_amount_inr": "206500.00",
+      "explanation": "Purchase order PO-ENG-2025-007 expired on 2025-10-15. Invoice dated 2025-11-01 submitted 17 days after validity expiry."
+    },
+    "decision": "REJECTED",
+    "approver_role": "AP_MANAGER",
+    "human_reason": "Rejected per updated AP Policy 2025-Q3: expired PO requires fresh procurement requisition before processing.",
+    "outcome_inr": "0.00",
+    "outcome_note": "paid \u20b90 \u2014 expired PO rejected under updated Q3 policy",
+    "timestamp": "2025-11-01T10:15:00Z",
+    "document_id": "decision-INV-SEW-2025-007",
+    "tags": [
+      "vendor:suryakant-engineering-works",
+      "exception:po_expired",
+      "decision:rejected",
+      "gstin:24AABCS6183H1ZG",
+      "approver:ap_manager"
+    ]
+  }
+]
