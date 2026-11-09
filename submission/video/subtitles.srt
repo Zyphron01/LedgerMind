@@ -1,0 +1,159 @@
+1
+00:00:00,000 --> 00:00:06,740
+What happens when a company receives a supplier invoice that doesn't match what was ordered?
+
+2
+00:00:06,740 --> 00:00:15,726
+In accounts payable, invoices, purchase orders, and receiving logs constantly arrive with discrepancies: price overcharges, quantity shortages, or tax variances.
+
+3
+00:00:15,726 --> 00:00:19,320
+Traditional ERP systems easily flag the math mismatch.
+
+4
+00:00:19,320 --> 00:00:23,364
+But detecting an exception is only half the battle.
+
+5
+00:00:23,364 --> 00:00:30,553
+The hardest part is deciding what to do next: Has this supplier billed this way before?
+
+6
+00:00:30,553 --> 00:00:33,698
+Did an authorized manager negotiate a waiver?
+
+7
+00:00:33,698 --> 00:00:39,090
+And is that previous approval still valid under current company procurement policy?
+
+8
+00:00:39,090 --> 00:00:41,824
+That's why we built LedgerMind.
+
+9
+00:00:41,824 --> 00:00:50,574
+An invoice exception isn't just a math error—it's an operational decision requiring context, precedent, and accountability.
+
+10
+00:00:50,574 --> 00:01:00,963
+LedgerMind combines deterministic three-way matching with persistent institutional memory powered by Hindsight, version-governed policy evaluation, and fast Groq inference.
+
+11
+00:01:00,963 --> 00:01:05,338
+Our central innovation: LedgerMind never blindly follows history.
+
+12
+00:01:05,338 --> 00:01:10,806
+It cross-examines remembered precedents against the company's governing procurement rules.
+
+13
+00:01:10,806 --> 00:01:18,462
+When past habit conflicts with policy, policy constraints govern, and the reviewer is alerted.
+
+14
+00:01:18,462 --> 00:01:22,290
+This policy-versus-precedent intelligence is LedgerMind's core breakthrough.
+
+15
+00:01:22,290 --> 00:01:29,745
+Here in the live application, the Overview tracks six discrepancy categories across twenty benchmark scenarios.
+
+16
+00:01:29,745 --> 00:01:36,703
+Both our local Hindsight vector engine and SQLite operational database are online and healthy.
+
+17
+00:01:36,703 --> 00:01:42,170
+Through New Invoice Intake, teams can create or import new invoices.
+
+18
+00:01:42,170 --> 00:01:47,636
+Here we submit an invoice for Nova Tech Supplies: invoice INV-NOVA-2025-002.
+
+19
+00:01:47,636 --> 00:01:55,588
+The purchase order specified one thousand rupees, but the vendor billed eleven hundred across ten units.
+
+20
+00:01:55,588 --> 00:02:08,510
+With eighteen percent GST, LedgerMind instantly calculates a discrepancy of eleven hundred and eighty rupees, and syncs it immediately to SQLite and the active Invoice Queue.
+
+21
+00:02:08,510 --> 00:02:12,617
+In the Resolution Workbench, LedgerMind evaluates the discrepancy.
+
+22
+00:02:12,617 --> 00:02:22,886
+With memory enabled, the agent checks governing policy POL-AP-002 and identifies that price variances exceeding contract rates require line-item adjustment.
+
+23
+00:02:22,886 --> 00:02:29,047
+LedgerMind generates an EDITED proposal, resetting unit rates to the contract price.
+
+24
+00:02:29,047 --> 00:02:32,641
+Crucially, the human reviewer retains full authority.
+
+25
+00:02:32,641 --> 00:02:37,262
+We submit our review as an authorized AP Specialist.
+
+26
+00:02:37,262 --> 00:02:45,990
+The decision, adjusted amount, and audit rationale are permanently saved to both SQLite and persistent Hindsight memory.
+
+27
+00:02:45,990 --> 00:02:50,182
+Look closely at our Hindsight vector memory integration.
+
+28
+00:02:50,182 --> 00:02:55,945
+For invoice INV-PI-2025-101 from Prabhav Infosystems, Hindsight performs live semantic recall.
+
+29
+00:02:55,945 --> 00:03:03,281
+Notice the storage badge: every card displays 'Hindsight Vector DB' with verified live provenance.
+
+30
+00:03:03,281 --> 00:03:13,760
+Our multi-pass evidence deduplication consolidates sub-facts from a single Zenith review into one card, preserving slots for direct Prabhav precedents.
+
+31
+00:03:13,760 --> 00:03:23,715
+Cross-vendor precedents are clearly flagged with orange badges, while the invoice's own historical review is excluded from confidence scoring.
+
+32
+00:03:23,715 --> 00:03:36,290
+In our Memory Comparison view, Memory OFF yields zero context, while Memory ON boosts confidence to seventy-five percent, grounded in three consistent prior decisions.
+
+33
+00:03:36,290 --> 00:03:41,692
+Most enterprise tools stop at finding where the numbers don't add up.
+
+34
+00:03:41,692 --> 00:03:54,747
+LedgerMind's value is in helping a human reviewer understand what the organization learned before, whether that precedent is still valid, and why a specific resolution is justified right now.
+
+35
+00:03:54,747 --> 00:04:02,400
+It unites historical recall, policy conflict detection, explainable evidence, and human accountability into a coherent decision workflow.
+
+36
+00:04:02,400 --> 00:04:16,587
+Building LedgerMind taught us a key architectural lesson: never interleave blocking health probes into asynchronous vector queries, and keep supplier tag taxonomies strictly isolated from corporate legal stopwords.
+
+37
+00:04:16,587 --> 00:04:22,160
+Today, LedgerMind is a working prototype with manual and CSV intake.
+
+38
+00:04:22,160 --> 00:04:29,253
+In the future, we envision native ERP connectors, automated OCR, and enterprise role-based access.
+
+39
+00:04:29,253 --> 00:04:36,347
+LedgerMind helps finance teams move from detecting invoice exceptions to making consistent, policy-backed decisions.
+
+40
+00:04:36,347 --> 00:04:37,360
+Thank you.
