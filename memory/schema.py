@@ -41,6 +41,8 @@ class RecalledMemory(BaseModel):
     occurred_end: Optional[datetime] = Field(default=None, description="End timestamp of event")
     is_offline_fallback: bool = Field(default=False, description="True if retrieved from offline JSONL fallback")
     bank_id: Optional[str] = Field(default=None, description="Hindsight bank identifier where memory is stored")
+    supporting_facts: List[str] = Field(default_factory=list, description="Extracted sub-facts grouped under this verified parent document")
+    is_ungrouped: bool = Field(default=False, description="True if fact could not be reliably attributed to a verified parent document")
 
     @classmethod
     def from_recall_result(cls, r: Any) -> "RecalledMemory":

@@ -120,6 +120,43 @@ def test_sub_fact_deduplication_single_document():
     # The chosen Zenith memory is the most informative one with metadata
     zenith_chosen = next(m for m in deduped if m.document_id == "feedback-INV-ZENITH-2025-101")
     assert zenith_chosen.metadata.get("vendor_name") == "Zenith Precision Engineering Pvt Ltd"
+    # Supporting facts aggregated from the other 2 sub-facts
+    assert len(zenith_chosen.supporting_facts) == 2
+    assert any("8.0%" in f for f in zenith_chosen.supporting_facts)
+    assert any("PRICE_MISMATCH" in f for f in zenith_chosen.supporting_facts)
+
+
+def test_ungrouped_facts_handling():
+    """
+    If a memory fact lacks any parent document identity or invoice citation,
+    it must be preserved as an ungrouped fact rather than inventing a parent.
+    """
+    facts = [
+        RecalledMemory(
+            id="random-fact-12345678",
+            document_id=None,
+            text="Historical general note: AP policies require 3-way matching on all POs above INR 10,000.",
+            tags=["policy:rule"],
+            metadata={},
+            score=0.65,
+        ),
+        RecalledMemory(
+            id="pi-doc-1",
+            document_id="decision-INV-PI-2024-001",
+            text="Prabhav Infosystems invoice INV-PI-2024-001 was approved as EDITED.",
+            tags=["vendor:prabhav-infosystems"],
+            metadata={"invoice_number": "INV-PI-2024-001"},
+            score=0.90,
+        ),
+    ]
+
+    deduped = normalize_and_deduplicate_memories(facts, max_items=5)
+    assert len(deduped) == 2
+
+    ungrouped = next(m for m in deduped if m.is_ungrouped)
+    assert ungrouped.is_ungrouped is True
+    assert ungrouped.document_id.startswith("fact-")
+    assert "random-fact" in ungrouped.id
 
 
 def test_confidence_calculation_excludes_cross_vendor_decisions():
@@ -197,3 +234,4 @@ def test_ui_vendor_attribution_and_cross_vendor_detection():
     # In a Zenith query, Zenith is direct precedent
     target_slug_zen = get_vendor_slug("Zenith Precision Engineering Pvt Ltd")
     assert (v_slug != target_slug_zen) is False
+

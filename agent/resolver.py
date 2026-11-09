@@ -79,57 +79,91 @@ def normalize_and_deduplicate_memories(
     max_items: int = 5,
 ) -> List[RecalledMemory]:
     """
-    Groups recalled memory facts by underlying source document (invoice / feedback)
-    and selects the single most informative fact per document.
-    Ensures that multiple extracted sub-facts from the same feedback do not crowd out
-    diverse historical precedents.
+    Groups recalled memory facts by originating source review/document into
+    a single logical evidence entry per historical precedent.
+    Aggregates extracted sub-facts/observations under the primary entry in supporting_facts,
+    preventing any single invoice review from consuming multiple display slots.
+    Facts lacking reliable document attribution are labeled as ungrouped facts.
     """
     import re
     from collections import OrderedDict
 
-    # Pass 1: Resolve explicit or narrative document IDs and map vendor/feedback association
-    tag_doc_map: Dict[Any, str] = {}
+    verified_groups: Dict[str, List[RecalledMemory]] = OrderedDict()
+    unassigned: List[RecalledMemory] = []
+    ungrouped_facts: List[RecalledMemory] = []
+
+    # Pass 1: Direct document IDs, metadata invoice numbers, and text citations
     for m in memories:
-        d_id = m.document_id
-        if not d_id and m.metadata.get("invoice_number"):
-            inv = m.metadata["invoice_number"]
-            d_id = f"feedback-{inv}" if any("feedback" in t.lower() for t in m.tags) else f"decision-{inv}"
-        if not d_id:
+        doc_id = m.document_id
+        if not doc_id and m.metadata.get("invoice_number"):
+            inv_num = m.metadata["invoice_number"]
+            is_fb = any("feedback" in t.lower() for t in m.tags) or m.metadata.get("source") == "human_feedback"
+            doc_id = f"feedback-{inv_num}" if is_fb else f"decision-{inv_num}"
+        if not doc_id:
             match = re.search(r"(INV-[A-Za-z0-9-]+)", m.text)
             if match:
-                inv = match.group(1)
+                inv_num = match.group(1)
                 is_fb = any("feedback" in t.lower() for t in m.tags) or "human" in m.text.lower() or "reviewed" in m.text.lower()
-                d_id = f"feedback-{inv}" if is_fb else f"decision-{inv}"
-        if d_id:
-            m.document_id = d_id
-            vendor_tag = next((t for t in m.tags if t.startswith("vendor:")), None)
-            is_fb = any("feedback" in t.lower() for t in m.tags)
-            if vendor_tag:
-                tag_doc_map[(vendor_tag, is_fb)] = d_id
+                doc_id = f"feedback-{inv_num}" if is_fb else f"decision-{inv_num}"
 
-    # Pass 2: Map headless sub-facts with matching vendor tag & feedback status
-    doc_groups: Dict[str, List[RecalledMemory]] = OrderedDict()
-    for m in memories:
-        if not m.document_id:
-            vendor_tag = next((t for t in m.tags if t.startswith("vendor:")), None)
-            is_fb = any("feedback" in t.lower() for t in m.tags)
-            if (vendor_tag, is_fb) in tag_doc_map:
-                m.document_id = tag_doc_map[(vendor_tag, is_fb)]
-            else:
-                m.document_id = m.id
+        if doc_id:
+            m.document_id = doc_id
+            m.is_ungrouped = False
+            if doc_id not in verified_groups:
+                verified_groups[doc_id] = []
+            verified_groups[doc_id].append(m)
+        else:
+            unassigned.append(m)
 
-        doc_id = m.document_id
-        if doc_id not in doc_groups:
-            doc_groups[doc_id] = []
-        doc_groups[doc_id].append(m)
+    # Pass 2: Unambiguous contextual linkage for sub-facts sharing unique vendor + review scope
+    for m in unassigned:
+        linked_doc_id = None
+        v_tag = next((t.split(":", 1)[1] for t in m.tags if t.startswith("vendor:")), None)
+        is_fb = any("feedback" in t.lower() for t in m.tags) or m.metadata.get("source") == "human_feedback"
 
-    deduped: List[RecalledMemory] = []
-    for doc_id, group in doc_groups.items():
-        # Select the most informative memory: prefers metadata, then longest text, then score
-        best = max(group, key=lambda x: (bool(x.metadata), len(x.text), x.score or 0.0))
-        deduped.append(best)
+        if v_tag:
+            matching_verified = [
+                d_id for d_id, grp in verified_groups.items()
+                if (d_id.startswith("feedback-") if is_fb else True)
+                and any(v_tag in [t.split(":", 1)[1] for t in g.tags if t.startswith("vendor:")] for g in grp)
+            ]
+            if len(matching_verified) == 1:
+                linked_doc_id = matching_verified[0]
 
-    return deduped[:max_items]
+        if linked_doc_id:
+            m.document_id = linked_doc_id
+            m.is_ungrouped = False
+            verified_groups[linked_doc_id].append(m)
+        else:
+            # Cannot be reliably attributed to a parent document -> label as ungrouped fact
+            m.is_ungrouped = True
+            m.document_id = f"fact-{m.id[:8]}" if m.id else "fact-unattributed"
+            ungrouped_facts.append(m)
+
+    logical_entries: List[RecalledMemory] = []
+
+    # 1. First add distinct verified document groups (each historical review occupies exactly 1 entry)
+    for doc_id, group in verified_groups.items():
+        # Select the most informative primary memory: prefers metadata, longest narrative, then score
+        primary = max(group, key=lambda x: (bool(x.metadata), len(x.text), x.score or 0.0))
+        # Collect distinct supporting sub-facts
+        supporting: List[str] = []
+        for fact in group:
+            fact_str = fact.text.strip()
+            if fact.id != primary.id and fact_str != primary.text.strip():
+                if fact_str not in supporting and fact_str not in primary.text:
+                    supporting.append(fact_str)
+        primary.supporting_facts = supporting
+        logical_entries.append(primary)
+
+    # 2. Append ungrouped facts only if remaining display slots exist
+    for u in ungrouped_facts:
+        if len(logical_entries) >= max_items:
+            break
+        u.supporting_facts = []
+        logical_entries.append(u)
+
+    return logical_entries[:max_items]
 
 
 class ResolutionAgent:

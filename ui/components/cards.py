@@ -214,7 +214,7 @@ def render_evidence_memories(
         f"""
         <div style="display: flex; justify-content: space-between; align-items: center; margin: 18px 0 10px 0;">
             <div style="font-weight: 700; font-size: 1.05rem; color: #f8fafc; display: flex; align-items: center; gap: 8px;">
-                <span>🧠</span> Recalled Precedents & Evidentiary Citations ({len(memories)})
+                <span>🧠</span> Recalled Precedents & Evidentiary Citations ({len(memories)} distinct historical cases)
             </div>
             <span class="lm-badge lm-badge-violet">Deduplicated Precedents</span>
         </div>
@@ -223,6 +223,7 @@ def render_evidence_memories(
     )
 
     for idx, mem in enumerate(memories, 1):
+        is_ungrouped = getattr(mem, "is_ungrouped", False)
         doc = mem.document_id or mem.id[:12]
         is_feedback = "feedback" in (doc.lower() + "".join(mem.tags).lower())
         bank = mem.bank_id or (LIVE_DEMO_BANK_ID if is_feedback else BASELINE_EVAL_BANK_ID)
@@ -232,6 +233,12 @@ def render_evidence_memories(
             bank_badge = '<span class="lm-badge lm-badge-amber">🟡 LIVE DEMO BANK (Human Feedback)</span>'
         else:
             bank_badge = '<span class="lm-badge lm-badge-blue">🔵 BASELINE EVAL BANK (Historical Benchmark)</span>'
+
+        # Document / Precedent identifier badge
+        if is_ungrouped:
+            doc_badge = f'<span class="lm-badge lm-badge-gray" style="font-size: 0.78rem;">⚪ Ungrouped Fact: {doc}</span>'
+        else:
+            doc_badge = f'<code style="color: #60a5fa; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem;">{doc}</code>'
 
         # Memory vendor attribution
         mem_vendor_name, mem_vendor_slug = get_memory_vendor_info(mem)
@@ -272,13 +279,34 @@ def render_evidence_memories(
             for t in display_tags[:6]
         ])
 
+        # Optional supporting facts block if multiple observations were aggregated into this logical decision
+        supporting_facts_html = ""
+        supp_facts = getattr(mem, "supporting_facts", [])
+        if supp_facts:
+            facts_items = "".join([
+                f'<div style="font-size: 0.82rem; color: #cbd5e1; padding: 3px 0; border-bottom: 1px dashed rgba(148, 163, 184, 0.15);">'
+                f'• {f}'
+                f'</div>'
+                for f in supp_facts
+            ])
+            supporting_facts_html = f"""
+            <details style="margin-top: 10px; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 6px; padding: 6px 10px;">
+                <summary style="font-size: 0.8rem; color: #94a3b8; cursor: pointer; font-weight: 500;">
+                    📋 {len(supp_facts)} additional extracted facts from this review (click to view)
+                </summary>
+                <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
+                    {facts_items}
+                </div>
+            </details>
+            """
+
         st.markdown(
             f"""
             <div class="lm-card" style="padding: 16px 20px; margin-bottom: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                         <span style="font-weight: 700; color: #94a3b8; font-size: 0.85rem;">#{idx}</span>
-                        <code style="color: #60a5fa; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem;">{doc}</code>
+                        {doc_badge}
                         {bank_badge}
                         {vendor_badge}
                     </div>
@@ -290,6 +318,7 @@ def render_evidence_memories(
                     {mem.text}
                 </div>
                 <div>{tag_pills}</div>
+                {supporting_facts_html}
             </div>
             """,
             unsafe_allow_html=True,
