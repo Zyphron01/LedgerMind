@@ -7,12 +7,13 @@ policy intelligence, and system advisory notices inspired by Tremor and shadcn/u
 """
 
 from decimal import Decimal
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 import streamlit as st
 
 from agent.confidence import ConfidenceBand, ConfidenceScore
 from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
 from data.models import ApproverDecision, ExceptionType, MatchResult
+from data.vendors import ALL_VENDORS, get_vendor_slug
 from memory.schema import RecalledMemory
 
 
@@ -169,11 +170,45 @@ def render_confidence_card(confidence: ConfidenceScore) -> None:
             )
 
 
-def render_evidence_memories(memories: List[RecalledMemory]) -> None:
-    """Render recalled institutional memory facts with source bank disclosure and Bento card aesthetics."""
+def get_memory_vendor_info(mem: RecalledMemory) -> Tuple[str, str]:
+    """
+    Extract (vendor_display_name, vendor_slug) from memory metadata, tags, or text.
+    """
+    # 1. Authoritative metadata
+    if mem.metadata.get("vendor_name"):
+        v_name = str(mem.metadata["vendor_name"]).strip()
+        return v_name, get_vendor_slug(v_name)
+
+    # 2. Authoritative tags
+    for t in mem.tags:
+        if t.startswith("vendor:"):
+            v_slug = t.split(":", 1)[1].strip().lower()
+            for v in ALL_VENDORS:
+                if v.slug == v_slug:
+                    return v.name, v.slug
+            return v_slug.replace("-", " ").title(), v_slug
+
+    # 3. Known vendor matching from narrative text
+    for v in ALL_VENDORS:
+        if v.name.lower() in mem.text.lower() or v.slug in mem.text.lower():
+            return v.name, v.slug
+
+    if "zenith" in mem.text.lower():
+        return "Zenith Precision Engineering Pvt Ltd", "zenith-precision-engineering"
+
+    return "Institutional AP Precedent", "institutional-precedent"
+
+
+def render_evidence_memories(
+    memories: List[RecalledMemory],
+    target_vendor_name: Optional[str] = None,
+) -> None:
+    """Render recalled institutional memory facts with verified vendor attribution, cross-vendor disclosure, and Bento card aesthetics."""
     if not memories:
         st.info("No historical memories were recalled for this query.")
         return
+
+    target_slug = get_vendor_slug(target_vendor_name) if target_vendor_name else None
 
     st.markdown(
         f"""
@@ -198,21 +233,54 @@ def render_evidence_memories(memories: List[RecalledMemory]) -> None:
         else:
             bank_badge = '<span class="lm-badge lm-badge-blue">🔵 BASELINE EVAL BANK (Historical Benchmark)</span>'
 
+        # Memory vendor attribution
+        mem_vendor_name, mem_vendor_slug = get_memory_vendor_info(mem)
+        is_cross_vendor = bool(target_slug and mem_vendor_slug and mem_vendor_slug != target_slug)
+
+        if is_cross_vendor:
+            vendor_badge = (
+                f'<span class="lm-badge lm-badge-amber" style="background: rgba(245, 158, 11, 0.18); '
+                f'border: 1px solid rgba(245, 158, 11, 0.45); color: #fde68a; font-weight: 600;">'
+                f'🟠 Cross-Vendor Precedent: {mem_vendor_name}</span>'
+            )
+        else:
+            vendor_badge = (
+                f'<span class="lm-badge lm-badge-blue" style="background: rgba(59, 130, 246, 0.12); '
+                f'border: 1px solid rgba(59, 130, 246, 0.35); color: #bfdbfe;">'
+                f'🏢 {mem_vendor_name}</span>'
+            )
+
         storage_type = "💾 Offline JSONL Fallback" if mem.is_offline_fallback else "🧠 Hindsight Vector DB"
         score_str = f"Relevance: {mem.score:.2f}" if mem.score is not None else "Keyword Match"
 
-        tag_pills = ""
-        if mem.tags:
-            tag_pills = " ".join([f'<span class="lm-badge lm-badge-gray" style="font-size: 0.72rem; margin-right: 4px;">#{t}</span>' for t in mem.tags[:6]])
+        # Sanitize and ensure accurate tags belonging to this memory
+        display_tags: List[str] = []
+        has_vendor_tag = False
+        for t in mem.tags:
+            if t.startswith("vendor:"):
+                # Always show the true vendor slug, never an incorrect one
+                if not has_vendor_tag:
+                    display_tags.append(f"vendor:{mem_vendor_slug}")
+                    has_vendor_tag = True
+            else:
+                display_tags.append(t)
+        if not has_vendor_tag and mem_vendor_slug:
+            display_tags.insert(0, f"vendor:{mem_vendor_slug}")
+
+        tag_pills = " ".join([
+            f'<span class="lm-badge lm-badge-gray" style="font-size: 0.72rem; margin-right: 4px;">#{t}</span>'
+            for t in display_tags[:6]
+        ])
 
         st.markdown(
             f"""
             <div class="lm-card" style="padding: 16px 20px; margin-bottom: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                         <span style="font-weight: 700; color: #94a3b8; font-size: 0.85rem;">#{idx}</span>
                         <code style="color: #60a5fa; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem;">{doc}</code>
                         {bank_badge}
+                        {vendor_badge}
                     </div>
                     <div style="font-size: 0.78rem; color: #94a3b8;">
                         {storage_type} • <strong style="color: #cbd5e1;">{score_str}</strong>

@@ -74,6 +74,64 @@ class ResolutionProposal(BaseModel):
         return v
 
 
+def normalize_and_deduplicate_memories(
+    memories: List[RecalledMemory],
+    max_items: int = 5,
+) -> List[RecalledMemory]:
+    """
+    Groups recalled memory facts by underlying source document (invoice / feedback)
+    and selects the single most informative fact per document.
+    Ensures that multiple extracted sub-facts from the same feedback do not crowd out
+    diverse historical precedents.
+    """
+    import re
+    from collections import OrderedDict
+
+    # Pass 1: Resolve explicit or narrative document IDs and map vendor/feedback association
+    tag_doc_map: Dict[Any, str] = {}
+    for m in memories:
+        d_id = m.document_id
+        if not d_id and m.metadata.get("invoice_number"):
+            inv = m.metadata["invoice_number"]
+            d_id = f"feedback-{inv}" if any("feedback" in t.lower() for t in m.tags) else f"decision-{inv}"
+        if not d_id:
+            match = re.search(r"(INV-[A-Za-z0-9-]+)", m.text)
+            if match:
+                inv = match.group(1)
+                is_fb = any("feedback" in t.lower() for t in m.tags) or "human" in m.text.lower() or "reviewed" in m.text.lower()
+                d_id = f"feedback-{inv}" if is_fb else f"decision-{inv}"
+        if d_id:
+            m.document_id = d_id
+            vendor_tag = next((t for t in m.tags if t.startswith("vendor:")), None)
+            is_fb = any("feedback" in t.lower() for t in m.tags)
+            if vendor_tag:
+                tag_doc_map[(vendor_tag, is_fb)] = d_id
+
+    # Pass 2: Map headless sub-facts with matching vendor tag & feedback status
+    doc_groups: Dict[str, List[RecalledMemory]] = OrderedDict()
+    for m in memories:
+        if not m.document_id:
+            vendor_tag = next((t for t in m.tags if t.startswith("vendor:")), None)
+            is_fb = any("feedback" in t.lower() for t in m.tags)
+            if (vendor_tag, is_fb) in tag_doc_map:
+                m.document_id = tag_doc_map[(vendor_tag, is_fb)]
+            else:
+                m.document_id = m.id
+
+        doc_id = m.document_id
+        if doc_id not in doc_groups:
+            doc_groups[doc_id] = []
+        doc_groups[doc_id].append(m)
+
+    deduped: List[RecalledMemory] = []
+    for doc_id, group in doc_groups.items():
+        # Select the most informative memory: prefers metadata, then longest text, then score
+        best = max(group, key=lambda x: (bool(x.metadata), len(x.text), x.score or 0.0))
+        deduped.append(best)
+
+    return deduped[:max_items]
+
+
 class ResolutionAgent:
     """Core autonomous AP resolution agent using Hindsight memory and Groq LLM."""
 
@@ -175,14 +233,7 @@ class ResolutionAgent:
                     limit=5,
                 )
                 # Combine with newly retained live feedback prioritized first
-                seen_docs: set = set()
-                combined_mems: List[RecalledMemory] = []
-                for m in (demo_mems + baseline_mems):
-                    doc_key = m.document_id or m.id
-                    if doc_key not in seen_docs:
-                        seen_docs.add(doc_key)
-                        combined_mems.append(m)
-                recalled_mems = combined_mems[:5]
+                recalled_mems = normalize_and_deduplicate_memories(demo_mems + baseline_mems, max_items=5)
 
                 # Confidence sample combining both live demo feedback and baseline precedents
                 demo_conf = recall_for_confidence(
@@ -199,14 +250,7 @@ class ResolutionAgent:
                     exception_type=match_result.exception_type,
                     limit=15,
                 )
-                seen_conf_docs: set = set()
-                combined_conf: List[RecalledMemory] = []
-                for m in (demo_conf + baseline_conf):
-                    doc_key = m.document_id or m.id
-                    if doc_key not in seen_conf_docs:
-                        seen_conf_docs.add(doc_key)
-                        combined_conf.append(m)
-                confidence_sample = combined_conf
+                confidence_sample = normalize_and_deduplicate_memories(demo_conf + baseline_conf, max_items=15)
 
                 # Reflect profile from live demo bank with fallback to baseline
                 try:
@@ -232,21 +276,23 @@ class ResolutionAgent:
 
             else:
                 # Query specific precedents for this discrepancy
-                recalled_mems = recall_for_exception(
+                raw_recalled = recall_for_exception(
                     client=self.memory,
                     bank_id=target_bank,
                     invoice=invoice,
                     match_result=match_result,
-                    limit=5,
+                    limit=10,
                 )
+                recalled_mems = normalize_and_deduplicate_memories(raw_recalled, max_items=5)
                 # Query wider set for confidence calculation
-                confidence_sample = recall_for_confidence(
+                raw_conf = recall_for_confidence(
                     client=self.memory,
                     bank_id=target_bank,
                     vendor_slug=vendor_slug,
                     exception_type=match_result.exception_type,
-                    limit=15,
+                    limit=20,
                 )
+                confidence_sample = normalize_and_deduplicate_memories(raw_conf, max_items=15)
                 # Retrieve cached vendor profile
                 try:
                     prof = get_vendor_profile(

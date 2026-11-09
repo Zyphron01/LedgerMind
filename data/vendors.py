@@ -118,20 +118,36 @@ VENDORS_BY_SLUG: Dict[str, Vendor] = {
     ),
 }
 
+import re
+
+LEGAL_ENTITY_WORDS = {
+    "pvt", "ltd", "private", "limited", "llp", "co", "company", "inc",
+    "corp", "corporation", "enterprises"
+}
+
 ALL_VENDORS = list(VENDORS_BY_SLUG.values())
 
 
 def get_vendor_slug(name_or_slug: str) -> str:
     """Resolve vendor name or partial string to canonical vendor slug."""
-    clean = name_or_slug.strip().lower().replace(".", "")
+    clean = re.sub(r"[^\w\s-]", "", name_or_slug.strip().lower())
+    clean_hyphen = clean.replace(" ", "-")
     for v in ALL_VENDORS:
-        if v.slug == clean or v.name.lower() == clean:
+        if v.slug == clean or v.slug == clean_hyphen or v.name.lower() == clean:
             return v.slug
-        if v.slug in clean or clean in v.slug:
+        if v.slug in clean or (len(clean) >= 6 and clean in v.slug):
             return v.slug
-        # Word overlap check
-        v_words = set(v.name.lower().split())
-        clean_words = set(clean.replace("-", " ").split())
-        if len(v_words.intersection(clean_words)) >= 2:
+        v_words = {w for w in re.sub(r"[^\w\s-]", "", v.name.lower()).split() if w not in LEGAL_ENTITY_WORDS}
+        clean_words = {w for w in clean.replace("-", " ").split() if w not in LEGAL_ENTITY_WORDS}
+        overlap = v_words.intersection(clean_words)
+        if len(overlap) >= 2:
             return v.slug
-    return clean.replace(" ", "-")
+        if len(overlap) == 1 and overlap.intersection({
+            "prabhav", "kamalnath", "devanshi", "suryakant", "narmada", "bhavna", "triveni", "chintamani"
+        }):
+            return v.slug
+    # Unknown or custom vendor: derive slug without legal entity noise
+    meaningful = [w for w in clean.replace("-", " ").split() if w not in LEGAL_ENTITY_WORDS]
+    if meaningful:
+        return "-".join(meaningful)
+    return re.sub(r"[^a-z0-9]+", "-", clean).strip("-")

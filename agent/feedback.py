@@ -91,4 +91,3 @@ def process_human_feedback(
         invoice_number=submission.invoice_number,
         human_decision=submission.human_decision,
     )
-

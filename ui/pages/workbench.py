@@ -239,7 +239,10 @@ def render_workbench_page() -> None:
     render_confidence_card(active_proposal.confidence)
 
     if active_proposal.memory_enabled:
-        render_evidence_memories(active_proposal.recalled_memories)
+        render_evidence_memories(
+            active_proposal.recalled_memories,
+            target_vendor_name=active_proposal.vendor_name,
+        )
     else:
         st.info("ℹ️ Memory is currently **OFF**. The agent generated this recommendation without historical precedent context.")
 
