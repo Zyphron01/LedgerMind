@@ -37,6 +37,7 @@ LedgerMind never blindly copies historical decisions. When an institutional prec
 - Deterministic Matcher: Python decimal arithmetic with Indian GST tax schedules
 
 ### GitHub Repository:
-https://github.com/example/ledgermind
+https://github.com/Zyphron01/LedgerMind
 
 #Hindsight #AI #MachineLearning #AccountsPayable #FinTech #Streamlit #Python #VectorDB
+

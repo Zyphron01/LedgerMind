@@ -1,59 +1,109 @@
 # LedgerMind ⚡
 ### Autonomous Accounts-Payable Exception-Handling Agent Powered by Hindsight Agentic Memory & Policy RAG
 
-> **Advisory Financial Intelligence Notice**: LedgerMind assists Accounts Payable teams by recalling institutional human precedents and generating auditable resolution recommendations. **It never executes bank disbursements, modifies ERP general ledgers, or authorizes direct financial transfers.** All corporate policies and business vendor profiles are synthetic simulations.
+> **Advisory Financial Intelligence Notice**: LedgerMind assists Accounts Payable (AP) teams by recalling institutional human precedents and generating auditable resolution recommendations. **It never executes bank disbursements, modifies ERP general ledgers, or authorizes direct financial transfers.** All corporate policies, vendors, GSTINs, and purchase orders in the baseline demonstration are synthetic simulations.
 
 ---
 
-## 1. System Overview & Problem Statement
+## 1. Executive Summary & Problem Statement
 
-Accounts Payable (AP) departments face recurring 3-way match discrepancies (Invoice vs. Purchase Order vs. Goods Receipt Note). Traditional rule-based AP automation tools fail when discrepancies require context:
-- Did the approver accept previous minor variances due to standard packaging increments or freight rounding?
+In enterprise Accounts Payable, 3-way matching discrepancies (Invoice vs. Purchase Order vs. Goods Receipt Note) create high-friction operational bottlenecks. While simple arithmetic checks detect variances, resolving them requires institutional memory:
+- Did the approver previously accept minor price variances due to standard packaging increments or freight rounding?
 - Has the supplier repeatedly billed unauthorized price overages that reviewers informally rubber-stamped?
 - Has corporate policy recently retired historical grace periods, making past approvals obsolete?
 
-**LedgerMind** solves this through **Policy-Aware Institutional Decision Memory**:
-1. **Deterministic 3-Way Matcher**: Rapid, zero-hallucination detection of price mismatches, quantity shortfalls, duplicate submissions, statutory GST errors, and expired POs in plain Python.
-2. **Deterministic Policy RAG**: Temporal retrieval of internal corporate policies with exact effective dates and variance thresholds.
-3. **Hindsight Persistent Agent Memory**: Vector and document-level recall of prior human approver decisions, cited evidence, and vendor profile reflections.
-4. **Autonomous Resolution Agent**: Groq LLM (`openai/gpt-oss-120b`) formulates structured proposals grounded in recalled precedents.
-5. **Deterministic Policy Supremacy Guard**: Written corporate policy strictly supersedes precedent. The system prevents repeated unauthorized historical approvals from violating active financial controls.
-6. **Continuous Learning Loop**: Human reviewers approve, edit, or escalate proposals, immediately retaining verified rationale back into Hindsight for subsequent invoice evaluations.
+Traditional automated systems either blindly approve variances (risking financial leakage) or halt execution completely, overwhelming human AP clerks.
+
+**LedgerMind** bridges this gap using **Policy-Aware Institutional Decision Memory**. It combines deterministic matching, temporal corporate policy retrieval, and persistent agentic memory to propose explainable, audit-ready resolutions while ensuring that **written corporate policy strictly supersedes precedent**.
 
 ---
 
-## 2. Core Architecture
+## 2. The Four Pillars of LedgerMind
+
+1. **Deterministic 3-Way Matcher (Zero Hallucination)**:
+   - Performs exact arithmetic verification of line-item prices, received quantities, statutory Indian GST calculations, duplicate invoice detection, and purchase order expiration dates using Python's `Decimal`.
+2. **Deterministic Policy RAG Engine**:
+   - Temporally retrieves active corporate policy standards (e.g., `POL-AP-001` through `POL-AP-006`) based on invoice issuance dates, comparing variances against exact allowed thresholds.
+3. **Hindsight Agentic Memory**:
+   - Integrates [Vectorize Hindsight](https://hindsight.vectorize.io/) across all three memory primitives (`retain`, `recall`, `reflect`) to maintain persistent, cross-session precedent memory of prior human reviewer decisions, justifications, and longitudinal vendor profiles.
+4. **Policy Supremacy Guard & Autonomous Resolver**:
+   - Formulates resolution recommendations via Groq LLM (`openai/gpt-oss-120b`). If a historical precedent conflicts with active corporate policy (such as past rubber-stamping or retired grace periods), the Policy Supremacy Guard overrides precedent, forcing escalation or rejection.
+
+---
+
+## 3. Technology Stack
+
+- **Application Framework**: Python 3.10+ / Streamlit
+- **Agent Memory**: [Vectorize Hindsight](https://hindsight.vectorize.io/) (Docker container on port `8888`) with fallback to local JSONL store
+- **Large Language Model**: Groq API (`openai/gpt-oss-120b` or `llama-3.3-70b-versatile`)
+- **Persistence Layer**: SQLite (`data/ledgermind.db`) with Foreign Keys & Decimal-safe string serialization
+- **Video & Multimedia**: Playwright (Headless UI screen recording), Edge TTS (`en-IN-PrabhatNeural`), FFmpeg 7.1
+
+---
+
+## 4. System Architecture & Workflow
 
 ```mermaid
 flowchart TD
-    A[Supplier Invoice] --> B[Deterministic Matcher]
-    PO[Purchase Order] --> B
-    GRN[Goods Receipt Note] --> B
-    
-    B -->|3-Way Discrepancy| C[Policy RAG Engine]
-    C -->|Governing Standard| D[Hindsight Memory Recall]
-    D -->|Verified Precedents| E[Groq LLM Resolver]
-    
-    E --> F{Policy Conflict Detector}
-    F -->|Compliant| G[Proposal Generated]
-    F -->|Unauthorized Precedent| H[Policy Supremacy: ESCALATE]
-    F -->|Policy Version Shift| I[Policy Supremacy: REJECT]
-    
-    G --> J[Human AP Reviewer Workbench]
-    H --> J
-    I --> J
-    J -->|Human Decision & Rationale| K[Hindsight Retain Learning Loop]
-    K -.->|Immediate Precedent Update| D
+    subgraph Intake["1. Invoice Intake & Matching"]
+        INV[Supplier Invoice] --> M[Deterministic 3-Way Matcher]
+        PO[Purchase Order] --> M
+        GRN[Goods Receipt Note] --> M
+    end
+
+    subgraph Resolution["2. Intelligence & Policy Guard"]
+        M -->|Discrepancy Detected| POL[Policy RAG: Effective Standards]
+        POL --> MEM[Hindsight Recall: Precedent Retrieval]
+        MEM --> LLM[Groq LLM Resolver Engine]
+        LLM --> GUARD{Policy Supremacy Guard}
+        GUARD -->|Precedent Valid & Policy Compliant| REC[Recommendation: APPROVED / EDITED]
+        GUARD -->|Unauthorized Historical Approval| ESC[Recommendation: ESCALATED]
+        GUARD -->|Policy Rule Version Shift| REJ[Recommendation: REJECTED]
+    end
+
+    subgraph Workbench["3. Human Review & Feedback Loop"]
+        REC --> WB[Human AP Reviewer Workbench]
+        ESC --> WB
+        REJ --> WB
+        WB -->|Final Decision & Audit Rationale| STORE[(Persistent SQLite Ledger)]
+        WB -->|Hindsight Retain| HINDSIGHT[(Hindsight Agent Memory)]
+        HINDSIGHT -.->|Immediate Learning for Future Invoices| MEM
+    end
 ```
+
+### End-to-End Operational Lifecycle:
+1. **Invoice Intake**: The user creates or imports an invoice, linking it to an existing or newly generated Purchase Order and Goods Receipt Note.
+2. **3-Way Match Execution**: LedgerMind compares unit prices, delivered quantities, and tax calculations, identifying any exceptions (e.g., price overages, quantity shortages, expired POs).
+3. **Memory Retrieval & Policy Retrieval**:
+   - Governing corporate policy is retrieved with exact effective dates.
+   - Hindsight recalls prior decisions for this vendor and exception type.
+4. **Recommendation Generation**: Groq LLM synthesizes policy and precedents to formulate a proposed action (`APPROVE`, `EDIT`, `REJECT`, `ESCALATE`).
+5. **Human Review & Permanent Retention**: An AP specialist inspects the evidence, confirms or edits the resolution, and submits the review. The decision is saved to the SQLite ledger and immediately retained in Hindsight for future precedent recall.
 
 ---
 
-## 3. How LedgerMind Uses Hindsight Agent Memory
+## 5. Live Hindsight vs. Offline JSONL Fallback Provenance
 
-LedgerMind uses all three core capabilities of Hindsight (`retain`, `recall`, and `reflect`):
+LedgerMind is architected for continuous resilience:
 
-1. **`retain()` — Auditable Institutional Learning**:
-   When a human AP reviewer approves, edits, or escalates an invoice in the Resolution Workbench, their decision, role, final payable amount, and mandatory audit justification are retained into the active `ledgermind-live-demo` bank:
+| Capability | Live Local Hindsight Mode (`HINDSIGHT_MODE=local`) | Offline JSONL Fallback Mode (`HINDSIGHT_MODE=offline`) |
+| :--- | :--- | :--- |
+| **Backend Engine** | Vectorize Hindsight Docker container (REST on `:8888`) | Local JSONL append-only audit files (`offline_memory.jsonl`) |
+| **Retrieval Method** | Semantic vector similarity + tag-filtered recall | Tag-based keyword and metadata exact filtering |
+| **Longitudinal Insights** | Dynamic `reflect()` behavioral summaries | Local cached reflection summaries (`reflect_cache.json`) |
+| **Provenance Indication** | `Hindsight Bank: ledgermind-live-demo` (Green chip in UI) | `Offline JSONL Fallback Store` (Amber chip in UI) |
+| **Automatic Fallback** | Automatically falls back to JSONL if container is unreachable or times out | Operates completely air-gapped without Docker or network |
+
+Every memory card displayed in the Resolution Workbench explicitly discloses its data lineage so the human auditor knows whether evidence was retrieved via semantic vector search or offline fallback.
+
+---
+
+## 6. How LedgerMind Uses Hindsight Agent Memory
+
+LedgerMind leverages all three core primitives of Hindsight:
+
+1. **`retain()` — Auditable Precedent Learning**:
+   When an AP specialist approves, edits, or escalates an invoice, their decision, role, payable amount, and audit rationale are permanently retained into Hindsight:
    ```python
    client.retain(
        bank_id="ledgermind-live-demo",
@@ -62,10 +112,8 @@ LedgerMind uses all three core capabilities of Hindsight (`retain`, `recall`, an
        tags=[f"vendor:{slug}", f"exception:{exc}", f"decision:{decision}"]
    )
    ```
-   *Baseline Benchmark Isolation*: Writes to the frozen benchmark bank (`ledgermind-ap-exceptions`) are strictly blocked to preserve benchmark integrity.
-
 2. **`recall()` — Evidence-Grounded Precedent Retrieval**:
-   When resolving an exception, the agent queries Hindsight using vendor slugs and exception categories:
+   When evaluating a new exception, LedgerMind recalls historical decisions matching the vendor and exception type:
    ```python
    recalled = client.recall(
        bank_id="ledgermind-live-demo",
@@ -74,62 +122,57 @@ LedgerMind uses all three core capabilities of Hindsight (`retain`, `recall`, an
        limit=5
    )
    ```
-   *Strict Anti-Hallucination & Deduplication*: Recalled facts from the same source document are deduplicated. The agent calculates a deterministic heuristic confidence score and strictly enforces citation validity.
-
+   *Deduplication & Circular-Evidence Guard*: Facts belonging to the same review document are deduplicated. The system strictly excludes an invoice's own historical review from being used as precedent against itself.
 3. **`reflect()` — Longitudinal Vendor Behavioral Profiling**:
-   Hindsight's `reflect()` synthesizes long-term behavioral patterns across all historical interactions with a supplier (e.g., standard packing overages, freight adjustments, or recurring billing quirks):
+   Hindsight synthesizes cross-invoice patterns to provide context on recurring supplier billing behaviors:
    ```python
    summary = client.reflect(
        bank_id="ledgermind-live-demo",
-       query=f"Summarize longitudinal relationship, recurring invoice patterns, and billing habits for {vendor_name}."
+       query=f"Summarize longitudinal relationship and recurring invoice patterns for {vendor_name}."
    )
    ```
-   Reflect summaries are cached on disk (`reflect_cache.json`) to conserve LLM token budgets.
 
 ---
 
-## 4. Benchmark Demonstration Scenarios
+## 7. Benchmark Scenarios (Policy vs. Precedent)
 
-LedgerMind includes three reproducible benchmark scenarios demonstrating the balance between institutional memory and corporate policy controls:
+LedgerMind includes three benchmark scenarios demonstrating its core differentiator:
 
 ### Scenario A — Compliant Precedent (Prabhav Infosystems)
 - **Invoice**: `INV-PI-2025-101` (Prabhav Infosystems Pvt Ltd)
 - **Discrepancy**: Price mismatch (+4.0% overcharge; unit rate ₹1,872 vs contracted ₹1,800).
 - **Governing Policy**: `POL-AP-001` v2.0 (Price overages between 1.0% and 5.0% must be EDITED down to contracted rate).
-- **Precedents**: Historical approvers consistently edited prior overcharges (`decision-INV-PI-2024-001`).
-- **Outcome**: **`EDITED` to ₹212,400.00** (Confidence 0.70, Medium). Precedent perfectly complies with written policy.
+- **Precedent**: Historical approvers consistently edited prior overcharges (`decision-INV-PI-2024-001`).
+- **Outcome**: **`EDITED` to ₹212,400.00** (Confidence 0.70, Medium). Precedent complies with policy.
 
 ### Scenario B — Policy–Precedent Conflict (Bhavna Textile Traders)
 - **Invoice**: `INV-BTT-2025-101` (Bhavna Textile Traders)
 - **Discrepancy**: Price mismatch (+2.00% price variance).
 - **Governing Policy**: `POL-AP-001` v2.0 (Caps unamended price tolerance at 1.00%; strictly prohibits unamended approvals).
-- **Precedents**: Past human approvers repeatedly rubber-stamped prior overcharges (`decision-INV-BTT-2024-001`).
-- **Outcome**: **`ESCALATED` to Procurement Category Lead / Finance Controller** (Confidence 0.10, Low). Deterministic Policy Supremacy overrides bad habits and flags unauthorized precedent.
+- **Precedent**: Past human approvers repeatedly rubber-stamped prior overcharges without amendment.
+- **Outcome**: **`ESCALATED` to Procurement Category Lead** (Confidence 0.10, Low). Deterministic Policy Supremacy overrides rubber-stamped precedent.
 
 ### Scenario C — Policy Version Shift (Suryakant Engineering Works)
 - **Invoice**: `INV-SEW-2025-101` (Suryakant Engineering Works)
 - **Discrepancy**: PO Expired (Invoice submitted 18 days after PO validity date).
 - **Governing Policy**: `POL-AP-004` v2.0 (Effective 2025-08-01; strictly abolishes grace periods; mandates immediate rejection).
-- **Precedents**: Historical approvals occurred under retired policy v1.0, which permitted a 30-day grace period.
-- **Outcome**: **`REJECTED`** (Confidence 0.05, Low). Current active policy strictly supersedes obsolete historical precedent.
+- **Precedent**: Historical approvals occurred under retired policy v1.0, which permitted a 30-day grace period.
+- **Outcome**: **`REJECTED`** (Confidence 0.05, Low). Active corporate policy strictly supersedes obsolete historical precedent.
 
 ---
 
-## 5. Verified Hindsight Environment & Setup
+## 8. Hindsight Docker Setup
 
 LedgerMind integrates with [Hindsight](https://hindsight.vectorize.io/) (Agent Memory by Vectorize).
 
-### Verified Container Specification
+### Container Specification
 - **Image**: `ghcr.io/vectorize-io/hindsight:latest`
-- **Image Manifest Digest**: `sha256:60fcc7b8134723e83b2caa2b6feeb98fdefa99aa4265e3c483011a31657207b9`
-- **Container Name**: `hindsight`
+- **Image Digest**: `sha256:60fcc7b8134723e83b2caa2b6feeb98fdefa99aa4265e3c483011a31657207b9`
 - **API Port**: `8888`
 - **Control Plane Port**: `9999`
-- **Persistent Volume Mount**: `hindsight-data:/home/hindsight/.pg0` (Internal container storage directory)
+- **Persistent Volume**: `hindsight-data:/home/hindsight/.pg0`
 
-### Reproduction Command
-To start the verified Hindsight container locally:
-
+### Start Hindsight Locally
 ```bash
 docker run -d --name hindsight \
   -p 8888:8888 -p 9999:9999 \
@@ -146,16 +189,16 @@ docker run -d --name hindsight \
 
 ---
 
-## 6. Quickstart Guide
+## 9. Quickstart Installation & Execution
 
 ### Prerequisites
-- Python 3.11+
-- Local Docker Desktop (or run LedgerMind in transparent offline fallback mode)
-- Groq API Key (for LLM inference)
+- Python 3.10 or higher
+- Groq API Key (for LLM resolution generation)
+- Local Docker Desktop (optional: LedgerMind runs transparently in offline fallback mode if Docker is absent)
 
 ### Installation
 ```bash
-git clone https://github.com/your-username/LedgerMind.git
+git clone https://github.com/Zyphron01/LedgerMind.git
 cd LedgerMind
 
 python -m venv venv
@@ -168,19 +211,19 @@ pip install -r requirements.txt
 ```
 
 ### Environment Configuration
-Copy the example environment template:
+Copy the example environment configuration:
 ```bash
 cp .env.example .env
 ```
-Edit `.env`:
+Edit `.env` to configure your keys:
 ```env
-HINDSIGHT_MODE=local             # local | cloud | offline
+HINDSIGHT_MODE=local                           # local | cloud | offline
 HINDSIGHT_LOCAL_URL=http://localhost:8888
-GROQ_API_KEY=gsk_your_groq_api_key_here
+GROQ_API_KEY=gsk_your_groq_api_key_here        # required for live agent recommendations
 GROQ_MODEL=openai/gpt-oss-120b
 ```
 
-### Run Streamlit Application
+### Run Application
 ```bash
 streamlit run app.py
 ```
@@ -188,14 +231,14 @@ Open [http://localhost:8501](http://localhost:8501) in your browser.
 
 ---
 
-## 7. Automated Verification & Benchmarks
+## 10. Automated Tests & Evaluation Suite
 
-### Run 57-Test Regression Suite
+### Run Regression Test Suite
 ```bash
 python -m pytest -v
 ```
 
-### Run Policy Conflict Benchmark Scenarios (Scenarios A, B, C)
+### Run Policy Conflict Benchmark Scenarios
 ```bash
 python scripts/demo_policy_conflicts.py --mode offline
 # or with live local Hindsight:
@@ -209,11 +252,7 @@ python eval/evaluate_held_out.py --client-mode offline
 python eval/evaluate_held_out.py --client-mode local
 ```
 
----
-
-## 8. Evaluation Summary (N = 20 Held-Out Invoices)
-
-Comparison across 20 held-out invoices evaluated against isolated ground-truth labels:
+### Held-Out Evaluation Benchmark (N = 20 Invoices)
 
 | Evaluation Metric | Mode 1 (Memory OFF) | Mode 2 (Precedent Only) | Mode 3 (LedgerMind Full) |
 | :--- | :---: | :---: | :---: |
@@ -227,9 +266,20 @@ Comparison across 20 held-out invoices evaluated against isolated ground-truth l
 
 ---
 
-## 9. Disclaimers & Known Limitations
+## 11. Innovation Showcase Video
 
-1. **Synthetic Data Disclaimer**: All 8 vendors (e.g. *Prabhav Infosystems*, *Bhavna Textile Traders*, *Patel Hardware & Tools*), GSTINs, invoice line items, purchase orders, and corporate policies (`POL-AP-001` through `POL-AP-006`) are synthetically generated for demonstration and evaluation purposes.
-2. **Groq Free-Tier Rate Limits**: Groq's free-tier ceiling is 200,000 Tokens Per Day (TPD). In the local Hindsight bank, 14 initial documents were seeded directly, and remaining records are queued or served via the local offline fallback store (`offline_memory.jsonl`).
-3. **Deterministic Heuristic Confidence**: The confidence score (0.00–1.00) is a deterministic metric reflecting sample size (n) and historical approver agreement ratio, not a calibrated Bayesian posterior probability.
-4. **Advisory Financial Intelligence**: LedgerMind does not connect to bank gateways, write to ERP general ledgers, or execute automated disbursements. All decisions require human reviewer confirmation.
+A narrated 1080p demonstration video of LedgerMind is available in the repository:
+- **Video File**: `submission/video/ledgermind_showcase.mp4` (10.7 MB, 1080p @ 30fps, AAC audio)
+- **Subtitles**: `submission/video/subtitles.srt` (40 synchronized caption cues)
+- **Narration Script**: `submission/video/narration_script.md`
+- **YouTube Metadata & Timestamps**: `submission/video/youtube_description.md`
+
+---
+
+## 12. Prototype Disclaimers & Known Limitations
+
+1. **Synthetic Data Disclaimer**: All 8 vendors (e.g., *Prabhav Infosystems*, *Bhavna Textile Traders*, *Patel Hardware & Tools*), GSTINs, invoice line items, purchase orders, and corporate policies (`POL-AP-001` through `POL-AP-006`) are synthetically generated for demonstration and evaluation purposes.
+2. **Prototype Scope & Intake Format**: LedgerMind is an experimental prototype designed to validate agentic memory in financial exception resolution. It currently accepts structured manual invoice input and tabular data rather than raw OCR scans of arbitrary unstructured PDF formats.
+3. **Groq Free-Tier Rate Limits**: Groq's free-tier rate ceiling is 200,000 Tokens Per Day (TPD). In the local Hindsight bank, initial benchmark documents were pre-seeded, and remaining records are queued or served via the local offline fallback store.
+4. **Deterministic Heuristic Confidence**: The confidence score (0.00–1.00) is a deterministic metric reflecting sample size ($n$) and historical approver agreement ratio, not a calibrated Bayesian posterior probability.
+5. **Advisory Financial Intelligence**: LedgerMind does not connect to bank gateways, write to ERP general ledgers, or execute automated disbursements. All decisions require human reviewer confirmation.

@@ -3,6 +3,16 @@
 .env.local
 .env.*.local
 !.env.example
+.streamlit/secrets.toml
+
+# Local database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+data/*.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -19,6 +29,9 @@ reflect_cache.json
 offline_memory.jsonl
 *.log
 
+# Video generation temporary browser caches
+submission/video/source_recordings/temp_*/
+
 # Test & coverage caches
 .pytest_cache/
 .coverage
@@ -26,8 +39,12 @@ htmlcov/
 eval/results/
 *.csv
 
-# Editor & OS artifacts
+# Editor, OS & virtual env artifacts
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+venv/
+.venv/
+env/
+

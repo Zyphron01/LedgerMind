@@ -218,3 +218,4 @@ if __name__ == "__main__":
     create_title_card()
     create_architecture_card()
     create_closing_card()
+

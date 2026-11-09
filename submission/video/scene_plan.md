@@ -39,3 +39,4 @@
 - `frames/title_card.png` (1920x1080)
 - `frames/architecture_card.png` (1920x1080)
 - `frames/closing_card.png` (1920x1080)
+
