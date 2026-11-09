@@ -313,6 +313,7 @@ class ResolutionAgent:
                     vendor_slug=vendor_slug,
                     exception_type=match_result.exception_type,
                     limit=15,
+                    vendor_name=invoice.vendor_name,
                 )
                 baseline_conf = recall_for_confidence(
                     client=self.memory,
@@ -320,6 +321,7 @@ class ResolutionAgent:
                     vendor_slug=vendor_slug,
                     exception_type=match_result.exception_type,
                     limit=15,
+                    vendor_name=invoice.vendor_name,
                 )
                 confidence_sample, self_conf_reviews = normalize_and_deduplicate_memories(
                     demo_conf + baseline_conf,
@@ -377,6 +379,7 @@ class ResolutionAgent:
                     vendor_slug=vendor_slug,
                     exception_type=match_result.exception_type,
                     limit=20,
+                    vendor_name=invoice.vendor_name,
                 )
                 confidence_sample, _ = normalize_and_deduplicate_memories(
                     raw_conf,

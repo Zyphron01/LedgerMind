@@ -15,6 +15,7 @@ deterministic interface with normalized response models.
 from datetime import datetime, timezone
 import os
 from pathlib import Path
+import time
 from typing import Any, Dict, List, Optional
 
 from hindsight_client import Hindsight
@@ -62,30 +63,47 @@ class MemoryClient:
         self.offline_store = offline_store or OfflineStore()
         self.reflect_cache = reflect_cache or ReflectCache()
         self.configured_mode = self.mode
+
+        # Bounded recall timeout (default: 30.0s to accommodate 4-7s server vector search time)
+        timeout_env = os.getenv("HINDSIGHT_RECALL_TIMEOUT", "30.0")
+        try:
+            self.recall_timeout = float(timeout_env)
+        except ValueError:
+            self.recall_timeout = 30.0
+
         self.last_recall_source: str = "offline" if self.mode == MemoryMode.OFFLINE else "hindsight"
         self.last_fallback_reason: Optional[str] = None
+        self.last_recall_elapsed: Optional[float] = None
 
         # Initialize Hindsight SDK if not offline
         self._sdk_client: Optional[Hindsight] = None
         if self.mode in (MemoryMode.LOCAL, MemoryMode.CLOUD):
             try:
-                self._sdk_client = Hindsight(base_url=self.base_url, api_key=self.api_key)
+                self._sdk_client = Hindsight(
+                    base_url=self.base_url,
+                    api_key=self.api_key,
+                    timeout=self.recall_timeout,
+                )
             except Exception as e:
                 print(f"⚠️  Warning: Failed to initialize Hindsight SDK ({e}); falling back to offline.")
                 self.mode = MemoryMode.OFFLINE
 
     def is_healthy(self) -> bool:
-        """Fast connectivity check to prevent long connect timeouts when service is offline."""
+        """Fast connectivity check for diagnostics and sidebar status polling."""
         if getattr(self, "configured_mode", self.mode) == MemoryMode.OFFLINE or not self.base_url or self.base_url.startswith("offline://"):
             return False
         try:
             import requests
-            resp = requests.get(f"{self.base_url.rstrip('/')}/health", timeout=3.0)
+            resp = requests.get(f"{self.base_url.rstrip('/')}/health", timeout=5.0)
             is_ok = resp.status_code == 200
             if is_ok:
                 if self._sdk_client is None and getattr(self, "configured_mode", self.mode) in (MemoryMode.LOCAL, MemoryMode.CLOUD):
                     try:
-                        self._sdk_client = Hindsight(base_url=self.base_url, api_key=self.api_key)
+                        self._sdk_client = Hindsight(
+                            base_url=self.base_url,
+                            api_key=self.api_key,
+                            timeout=self.recall_timeout,
+                        )
                     except Exception:
                         pass
                 self.mode = self.configured_mode
@@ -119,7 +137,7 @@ class MemoryClient:
             context=context,
         )
 
-        if self.mode == MemoryMode.OFFLINE or not self._sdk_client or not self.is_healthy():
+        if self.mode == MemoryMode.OFFLINE or not self._sdk_client:
             return document_id or "offline-retained"
 
         # Check and record budget
@@ -159,16 +177,19 @@ class MemoryClient:
         Recall relevant historical memories.
         In offline mode, falls back to lexical/tag filtering.
         """
-        if self.mode == MemoryMode.OFFLINE or not self._sdk_client or not self.is_healthy():
+        t_start = time.perf_counter()
+        if self.mode == MemoryMode.OFFLINE or not self._sdk_client:
             self.last_recall_source = "offline"
-            self.last_fallback_reason = "Offline mode or Hindsight service unhealthy"
+            self.last_fallback_reason = "Offline mode configured" if self.mode == MemoryMode.OFFLINE else "SDK client unavailable"
+            self.last_recall_elapsed = time.perf_counter() - t_start
             offline_results = self.offline_store.recall(bank_id=bank_id, query=query, tags=tags, limit=limit)
             for m in offline_results:
                 m.bank_id = bank_id
+                m.is_offline_fallback = True
             return offline_results
 
         try:
-            # Query Hindsight SDK
+            # Query Hindsight SDK with bounded timeout
             kwargs: Dict[str, Any] = {
                 "bank_id": bank_id,
                 "query": query,
@@ -179,23 +200,30 @@ class MemoryClient:
                 kwargs["min_scores"] = {"final": min_score}
 
             sdk_resp: RecallResponse = self._sdk_client.recall(**kwargs)
+            elapsed = time.perf_counter() - t_start
+            self.last_recall_elapsed = elapsed
+            self.last_recall_source = "hindsight"
+            self.last_fallback_reason = None
+
             results: List[RecalledMemory] = []
             if sdk_resp and hasattr(sdk_resp, "results") and sdk_resp.results:
                 for item in sdk_resp.results:
                     mem = RecalledMemory.from_recall_result(item)
                     mem.bank_id = bank_id
+                    mem.is_offline_fallback = False
                     results.append(mem)
-            self.last_recall_source = "hindsight"
-            self.last_fallback_reason = None
             return results[:limit]
 
         except Exception as e:
+            elapsed = time.perf_counter() - t_start
+            self.last_recall_elapsed = elapsed
             self.last_recall_source = "offline"
-            self.last_fallback_reason = f"{type(e).__name__}: {e}"
-            print(f"⚠️  Hindsight recall error ({type(e).__name__}: {e}); falling back to offline store.")
+            self.last_fallback_reason = f"{type(e).__name__} after {elapsed:.3f}s: {e}"
+            print(f"⚠️  Hindsight recall error after {elapsed:.3f}s ({type(e).__name__}: {e}); falling back to offline store.")
             offline_results = self.offline_store.recall(bank_id=bank_id, query=query, tags=tags, limit=limit)
             for m in offline_results:
                 m.bank_id = bank_id
+                m.is_offline_fallback = True
             return offline_results
 
     def reflect(
@@ -223,7 +251,7 @@ class MemoryClient:
         )
         actual_query = query or default_query
 
-        if self.mode == MemoryMode.OFFLINE or not self._sdk_client or not self.is_healthy():
+        if self.mode == MemoryMode.OFFLINE or not self._sdk_client:
             summary = (
                 f"[OFFLINE PROFILE] Vendor {slug}: Synthesized profile unavailable in offline mode. "
                 f"Referencing individual recalled records."

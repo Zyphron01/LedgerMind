@@ -42,4 +42,12 @@ def test_comparison_page_render():
 def test_memory_intelligence_page_render():
     """Verify Memory Intelligence page renders cleanly."""
     init_session_state()
-    render_memory_intelligence_page()
+    from memory.schema import MemoryMode
+    from ui.state import get_memory_client
+    client = get_memory_client()
+    orig_mode = client.mode
+    client.mode = MemoryMode.OFFLINE
+    try:
+        render_memory_intelligence_page()
+    finally:
+        client.mode = orig_mode

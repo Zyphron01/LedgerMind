@@ -359,3 +359,88 @@ def test_honest_fallback_reporting_not_relabeled():
     assert live_mem.is_offline_fallback is False
 
 
+def test_slow_but_successful_hindsight_recall(monkeypatch):
+    """
+    Regression test for Hindsight recall latency tolerance:
+    When Hindsight takes multiple seconds (e.g., 4.5s - 6.7s for complex vector search),
+    LedgerMind client must wait for the response and retain live provenance (is_offline_fallback=False).
+    """
+    import time
+    from unittest.mock import MagicMock
+    from hindsight_client_api.models.recall_response import RecallResponse
+    from hindsight_client_api.models.recall_result import RecallResult
+    from memory.client import MemoryClient, MemoryMode
+
+    client = MemoryClient(mode=MemoryMode.LOCAL, base_url="http://localhost:8888")
+    
+    mock_item = MagicMock()
+    mock_item.id = "mock-live-001"
+    mock_item.text = "Live slow recalled fact from Hindsight vector engine"
+    mock_item.type = "observation"
+    mock_item.document_id = "decision-INV-PI-2024-001"
+    mock_item.tags = ["vendor:prabhav-infosystems"]
+    mock_item.metadata = {"vendor_name": "Prabhav Infosystems Pvt Ltd"}
+    mock_item.scores = MagicMock(final=0.95, semantic=0.92, reranker=0.90)
+
+    mock_resp = MagicMock()
+    mock_resp.results = [mock_item]
+
+    def slow_recall(**kwargs):
+        time.sleep(0.1)  # Simulate latency
+        return mock_resp
+
+    mock_sdk = MagicMock()
+    mock_sdk.recall = MagicMock(side_effect=slow_recall)
+    client._sdk_client = mock_sdk
+
+    results = client.recall(
+        bank_id="ledgermind-ap-exceptions",
+        query="Prabhav price mismatch",
+        limit=5,
+    )
+
+    assert len(results) == 1
+    assert results[0].id == "mock-live-001"
+    assert results[0].is_offline_fallback is False
+    assert client.last_recall_source == "hindsight"
+    assert client.last_fallback_reason is None
+    assert client.last_recall_elapsed is not None
+    assert client.last_recall_elapsed >= 0.1
+
+
+def test_hindsight_timeout_honest_fallback_provenance(monkeypatch):
+    """
+    When Hindsight genuinely times out or raises an exception, the client must:
+    1. Catch the exception safely without crashing.
+    2. Record the exception type, elapsed time, and fallback reason.
+    3. Return offline fallback memories with is_offline_fallback=True.
+    4. Never relabel offline records as live Hindsight data.
+    """
+    from unittest.mock import MagicMock
+    from memory.client import MemoryClient, MemoryMode
+
+    client = MemoryClient(mode=MemoryMode.LOCAL, base_url="http://localhost:8888")
+
+    def timeout_recall(**kwargs):
+        raise TimeoutError("Read timed out after 30.0 seconds")
+
+    mock_sdk = MagicMock()
+    mock_sdk.recall = MagicMock(side_effect=timeout_recall)
+    client._sdk_client = mock_sdk
+
+    results = client.recall(
+        bank_id="ledgermind-ap-exceptions",
+        query="Prabhav price mismatch",
+        limit=5,
+    )
+
+    assert client.last_recall_source == "offline"
+    assert "TimeoutError" in client.last_fallback_reason
+    assert "Read timed out after 30.0 seconds" in client.last_fallback_reason
+    assert client.last_recall_elapsed is not None
+    # All returned memories MUST have is_offline_fallback=True
+    for mem in results:
+        assert mem.is_offline_fallback is True
+
+
+

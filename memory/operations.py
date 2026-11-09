@@ -41,11 +41,14 @@ def recall_for_exception(
     Scoped by vendor and exception type.
     """
     vendor_slug = get_vendor_slug(invoice.vendor_name)
+    raw_slug = invoice.vendor_name.lower().replace(" ", "-").replace(".", "")
     exc_type = match_result.exception_type.value.lower()
 
-    # Search with primary query and tag scoping
+    # Search with primary query and tag scoping (support both canonical slug and raw seed slug)
     query = build_recall_query(invoice, match_result)
     tags = [f"vendor:{vendor_slug}", f"exception:{exc_type}"]
+    if raw_slug != vendor_slug:
+        tags.append(f"vendor:{raw_slug}")
 
     results = client.recall(
         bank_id=bank_id,
@@ -57,10 +60,13 @@ def recall_for_exception(
 
     # Fallback to broader vendor recall if tag-specific recall yielded no results
     if not results:
+        broad_tags = [f"vendor:{vendor_slug}"]
+        if raw_slug != vendor_slug:
+            broad_tags.append(f"vendor:{raw_slug}")
         results = client.recall(
             bank_id=bank_id,
             query=query,
-            tags=[f"vendor:{vendor_slug}"],
+            tags=broad_tags,
             limit=limit,
             min_score=min_score,
         )
@@ -74,6 +80,7 @@ def recall_for_confidence(
     vendor_slug: str,
     exception_type: ExceptionType,
     limit: int = 15,
+    vendor_name: Optional[str] = None,
 ) -> List[RecalledMemory]:
     """
     Retrieve a broader sample of past comparable decisions for the confidence formula.
@@ -82,6 +89,10 @@ def recall_for_confidence(
     slug = vendor_slug.strip().lower()
     exc_str = exception_type.value.lower()
     tags = [f"vendor:{slug}", f"exception:{exc_str}"]
+    if vendor_name:
+        raw_slug = vendor_name.lower().replace(" ", "-").replace(".", "")
+        if raw_slug != slug:
+            tags.append(f"vendor:{raw_slug}")
 
     return client.recall(
         bank_id=bank_id,

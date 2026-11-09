@@ -152,10 +152,14 @@ def run_browser_verification():
             # Inspect DOM content
             page_text = page.content()
 
-            # 1. Verify accurate metadata chips and badges
+            # 1. Verify accurate metadata chips, storage badges, and live Hindsight provenance
+            assert "Hindsight Vector DB" in page_text, "Expected '🧠 Hindsight Vector DB' storage badge in evidence cards!"
+            assert "Local Offline JSONL Fallback Store" not in page_text, "Warning 'Local Offline JSONL Fallback Store' should NOT appear when live Hindsight is healthy!"
             assert "zenith-precision-engineering" in page_text, "Expected #vendor:zenith-precision-engineering in evidence cards"
             assert "Cross-Vendor Precedent: Zenith Precision Engineering" in page_text, "Expected Cross-Vendor Precedent badge for Zenith"
             assert "Prabhav Infosystems Pvt Ltd" in page_text, "Expected Prabhav Infosystems in evidence cards"
+            print("  ✓ Verified: Provenance shows '🧠 Hindsight Vector DB' (genuine live vector recall)!")
+            print("  ✓ Verified: Data Lineage Notice (Offline Fallback warning) is absent!")
             print("  ✓ Verified: Cross-Vendor Precedent badge for Zenith is present!")
             print("  ✓ Verified: #vendor:zenith-precision-engineering tag is present!")
             print("  ✓ Verified: Direct vendor precedents for Prabhav Infosystems are present!")
