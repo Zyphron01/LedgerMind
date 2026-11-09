@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, field_validator
 
 from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
-from agent.confidence import calculate_confidence, ConfidenceScore
+from agent.confidence import calculate_confidence, ConfidenceBand, ConfidenceScore
 from agent.llm import GroqClient
 from agent.prompts import SYSTEM_PROMPT, build_user_prompt
 from data.models import ApproverDecision, ExceptionType, GoodsReceiptNote, Invoice, MatchResult, PurchaseOrder
@@ -144,6 +144,10 @@ class ResolutionAgent:
                 conflict_status=ConflictStatus.COMPLIANT_PRECEDENT,
                 conflict_explanation="Clean match conforms with standard procurement controls.",
                 requires_escalation=False,
+                policy_id="POL-AP-001",
+                policy_version="1.0",
+                policy_title="Standard Accounts Payable Three-Way Matching Protocol",
+                quoted_clause="Invoices matching purchase orders and receiving logs within zero variance shall be approved for payment disbursement.",
             )
 
         # 0. RETRIEVE GOVERNING CORPORATE POLICY (POLICY RAG)

@@ -48,7 +48,32 @@ def render_decision_badge(decision: ApproverDecision) -> str:
 
 
 def render_discrepancy_banner(match_result: MatchResult) -> None:
-    """Render structured 3-way match failure banner with Tremor callout aesthetics."""
+    """Render structured 3-way match banner with Tremor callout aesthetics (green for match, red for exception)."""
+    if match_result.is_match:
+        st.markdown(
+            f"""
+            <div class="lm-callout lm-callout-success" style="margin-bottom: 18px; border-left: 4px solid #10b981; background: rgba(6, 78, 59, 0.35); padding: 14px 18px; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.2rem;">✅</span>
+                        <span style="font-weight: 700; color: #34d399; letter-spacing: 0.03em; font-size: 0.95rem;">THREE-WAY MATCH RECONCILED</span>
+                    </div>
+                    <span class="lm-badge lm-badge-emerald">CLEAN MATCH</span>
+                </div>
+                <div style="color: #e2e8f0; font-size: 0.92rem; margin-bottom: 12px; font-weight: 500;">
+                    {match_result.explanation or "All billed line items, unit rates, quantities, and GST classifications reconcile with purchase order and warehouse logs."}
+                </div>
+                <div style="display: flex; gap: 20px; font-size: 0.84rem; color: #94a3b8; border-top: 1px solid rgba(16, 185, 129, 0.2); padding-top: 8px; flex-wrap: wrap;">
+                    <div>Invoice Amount: <strong style="color: #f8fafc;">₹{match_result.invoice_amount_inr:,.2f}</strong></div>
+                    <div>Contractual PO Total: <strong style="color: #f8fafc;">₹{match_result.expected_amount_inr:,.2f}</strong></div>
+                    <div>Financial Variance: <strong style="color: #10b981;">₹0.00 (0.0%)</strong></div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        return
+
     exc_type = match_result.exception_type.value
     explanation = match_result.explanation
     variance = match_result.variance_inr

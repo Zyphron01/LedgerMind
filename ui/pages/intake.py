@@ -41,6 +41,14 @@ PO-USR-2025-001,Prabhav Infosystems,27AABCP1234D1Z5,2025-09-01,2025-11-30,Server
 PO-USR-2025-002,Kiran Steel & Fabricators,27AABCK5678E1Z4,2025-09-10,2025-12-10,Structural Steel Beams ISMB 300,7216,4200.00,5,0.18
 """
 
+GST_RATE_MAP = {
+    "18% (Standard Goods)": 0.18,
+    "12% (Concessional)": 0.12,
+    "5% (Essential)": 0.05,
+    "28% (Luxury)": 0.28,
+    "0% (Nil)": 0.0,
+}
+
 
 def render_intake_page() -> None:
     """Render the document intake, manual entry, and CSV import view."""
@@ -186,9 +194,8 @@ def render_intake_page() -> None:
             with col_poi4:
                 po_price_val = st.number_input("Agreed Unit Price (INR)", min_value=0.01, value=1000.0, step=50.0)
 
-            po_gst_choice = st.selectbox("PO Statutory GST Rate:", ["18% (Standard Goods)", "12% (Concessional)", "5% (Essential)", "28% (Luxury)", "0% (Nil)"], index=0)
-            gst_map = {"18% (Standard Goods)": 0.18, "12% (Concessional)": 0.12, "5% (Essential)": 0.05, "28% (Luxury)": 0.28, "0% (Nil)": 0.0}
-            po_gst_rate_val = gst_map[po_gst_choice]
+            po_gst_choice = st.selectbox("PO Statutory GST Rate:", list(GST_RATE_MAP.keys()), index=0)
+            po_gst_rate_val = GST_RATE_MAP[po_gst_choice]
 
             # PO Live Subtotal
             po_sub = Decimal(str(round(po_price_val * po_qty_val, 2)))
@@ -264,10 +271,10 @@ def render_intake_page() -> None:
 
         inv_gst_choice = st.selectbox(
             "Billed GST Rate on Invoice:",
-            ["18% (Standard Goods)", "12% (Concessional)", "5% (Essential)", "28% (Luxury)", "0% (Nil)"],
+            list(GST_RATE_MAP.keys()),
             index=0,
         )
-        inv_gst_rate_val = gst_map[inv_gst_choice]
+        inv_gst_rate_val = GST_RATE_MAP[inv_gst_choice]
 
         inv_sub = Decimal(str(round(inv_price_val * inv_qty_val, 2)))
         inv_tax = (inv_sub * Decimal(str(inv_gst_rate_val))).quantize(Decimal("0.01"))
@@ -307,19 +314,22 @@ def render_intake_page() -> None:
                 save_vendor(vendor_name_final, vendor_gstin_final)
 
                 # 2. Save PO
-                po_obj = PurchaseOrder.create(
-                    po_number=po_number_val,
-                    vendor_name=vendor_name_final,
-                    gstin=vendor_gstin_final,
-                    issue_date=po_issue_date_val,
-                    valid_until=po_expiry_date_val,
-                    item_description=po_item_desc_val or "General Procurement Line",
-                    hsn_code=po_hsn_val or "8471",
-                    unit_price_inr=Decimal(str(round(po_price_val, 2))),
-                    quantity=int(po_qty_val),
-                    gst_rate=Decimal(str(po_gst_rate_val)),
-                )
-                save_purchase_order(po_obj)
+                if not is_new_po and existing_po:
+                    po_obj = existing_po
+                else:
+                    po_obj = PurchaseOrder.create(
+                        po_number=po_number_val,
+                        vendor_name=vendor_name_final,
+                        gstin=vendor_gstin_final,
+                        issue_date=po_issue_date_val,
+                        valid_until=po_expiry_date_val,
+                        item_description=po_item_desc_val or "General Procurement Line",
+                        hsn_code=po_hsn_val or "8471",
+                        unit_price_inr=Decimal(str(round(po_price_val, 2))),
+                        quantity=int(po_qty_val),
+                        gst_rate=Decimal(str(po_gst_rate_val)),
+                    )
+                    save_purchase_order(po_obj)
 
                 # 3. Save GRN (if applicable)
                 grn_obj = None
