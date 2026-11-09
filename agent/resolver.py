@@ -38,6 +38,7 @@ class ResolutionProposal(BaseModel):
     confidence: ConfidenceScore
     memory_enabled: bool = True
     recalled_memories: List[RecalledMemory] = Field(default_factory=list)
+    prior_audit_reviews: List[RecalledMemory] = Field(default_factory=list, description="Historical reviews of the current invoice preserved for audit traceability but excluded from precedent scoring")
     vendor_profile_summary: Optional[str] = None
     token_usage: Dict[str, int] = Field(default_factory=dict)
 
@@ -58,7 +59,7 @@ class ResolutionProposal(BaseModel):
             return v.model_dump()
         return v
 
-    @field_validator("recalled_memories", mode="before")
+    @field_validator("recalled_memories", "prior_audit_reviews", mode="before")
     @classmethod
     def _coerce_recalled_memories(cls, v: Any) -> Any:
         if isinstance(v, list):
@@ -77,13 +78,20 @@ class ResolutionProposal(BaseModel):
 def normalize_and_deduplicate_memories(
     memories: List[RecalledMemory],
     max_items: int = 5,
-) -> List[RecalledMemory]:
+    exclude_invoice_number: Optional[str] = None,
+    return_self_reviews: bool = False,
+) -> Any:
     """
     Groups recalled memory facts by originating source review/document into
     a single logical evidence entry per historical precedent.
     Aggregates extracted sub-facts/observations under the primary entry in supporting_facts,
     preventing any single invoice review from consuming multiple display slots.
     Facts lacking reliable document attribution are labeled as ungrouped facts.
+
+    If exclude_invoice_number is provided:
+      Excludes self-referential reviews of the current invoice from the precedent list
+      to prevent circular confidence inflation and evidence contamination.
+      If return_self_reviews=True, returns (independent_precedents, self_reviews).
     """
     import re
     from collections import OrderedDict
@@ -141,6 +149,8 @@ def normalize_and_deduplicate_memories(
             ungrouped_facts.append(m)
 
     logical_entries: List[RecalledMemory] = []
+    self_review_entries: List[RecalledMemory] = []
+    inv_clean = exclude_invoice_number.strip().upper() if exclude_invoice_number else None
 
     # 1. First add distinct verified document groups (each historical review occupies exactly 1 entry)
     for doc_id, group in verified_groups.items():
@@ -154,16 +164,36 @@ def normalize_and_deduplicate_memories(
                 if fact_str not in supporting and fact_str not in primary.text:
                     supporting.append(fact_str)
         primary.supporting_facts = supporting
-        logical_entries.append(primary)
+
+        # Check if this group is a review of the current invoice being evaluated
+        is_self = False
+        if inv_clean:
+            doc_upper = doc_id.upper()
+            if doc_upper in (f"FEEDBACK-{inv_clean}", f"DECISION-{inv_clean}"):
+                is_self = True
+            elif str(primary.metadata.get("invoice_number", "")).strip().upper() == inv_clean:
+                is_self = True
+            elif f"FEEDBACK-{inv_clean}" in primary.text.upper() or f"INVOICE {inv_clean}" in primary.text.upper():
+                is_self = True
+
+        if is_self:
+            self_review_entries.append(primary)
+        else:
+            logical_entries.append(primary)
 
     # 2. Append ungrouped facts only if remaining display slots exist
     for u in ungrouped_facts:
         if len(logical_entries) >= max_items:
             break
+        if inv_clean and inv_clean in u.text.upper():
+            continue
         u.supporting_facts = []
         logical_entries.append(u)
 
-    return logical_entries[:max_items]
+    selected = logical_entries[:max_items]
+    if return_self_reviews:
+        return selected, self_review_entries
+    return selected
 
 
 class ResolutionAgent:
@@ -210,6 +240,7 @@ class ResolutionAgent:
         target_bank = bank_id or self.bank_id
         vendor_slug = get_vendor_slug(invoice.vendor_name)
         recalled_mems: List[RecalledMemory] = []
+        prior_audit_reviews: List[RecalledMemory] = []
         confidence_sample: List[RecalledMemory] = []
         profile_summary: Optional[str] = None
 
@@ -266,10 +297,16 @@ class ResolutionAgent:
                     match_result=match_result,
                     limit=5,
                 )
-                # Combine with newly retained live feedback prioritized first
-                recalled_mems = normalize_and_deduplicate_memories(demo_mems + baseline_mems, max_items=5)
+                # Combine with newly retained live feedback prioritized first, strictly excluding self-reviews
+                recalled_mems, self_reviews = normalize_and_deduplicate_memories(
+                    demo_mems + baseline_mems,
+                    max_items=5,
+                    exclude_invoice_number=invoice.invoice_number,
+                    return_self_reviews=True,
+                )
+                prior_audit_reviews.extend(self_reviews)
 
-                # Confidence sample combining both live demo feedback and baseline precedents
+                # Confidence sample combining both live demo feedback and baseline precedents (excluding self-reviews)
                 demo_conf = recall_for_confidence(
                     client=self.memory,
                     bank_id=LIVE_DEMO_BANK_ID,
@@ -284,7 +321,15 @@ class ResolutionAgent:
                     exception_type=match_result.exception_type,
                     limit=15,
                 )
-                confidence_sample = normalize_and_deduplicate_memories(demo_conf + baseline_conf, max_items=15)
+                confidence_sample, self_conf_reviews = normalize_and_deduplicate_memories(
+                    demo_conf + baseline_conf,
+                    max_items=15,
+                    exclude_invoice_number=invoice.invoice_number,
+                    return_self_reviews=True,
+                )
+                for sr in self_conf_reviews:
+                    if not any(ar.document_id == sr.document_id for ar in prior_audit_reviews):
+                        prior_audit_reviews.append(sr)
 
                 # Reflect profile from live demo bank with fallback to baseline
                 try:
@@ -317,7 +362,14 @@ class ResolutionAgent:
                     match_result=match_result,
                     limit=10,
                 )
-                recalled_mems = normalize_and_deduplicate_memories(raw_recalled, max_items=5)
+                recalled_mems, self_reviews = normalize_and_deduplicate_memories(
+                    raw_recalled,
+                    max_items=5,
+                    exclude_invoice_number=invoice.invoice_number,
+                    return_self_reviews=True,
+                )
+                prior_audit_reviews.extend(self_reviews)
+
                 # Query wider set for confidence calculation
                 raw_conf = recall_for_confidence(
                     client=self.memory,
@@ -326,7 +378,12 @@ class ResolutionAgent:
                     exception_type=match_result.exception_type,
                     limit=20,
                 )
-                confidence_sample = normalize_and_deduplicate_memories(raw_conf, max_items=15)
+                confidence_sample, _ = normalize_and_deduplicate_memories(
+                    raw_conf,
+                    max_items=15,
+                    exclude_invoice_number=invoice.invoice_number,
+                    return_self_reviews=True,
+                )
                 # Retrieve cached vendor profile
                 try:
                     prof = get_vendor_profile(
@@ -432,6 +489,7 @@ class ResolutionAgent:
             historical_memories=confidence_sample if memory_enabled else [],
             expected_vendor_slug=vendor_slug if memory_enabled else None,
             expected_exception_type=match_result.exception_type if memory_enabled else None,
+            current_invoice_number=invoice.invoice_number if memory_enabled else None,
         )
 
         return ResolutionProposal(
@@ -445,6 +503,7 @@ class ResolutionAgent:
             confidence=confidence,
             memory_enabled=memory_enabled,
             recalled_memories=recalled_mems,
+            prior_audit_reviews=prior_audit_reviews,
             vendor_profile_summary=profile_summary,
             token_usage=usage,
             policy_id=governing_policy.policy_id if governing_policy else None,

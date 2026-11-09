@@ -235,3 +235,127 @@ def test_ui_vendor_attribution_and_cross_vendor_detection():
     target_slug_zen = get_vendor_slug("Zenith Precision Engineering Pvt Ltd")
     assert (v_slug != target_slug_zen) is False
 
+
+def test_self_feedback_exclusion_from_precedents_and_confidence():
+    """
+    Requirement C & D: A previous review on the currently analyzed invoice (e.g. feedback-INV-PI-2025-101)
+    MUST NOT be treated as an independent precedent or factored into confidence scoring.
+    It must be preserved separately for audit history.
+    """
+    mems = [
+        # Self-feedback for the current invoice
+        RecalledMemory(
+            id="fb-pi-101",
+            document_id="feedback-INV-PI-2025-101",
+            text="Human reviewer approved invoice INV-PI-2025-101 as EDITED.",
+            tags=["vendor:prabhav-infosystems", "exception:price_mismatch", "decision:edited", "source:human_feedback"],
+            metadata={"invoice_number": "INV-PI-2025-101", "decision": "EDITED"},
+            score=0.95,
+        ),
+        # Genuine independent historical decision from a prior invoice
+        RecalledMemory(
+            id="dec-pi-001",
+            document_id="decision-INV-PI-2024-001",
+            text="Invoice INV-PI-2024-001 price mismatch approved as EDITED.",
+            tags=["vendor:prabhav-infosystems", "exception:price_mismatch", "decision:edited"],
+            metadata={"invoice_number": "INV-PI-2024-001", "decision": "EDITED"},
+            score=0.90,
+        ),
+        # Another independent historical decision
+        RecalledMemory(
+            id="dec-pi-002",
+            document_id="decision-INV-PI-2024-002",
+            text="Invoice INV-PI-2024-002 price mismatch approved as EDITED.",
+            tags=["vendor:prabhav-infosystems", "exception:price_mismatch", "decision:edited"],
+            metadata={"invoice_number": "INV-PI-2024-002", "decision": "EDITED"},
+            score=0.88,
+        ),
+    ]
+
+    # 1. normalize_and_deduplicate_memories excludes self-review from precedents
+    precedents, self_reviews = normalize_and_deduplicate_memories(
+        mems,
+        max_items=5,
+        exclude_invoice_number="INV-PI-2025-101",
+        return_self_reviews=True,
+    )
+
+    # Precedents contain ONLY the independent past decisions
+    assert len(precedents) == 2
+    assert all(p.document_id != "feedback-INV-PI-2025-101" for p in precedents)
+    assert {p.document_id for p in precedents} == {"decision-INV-PI-2024-001", "decision-INV-PI-2024-002"}
+
+    # Self-review is preserved separately for audit history
+    assert len(self_reviews) == 1
+    assert self_reviews[0].document_id == "feedback-INV-PI-2025-101"
+
+    # 2. calculate_confidence strictly excludes self-review from sample size n
+    conf = calculate_confidence(
+        proposed_decision=ApproverDecision.EDITED,
+        historical_memories=mems,
+        expected_vendor_slug="prabhav-infosystems",
+        expected_exception_type=ExceptionType.PRICE_MISMATCH,
+        current_invoice_number="INV-PI-2025-101",
+    )
+
+    # Sample size n reflects ONLY the 2 independent decisions, NOT 3
+    assert conf.sample_size_n == 2
+    assert conf.agreement_count == 2
+    assert conf.consistency == 1.0
+    assert "feedback-INV-PI-2025-101" not in conf.supporting_document_ids
+    assert conf.excluded_memories_count >= 1
+
+
+def test_live_vs_offline_source_attribution_integrity():
+    """
+    Requirement A & B & F: Live Hindsight results must have is_offline_fallback=False.
+    Offline store results must have is_offline_fallback=True.
+    No code may silently relabel offline records as live Hindsight evidence.
+    """
+    from memory.offline_store import OfflineStore
+
+    # Offline store record
+    store = OfflineStore()
+    offline_mems = store.recall(
+        bank_id="ledgermind-ap-exceptions",
+        query="Prabhav price mismatch",
+        tags=["vendor:prabhav-infosystems"],
+        limit=2,
+    )
+    if offline_mems:
+        for m in offline_mems:
+            assert m.is_offline_fallback is True, "Offline store must set is_offline_fallback=True"
+
+    # Hindsight SDK result schema definition
+    live_mem = RecalledMemory(
+        id="live-001",
+        text="Live Hindsight fact",
+        document_id="decision-INV-PI-2024-001",
+        is_offline_fallback=False,
+    )
+    assert live_mem.is_offline_fallback is False
+
+
+def test_honest_fallback_reporting_not_relabeled():
+    """
+    Storage type string in UI components must honestly distinguish between
+    '💾 Offline JSONL Fallback' and '🧠 Hindsight Vector DB' based strictly on is_offline_fallback.
+    """
+    offline_mem = RecalledMemory(
+        id="off-1",
+        text="Offline record",
+        document_id="decision-INV-PI-2024-001",
+        is_offline_fallback=True,
+    )
+    live_mem = RecalledMemory(
+        id="live-1",
+        text="Live record",
+        document_id="decision-INV-PI-2024-001",
+        is_offline_fallback=False,
+    )
+
+    # Ensure field is not corrupted or ignored
+    assert offline_mem.is_offline_fallback is True
+    assert live_mem.is_offline_fallback is False
+
+

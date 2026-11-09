@@ -160,7 +160,7 @@ def run_browser_verification():
             print("  ✓ Verified: #vendor:zenith-precision-engineering tag is present!")
             print("  ✓ Verified: Direct vendor precedents for Prabhav Infosystems are present!")
 
-            # 2. Strict regression verification: NO DUPLICATE CARDS
+            # 2. Strict regression verification: NO DUPLICATE CARDS & NO SELF-FEEDBACK CONTAMINATION
             # Collect all rendered precedent cards in the evidence container
             cards = page.locator("div.lm-card:has(span.lm-badge)")
             card_count = cards.count()
@@ -168,8 +168,11 @@ def run_browser_verification():
 
             zenith_cards = []
             pi_cards = []
+            self_feedback_cards = []
             for i in range(card_count):
                 c_text = cards.nth(i).text_content() or ""
+                if "FEEDBACK-INV-PI-2025-101" in c_text.upper():
+                    self_feedback_cards.append(c_text)
                 if "ZENITH" in c_text.upper():
                     zenith_cards.append(c_text)
                 elif "PRABHAV" in c_text.upper() or "INV-PI" in c_text.upper():
@@ -177,12 +180,15 @@ def run_browser_verification():
 
             print(f"Zenith precedent cards count: {len(zenith_cards)}")
             print(f"Prabhav precedent cards count: {len(pi_cards)}")
+            print(f"Self-feedback cards count: {len(self_feedback_cards)}")
 
+            assert len(self_feedback_cards) == 0, "Self-feedback feedback-INV-PI-2025-101 MUST NOT be in precedent cards!"
             assert len(zenith_cards) == 1, f"Expected exactly 1 Zenith card, found {len(zenith_cards)}! Deduplication failed."
             assert len(pi_cards) >= 3, f"Expected at least 3 Prabhav cards, found {len(pi_cards)}!"
             assert "additional extracted facts from this review" in page_text, "Expected grouped supporting facts expandable block"
             print("  ✓ Verified: feedback-INV-ZENITH-2025-101 occupies EXACTLY 1 logical card with supporting facts expandable block!")
             print(f"  ✓ Verified: Prabhav historical cases occupy {len(pi_cards)} distinct precedent slots!")
+            print("  ✓ Verified: Self-feedback for INV-PI-2025-101 is strictly excluded from precedent cards!")
 
             # Verify Confidence section
             conf_header = page.locator("text=Deterministic Confidence Formula")

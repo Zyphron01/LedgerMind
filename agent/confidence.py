@@ -77,8 +77,21 @@ def is_memory_in_scope(
     mem: RecalledMemory,
     expected_vendor_slug: Optional[str] = None,
     expected_exception_type: Optional[ExceptionType] = None,
+    current_invoice_number: Optional[str] = None,
 ) -> bool:
-    """Verify that a recalled memory belongs strictly to the requested vendor and exception scope."""
+    """Verify that a recalled memory belongs strictly to the requested vendor and exception scope, and is not a self-review."""
+    # Exclude self-referential reviews of the current invoice being evaluated
+    if current_invoice_number:
+        inv_clean = current_invoice_number.strip().upper()
+        doc_upper = (mem.document_id or "").strip().upper()
+        if doc_upper in (f"FEEDBACK-{inv_clean}", f"DECISION-{inv_clean}"):
+            return False
+        meta_inv = str(mem.metadata.get("invoice_number", "")).strip().upper()
+        if meta_inv == inv_clean:
+            return False
+        if f"FEEDBACK-{inv_clean}" in mem.text.upper() or f"INVOICE {inv_clean}" in mem.text.upper():
+            return False
+
     # Check vendor scope if specified
     if expected_vendor_slug:
         slug = expected_vendor_slug.strip().lower()
@@ -102,11 +115,13 @@ def deduplicate_historical_decisions(
     historical_memories: List[RecalledMemory],
     expected_vendor_slug: Optional[str] = None,
     expected_exception_type: Optional[ExceptionType] = None,
+    current_invoice_number: Optional[str] = None,
 ) -> Tuple[Dict[str, ApproverDecision], int]:
     """
     Groups memory facts by source document_id and enforces decision integrity:
       - Ignores facts without a verified document_id.
       - Discards out-of-scope facts (unrelated vendor or exception).
+      - Discards self-referential reviews of the current invoice being evaluated.
       - Collects decisions per document.
       - If facts from one document yield conflicting decisions, rejects the document.
       - Deduplicates multiple facts from one document into exactly one decision.
@@ -124,8 +139,8 @@ def deduplicate_historical_decisions(
             total_excluded += 1
             continue
 
-        # Filter out unrelated vendors or exception categories
-        if not is_memory_in_scope(mem, expected_vendor_slug, expected_exception_type):
+        # Filter out unrelated vendors, exception categories, or self-reviews
+        if not is_memory_in_scope(mem, expected_vendor_slug, expected_exception_type, current_invoice_number):
             total_excluded += 1
             continue
 
@@ -153,6 +168,7 @@ def calculate_confidence(
     historical_memories: List[RecalledMemory],
     expected_vendor_slug: Optional[str] = None,
     expected_exception_type: Optional[ExceptionType] = None,
+    current_invoice_number: Optional[str] = None,
 ) -> ConfidenceScore:
     """
     Compute deterministic confidence from unique, deduplicated, and verified historical decisions.
@@ -167,6 +183,7 @@ def calculate_confidence(
         historical_memories=historical_memories,
         expected_vendor_slug=expected_vendor_slug,
         expected_exception_type=expected_exception_type,
+        current_invoice_number=current_invoice_number,
     )
 
     n = len(verified_decisions)

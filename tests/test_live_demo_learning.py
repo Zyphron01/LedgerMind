@@ -88,16 +88,22 @@ def test_live_demo_bank_learning_and_isolation():
         bank_id=LIVE_DEMO_BANK_ID,
     )
 
-    # Verify both banks are represented
-    recalled_bank_ids = {m.bank_id for m in proposal.recalled_memories}
+    # Verify both banks are represented across recalled memories and audit history
+    all_recalled = proposal.recalled_memories + proposal.prior_audit_reviews
+    recalled_bank_ids = {m.bank_id for m in all_recalled}
     assert LIVE_DEMO_BANK_ID in recalled_bank_ids, f"Expected {LIVE_DEMO_BANK_ID} in recalled bank IDs"
     assert BASELINE_EVAL_BANK_ID in recalled_bank_ids, f"Expected {BASELINE_EVAL_BANK_ID} in recalled bank IDs"
 
-    # Verify the feedback document is in supporting documents or recalled memories
-    recalled_docs = [m.document_id for m in proposal.recalled_memories]
-    assert f"feedback-{target.invoice.invoice_number}" in recalled_docs
-    assert any(doc.startswith("decision-INV-PI-") for doc in recalled_docs)
+    # Requirement C: Self-feedback for current invoice is preserved in prior_audit_reviews,
+    # and strictly excluded from independent historical precedents (recalled_memories) to prevent circular evidence
+    audit_docs = [m.document_id for m in proposal.prior_audit_reviews]
+    assert f"feedback-{target.invoice.invoice_number}" in audit_docs, "Expected self-feedback in prior audit reviews"
 
-    # Verify high confidence with combined evidence
-    assert proposal.confidence.sample_size_n >= 2
+    recalled_docs = [m.document_id for m in proposal.recalled_memories]
+    assert f"feedback-{target.invoice.invoice_number}" not in recalled_docs, "Self-feedback must NOT be in independent precedent cards"
+    assert any(doc.startswith("decision-INV-PI-") for doc in recalled_docs), "Expected independent baseline precedent"
+
+    # Requirement D: Confidence sample size reflects independent decisions, excluding self-feedback
+    assert proposal.confidence.sample_size_n >= 1
     assert proposal.confidence.score > 0.0
+    assert f"feedback-{target.invoice.invoice_number}" not in proposal.confidence.supporting_document_ids

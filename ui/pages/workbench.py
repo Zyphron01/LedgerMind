@@ -132,6 +132,9 @@ def render_workbench_page() -> None:
             st.error("Cannot generate proposal: Referenced Purchase Order is missing from repository. Please link or create the PO first.")
             return
 
+        # Invalidate existing cache entry to guarantee fresh live execution
+        cached_proposals.pop(cache_key, None)
+
         with st.spinner("Querying institutional memory and synthesizing resolution proposal..."):
             try:
                 proposal = agent.resolve(
@@ -238,7 +241,30 @@ def render_workbench_page() -> None:
 
     render_confidence_card(active_proposal.confidence)
 
+    if getattr(active_proposal, "prior_audit_reviews", None):
+        audit_doc_id = active_proposal.prior_audit_reviews[0].document_id
+        st.markdown(
+            f"""
+            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.35); border-left: 4px solid #f59e0b; border-radius: 6px; padding: 12px 16px; margin: 12px 0 16px 0;">
+                <div style="font-weight: 700; color: #fbbf24; font-size: 0.9rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                    <span>📋</span> Prior Review on Record (Preserved for Audit Trail)
+                </div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">
+                    A historical human review submission (<code>{audit_doc_id}</code>) was found for this specific invoice.
+                    To maintain strict evaluation integrity and prevent circular confidence inflation, this record is preserved for audit verification but <strong>strictly excluded from independent historical precedent scoring</strong>.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     if active_proposal.memory_enabled:
+        if active_proposal.recalled_memories and all(m.is_offline_fallback for m in active_proposal.recalled_memories):
+            st.warning(
+                "⚠️ **Data Lineage Notice:** Precedents below were retrieved from the **Local Offline JSONL Fallback Store** "
+                "(Hindsight vector service timed out, was unreachable, or ran in offline mode). Records are preserved with honest offline provenance."
+            )
+
         render_evidence_memories(
             active_proposal.recalled_memories,
             target_vendor_name=active_proposal.vendor_name,

@@ -62,6 +62,8 @@ class MemoryClient:
         self.offline_store = offline_store or OfflineStore()
         self.reflect_cache = reflect_cache or ReflectCache()
         self.configured_mode = self.mode
+        self.last_recall_source: str = "offline" if self.mode == MemoryMode.OFFLINE else "hindsight"
+        self.last_fallback_reason: Optional[str] = None
 
         # Initialize Hindsight SDK if not offline
         self._sdk_client: Optional[Hindsight] = None
@@ -78,7 +80,7 @@ class MemoryClient:
             return False
         try:
             import requests
-            resp = requests.get(f"{self.base_url.rstrip('/')}/health", timeout=1.5)
+            resp = requests.get(f"{self.base_url.rstrip('/')}/health", timeout=3.0)
             is_ok = resp.status_code == 200
             if is_ok:
                 if self._sdk_client is None and getattr(self, "configured_mode", self.mode) in (MemoryMode.LOCAL, MemoryMode.CLOUD):
@@ -158,6 +160,8 @@ class MemoryClient:
         In offline mode, falls back to lexical/tag filtering.
         """
         if self.mode == MemoryMode.OFFLINE or not self._sdk_client or not self.is_healthy():
+            self.last_recall_source = "offline"
+            self.last_fallback_reason = "Offline mode or Hindsight service unhealthy"
             offline_results = self.offline_store.recall(bank_id=bank_id, query=query, tags=tags, limit=limit)
             for m in offline_results:
                 m.bank_id = bank_id
@@ -181,10 +185,14 @@ class MemoryClient:
                     mem = RecalledMemory.from_recall_result(item)
                     mem.bank_id = bank_id
                     results.append(mem)
+            self.last_recall_source = "hindsight"
+            self.last_fallback_reason = None
             return results[:limit]
 
         except Exception as e:
-            print(f"⚠️  Hindsight recall error ({e}); falling back to offline store.")
+            self.last_recall_source = "offline"
+            self.last_fallback_reason = f"{type(e).__name__}: {e}"
+            print(f"⚠️  Hindsight recall error ({type(e).__name__}: {e}); falling back to offline store.")
             offline_results = self.offline_store.recall(bank_id=bank_id, query=query, tags=tags, limit=limit)
             for m in offline_results:
                 m.bank_id = bank_id
