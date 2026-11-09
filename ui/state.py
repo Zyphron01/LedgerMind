@@ -31,7 +31,11 @@ def init_session_state() -> None:
         st.session_state["selected_invoice_id"] = "INV-PI-2025-101"
 
     if "reviewed_invoices" not in st.session_state:
-        st.session_state["reviewed_invoices"] = {}
+        try:
+            from data.store import get_all_human_reviews
+            st.session_state["reviewed_invoices"] = get_all_human_reviews()
+        except Exception:
+            st.session_state["reviewed_invoices"] = {}
 
     if "proposal_cache" not in st.session_state:
         st.session_state["proposal_cache"] = {}
@@ -46,15 +50,31 @@ def init_session_state() -> None:
         st.session_state["submission_feedback_msg"] = None
 
 
-@st.cache_data
-def get_held_out_invoices() -> List[HeldOutInvoice]:
-    """Load and cache the 20 held-out evaluation invoices."""
-    return load_held_out_invoices()
+def get_all_invoices() -> List[Any]:
+    """
+    Load all active invoices:
+    1. Newly created / imported user invoices from SQLite (is_user_created=True).
+    2. The 20 baseline synthetic benchmark invoices (is_user_created=False).
+    """
+    sample_invoices = load_held_out_invoices()
+
+    try:
+        from data.store import get_user_invoices_reconciled
+        user_invoices = get_user_invoices_reconciled()
+    except Exception:
+        user_invoices = []
+
+    return user_invoices + sample_invoices
 
 
-def get_held_out_by_id(invoice_number: str) -> Optional[HeldOutInvoice]:
-    """Retrieve a single held-out invoice by its invoice number."""
-    invoices = get_held_out_invoices()
+def get_held_out_invoices() -> List[Any]:
+    """Retrieve full invoice list (backwards-compatible alias for queue and workbench)."""
+    return get_all_invoices()
+
+
+def get_held_out_by_id(invoice_number: str) -> Optional[Any]:
+    """Retrieve an invoice by its invoice number across sample and user records."""
+    invoices = get_all_invoices()
     for inv in invoices:
         if inv.invoice.invoice_number == invoice_number:
             return inv
@@ -77,9 +97,10 @@ def get_resolution_agent() -> ResolutionAgent:
 def check_hindsight_health() -> Dict[str, Any]:
     """Check live connectivity to Hindsight API container or cloud endpoint."""
     client = get_memory_client()
-    base_url = client.base_url
+    base_url = client.base_url or os.getenv("HINDSIGHT_LOCAL_URL", "http://localhost:8888")
+    configured_mode = getattr(client, "configured_mode", client.mode)
 
-    if client.mode == MemoryMode.OFFLINE or base_url.startswith("offline://"):
+    if configured_mode == MemoryMode.OFFLINE or base_url.startswith("offline://"):
         return {
             "status": "OFFLINE_MODE",
             "connected": False,
@@ -91,6 +112,7 @@ def check_hindsight_health() -> Dict[str, Any]:
         health_url = f"{base_url.rstrip('/')}/health"
         resp = requests.get(health_url, timeout=2.0)
         if resp.status_code == 200:
+            client.is_healthy()  # Ensure client re-attaches live mode
             return {
                 "status": "ONLINE",
                 "connected": True,

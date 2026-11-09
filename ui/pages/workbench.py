@@ -78,7 +78,7 @@ def render_workbench_page() -> None:
                 "Select Invoice for Resolution:",
                 available_ids,
                 index=available_ids.index(current_selected),
-                format_func=lambda x: f"{x} — {next(i.invoice.vendor_name for i in held_out if i.invoice.invoice_number == x)}",
+                format_func=lambda x: f"{x} — {next(i.invoice.vendor_name for i in held_out if i.invoice.invoice_number == x)} [{'USER' if getattr(next(i for i in held_out if i.invoice.invoice_number == x), 'is_user_created', False) else 'SAMPLE'}]",
             )
             st.session_state["selected_invoice_id"] = selected_id
 
@@ -128,6 +128,10 @@ def render_workbench_page() -> None:
     agent = get_resolution_agent()
 
     if run_clicked:
+        if po is None:
+            st.error("Cannot generate proposal: Referenced Purchase Order is missing from repository. Please link or create the PO first.")
+            return
+
         with st.spinner("Querying institutional memory and synthesizing resolution proposal..."):
             try:
                 proposal = agent.resolve(
@@ -333,14 +337,31 @@ def render_workbench_page() -> None:
             cited_memory_ids=active_proposal.cited_memory_ids,
         )
 
-        # Retain via process_human_feedback
+        # Retain via process_human_feedback & SQLite persistence
         mem_client = get_memory_client()
-        with st.spinner("Retaining reviewer outcome into persistent Hindsight memory..."):
+        with st.spinner("Recording reviewer outcome into persistent ledger and Hindsight memory..."):
             try:
+                # 1. Attempt Hindsight retention
                 feedback_res = process_human_feedback(
                     submission=submission,
                     memory_client=mem_client,
                     bank_id=LIVE_DEMO_BANK_ID,
+                )
+                hindsight_online = mem_client.is_healthy()
+                hstatus = "CONFIRMED_IN_HINDSIGHT" if hindsight_online else "SAVED_LOCAL_PENDING_SYNC"
+
+                # 2. Persist in authoritative SQLite database
+                from data.store import save_human_review
+                save_human_review(
+                    invoice_number=inv.invoice_number,
+                    decision=human_decision.value,
+                    approver_role=approver_role.value,
+                    approved_amount_inr=final_amount_dec,
+                    rationale=human_explanation.strip(),
+                    hindsight_doc_id=feedback_res.document_id,
+                    hindsight_bank_id=LIVE_DEMO_BANK_ID,
+                    hindsight_status=hstatus,
+                    reviewed_at=feedback_res.retained_at.strftime("%Y-%m-%d %H:%M:%S UTC"),
                 )
 
                 # Record in session state
@@ -352,17 +373,29 @@ def render_workbench_page() -> None:
                     "timestamp": feedback_res.retained_at.strftime("%Y-%m-%d %H:%M:%S UTC"),
                     "document_id": feedback_res.document_id,
                     "bank_id": LIVE_DEMO_BANK_ID,
+                    "hindsight_status": hstatus,
                 }
                 st.session_state["reviewed_invoices"] = reviewed_map
 
-                st.success(
-                    f"🎉 **Outcome Successfully Retained into Persistent Memory!**\n\n"
-                    f"• **Document ID:** `{feedback_res.document_id}`\n\n"
-                    f"• **Bank ID:** `{LIVE_DEMO_BANK_ID}`\n\n"
-                    f"• **Status:** `{feedback_res.status}`\n\n"
-                    f"• **Timestamp:** {feedback_res.retained_at.strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
-                    f"This decision is now indexed and will be recalled as precedent in subsequent resolutions."
-                )
+                if hindsight_online:
+                    st.success(
+                        f"🎉 **Outcome Successfully Retained into Persistent Hindsight Memory & Local Ledger!**\n\n"
+                        f"• **Document ID:** `{feedback_res.document_id}`\n\n"
+                        f"• **Bank ID:** `{LIVE_DEMO_BANK_ID}`\n\n"
+                        f"• **Memory Engine Status:** `CONFIRMED IN HINDSIGHT`\n\n"
+                        f"• **Database Ledger:** `SAVED (SQLite)`\n\n"
+                        f"• **Timestamp:** {feedback_res.retained_at.strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
+                        f"This decision is now permanently stored and will be recalled as precedent in subsequent resolutions."
+                    )
+                else:
+                    st.info(
+                        f"💾 **Decision Saved to Persistent Ledger (Pending Hindsight Sync)**\n\n"
+                        f"• **Invoice:** `{inv.invoice_number}`\n\n"
+                        f"• **Decision:** `{human_decision.value}` by `{approver_role.value}` at ₹{final_amount_dec:,.2f}\n\n"
+                        f"• **Database Ledger:** `SAVED (SQLite)`\n\n"
+                        f"• **Offline Document ID:** `{feedback_res.document_id}`\n\n"
+                        f"Note: Hindsight container was unreachable during this save; decision preserved locally in SQLite."
+                    )
 
             except Exception as e:
-                st.error(f"Failed to retain feedback to memory: {e}")
+                st.error(f"Failed to record reviewer decision: {e}")

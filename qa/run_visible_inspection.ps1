@@ -1,4 +1,4 @@
-﻿# LedgerMind — Run Visible Browser Walkthrough in Windows Terminal
+# LedgerMind — Run Visible Browser Walkthrough in Windows Terminal
 # ================================================================
 # Usage:
 #   .\qa\run_visible_inspection.ps1
@@ -15,5 +15,6 @@ if (-not $pythonPath) {
 }
 
 # Run the visible walkthrough script
-Write-Host "Launching Google Chrome on your physical desktop..." -ForegroundColor Yellow
+Write-Host "Opening Google Chrome on your physical desktop..." -ForegroundColor Yellow
 python qa\visible_walkthrough.py
+

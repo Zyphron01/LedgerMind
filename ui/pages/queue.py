@@ -53,7 +53,7 @@ def render_queue_page() -> None:
             unsafe_allow_html=True,
         )
 
-        col_f1, col_f2, col_f3 = st.columns(3)
+        col_f1, col_f2, col_f3, col_f4 = st.columns(4)
         with col_f1:
             vendor_filter = st.selectbox(
                 "Filter by Vendor",
@@ -69,12 +69,18 @@ def render_queue_page() -> None:
                 "Filter by Review Status",
                 ["All Statuses", "Pending Review", "Reviewed"],
             )
+        with col_f4:
+            source_filter = st.selectbox(
+                "Filter by Origin",
+                ["All Origins", "User-Created", "Sample Benchmark"],
+            )
 
     # Filter invoices
-    filtered: list[HeldOutInvoice] = []
+    filtered: list[Any] = []
     for item in held_out:
         inv_no = item.invoice.invoice_number
         is_reviewed = inv_no in reviewed_map
+        is_user = getattr(item, "is_user_created", False)
 
         if vendor_filter != "All Vendors" and item.invoice.vendor_name != vendor_filter:
             continue
@@ -83,6 +89,10 @@ def render_queue_page() -> None:
         if status_filter == "Pending Review" and is_reviewed:
             continue
         if status_filter == "Reviewed" and not is_reviewed:
+            continue
+        if source_filter == "User-Created" and not is_user:
+            continue
+        if source_filter == "Sample Benchmark" and is_user:
             continue
         filtered.append(item)
 
@@ -108,8 +118,10 @@ def render_queue_page() -> None:
         match = item.match_result
         is_rev = inv.invoice_number in reviewed_map
         status_str = f"✅ {reviewed_map[inv.invoice_number]['decision']}" if is_rev else "⏳ Pending Review"
+        origin_str = "🟢 USER" if getattr(item, "is_user_created", False) else "⚪ SAMPLE"
 
         rows.append({
+            "Origin": origin_str,
             "Invoice No": inv.invoice_number,
             "Vendor": inv.vendor_name,
             "Amount (INR)": f"₹{inv.total_inr:,.2f}",
@@ -226,29 +238,32 @@ def render_queue_page() -> None:
         st.dataframe(pd.DataFrame(inv_lines), use_container_width=True, hide_index=True)
 
     with tab_po:
-        st.markdown(f"#### Purchase Order: `{po.po_number}`")
-        col_p1, col_p2, col_p3 = st.columns(3)
-        with col_p1:
-            st.write(f"• **Vendor:** {po.vendor_name}")
-            st.write(f"• **GSTIN:** `{po.gstin}`")
-        with col_p2:
-            st.write(f"• **Issue Date:** {po.issue_date}")
-            st.write(f"• **Valid Until:** {po.valid_until}")
-        with col_p3:
-            st.write(f"• **Subtotal (Excl Tax):** ₹{po.total_excl_tax_inr:,.2f}")
-            st.write(f"• **GST Amount:** ₹{po.gst_amount_inr:,.2f}")
-            st.write(f"• **PO Contracted Total:** **₹{po.total_inr:,.2f}**")
+        if po:
+            st.markdown(f"#### Purchase Order: `{po.po_number}`")
+            col_p1, col_p2, col_p3 = st.columns(3)
+            with col_p1:
+                st.write(f"• **Vendor:** {po.vendor_name}")
+                st.write(f"• **GSTIN:** `{po.gstin}`")
+            with col_p2:
+                st.write(f"• **Issue Date:** {po.issue_date}")
+                st.write(f"• **Valid Until:** {po.valid_until}")
+            with col_p3:
+                st.write(f"• **Subtotal (Excl Tax):** ₹{po.total_excl_tax_inr:,.2f}")
+                st.write(f"• **GST Amount:** ₹{po.gst_amount_inr:,.2f}")
+                st.write(f"• **PO Contracted Total:** **₹{po.total_inr:,.2f}**")
 
-        st.markdown("##### Contracted PO Line Item Specifications:")
-        po_lines = [{
-            "Item Description": po.item_description,
-            "HSN Code": po.hsn_code,
-            "Contracted Qty": f"{po.quantity}",
-            "Contracted Unit Price": f"₹{po.unit_price_inr:,.2f}",
-            "GST Rate": f"{po.gst_rate * 100:.0f}%",
-            "Total (INR)": f"₹{po.total_inr:,.2f}",
-        }]
-        st.dataframe(pd.DataFrame(po_lines), use_container_width=True, hide_index=True)
+            st.markdown("##### Contracted PO Line Item Specifications:")
+            po_lines = [{
+                "Item Description": po.item_description,
+                "HSN Code": po.hsn_code,
+                "Contracted Qty": f"{po.quantity}",
+                "Contracted Unit Price": f"₹{po.unit_price_inr:,.2f}",
+                "GST Rate": f"{po.gst_rate * 100:.0f}%",
+                "Total (INR)": f"₹{po.total_inr:,.2f}",
+            }]
+            st.dataframe(pd.DataFrame(po_lines), use_container_width=True, hide_index=True)
+        else:
+            st.warning(f"⚠️ Referenced Purchase Order `{inv.po_number}` is not yet loaded into the repository.")
 
     with tab_grn:
         if grn:

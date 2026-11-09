@@ -61,6 +61,7 @@ class MemoryClient:
         self.budget_guard = budget_guard or BudgetGuard()
         self.offline_store = offline_store or OfflineStore()
         self.reflect_cache = reflect_cache or ReflectCache()
+        self.configured_mode = self.mode
 
         # Initialize Hindsight SDK if not offline
         self._sdk_client: Optional[Hindsight] = None
@@ -73,12 +74,20 @@ class MemoryClient:
 
     def is_healthy(self) -> bool:
         """Fast connectivity check to prevent long connect timeouts when service is offline."""
-        if self.mode == MemoryMode.OFFLINE or not self._sdk_client or not self.base_url or self.base_url.startswith("offline://"):
+        if getattr(self, "configured_mode", self.mode) == MemoryMode.OFFLINE or not self.base_url or self.base_url.startswith("offline://"):
             return False
         try:
             import requests
             resp = requests.get(f"{self.base_url.rstrip('/')}/health", timeout=1.5)
-            return resp.status_code == 200
+            is_ok = resp.status_code == 200
+            if is_ok:
+                if self._sdk_client is None and getattr(self, "configured_mode", self.mode) in (MemoryMode.LOCAL, MemoryMode.CLOUD):
+                    try:
+                        self._sdk_client = Hindsight(base_url=self.base_url, api_key=self.api_key)
+                    except Exception:
+                        pass
+                self.mode = self.configured_mode
+            return is_ok
         except Exception:
             return False
 

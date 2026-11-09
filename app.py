@@ -24,6 +24,7 @@ import streamlit as st
 
 from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
 from ui.pages.comparison import render_comparison_page
+from ui.pages.intake import render_intake_page
 from ui.pages.memory_intelligence import render_memory_intelligence_page
 from ui.pages.overview import render_overview_page
 from ui.pages.queue import render_queue_page
@@ -66,20 +67,20 @@ def main() -> None:
         pages = [
             "Overview",
             "Invoice Queue",
+            "New Invoice / Import",
             "Resolution Workbench",
             "Memory OFF vs ON Comparison",
             "Memory Intelligence",
         ]
 
-        current = st.session_state.get("current_page", "Overview")
-        current_idx = pages.index(current) if current in pages else 0
+        if "current_page" not in st.session_state:
+            st.session_state["current_page"] = "Overview"
 
         selected_page = st.radio(
             "Navigation:",
             pages,
-            index=current_idx,
+            key="current_page",
         )
-        st.session_state["current_page"] = selected_page
 
         st.divider()
 
@@ -118,6 +119,8 @@ def main() -> None:
         render_overview_page()
     elif page == "Invoice Queue":
         render_queue_page()
+    elif page == "New Invoice / Import":
+        render_intake_page()
     elif page == "Resolution Workbench":
         render_workbench_page()
     elif page == "Memory OFF vs ON Comparison":

@@ -62,6 +62,11 @@ class RecalledMemory(BaseModel):
             is_offline_fallback=False,
         )
 
+    @property
+    def similarity_score(self) -> Optional[float]:
+        """Convenience property alias for semantic score or overall score."""
+        return self.semantic_score if self.semantic_score is not None else self.score
+
     def to_citation_summary(self) -> str:
         """Formatted human-readable citation label for UI and agent reasoning."""
         doc = self.document_id or self.id[:8]

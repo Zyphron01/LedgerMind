@@ -10,7 +10,7 @@ Orchestrates:
 from decimal import Decimal
 import os
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
 from agent.confidence import calculate_confidence, ConfidenceScore
@@ -50,6 +50,28 @@ class ResolutionProposal(BaseModel):
     conflict_explanation: Optional[str] = None
     requires_escalation: bool = False
     escalation_path: Optional[str] = None
+
+    @field_validator("confidence", mode="before")
+    @classmethod
+    def _coerce_confidence(cls, v: Any) -> Any:
+        if hasattr(v, "model_dump"):
+            return v.model_dump()
+        return v
+
+    @field_validator("recalled_memories", mode="before")
+    @classmethod
+    def _coerce_recalled_memories(cls, v: Any) -> Any:
+        if isinstance(v, list):
+            coerced = []
+            for item in v:
+                if hasattr(item, "model_dump"):
+                    coerced.append(item.model_dump())
+                elif hasattr(item, "__dict__") and not isinstance(item, dict):
+                    coerced.append(dict(item.__dict__))
+                else:
+                    coerced.append(item)
+            return coerced
+        return v
 
 
 class ResolutionAgent:
@@ -98,6 +120,31 @@ class ResolutionAgent:
         recalled_mems: List[RecalledMemory] = []
         confidence_sample: List[RecalledMemory] = []
         profile_summary: Optional[str] = None
+
+        # Clean 3-way match: immediate deterministic approval
+        if match_result.is_match:
+            return ResolutionProposal(
+                invoice_number=invoice.invoice_number,
+                vendor_name=invoice.vendor_name,
+                exception_type=match_result.exception_type,
+                proposed_action=ApproverDecision.APPROVED,
+                proposed_amount_inr=invoice.total_inr,
+                reasoning="Clean three-way match: All billed line items, unit prices, quantities, and GST rates fully reconcile with purchase order and warehouse receipt.",
+                cited_memory_ids=[],
+                confidence=ConfidenceScore(
+                    score=1.0,
+                    band=ConfidenceBand.HIGH,
+                    sample_size_n=0,
+                    agreement_count=0,
+                    consistency=1.0,
+                    explanation="Clean 3-way match: Zero variances detected between invoice, PO, and GRN.",
+                ),
+                memory_enabled=memory_enabled,
+                recalled_memories=[],
+                conflict_status=ConflictStatus.COMPLIANT_PRECEDENT,
+                conflict_explanation="Clean match conforms with standard procurement controls.",
+                requires_escalation=False,
+            )
 
         # 0. RETRIEVE GOVERNING CORPORATE POLICY (POLICY RAG)
         governing_policy = self.policy_retriever.get_applicable_policy(

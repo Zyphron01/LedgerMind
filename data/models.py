@@ -368,4 +368,5 @@ class HeldOutInvoice(BaseModel):
     expected_resolution: ExpectedResolution = Field(
         description="Hidden ground truth label for benchmark scoring; never shown to AI resolver"
     )
+    is_user_created: bool = Field(default=False, description="False for benchmark sample fixtures, True for user entries")
 

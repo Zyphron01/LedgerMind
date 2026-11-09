@@ -20,10 +20,12 @@ from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
 
 
 def test_ui_held_out_invoices_loading():
-    """Verify that all 20 held-out invoices are loaded cleanly."""
-    invoices = get_held_out_invoices()
-    assert len(invoices) == 20
-    assert invoices[0].invoice.invoice_number == "INV-PI-2025-101"
+    """Verify that all 20 benchmark held-out invoices are loaded cleanly alongside user records."""
+    all_invoices = get_held_out_invoices()
+    assert len(all_invoices) >= 20
+    sample_invoices = [inv for inv in all_invoices if not getattr(inv, "is_user_created", False)]
+    assert len(sample_invoices) == 20
+    assert sample_invoices[0].invoice.invoice_number == "INV-PI-2025-101"
 
 
 def test_ui_get_held_out_by_id():
