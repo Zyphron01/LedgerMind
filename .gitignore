@@ -29,8 +29,21 @@ reflect_cache.json
 offline_memory.jsonl
 *.log
 
-# Video generation temporary browser caches
-submission/video/source_recordings/temp_*/
+# Multimedia, raw recordings, and submission assets
+submission/
+*.mp4
+*.webm
+*.mp3
+*.wav
+
+# QA browser inspection outputs & raw test screenshots
+qa/*_screenshots/
+qa/visible_browser_inspection/
+qa/browser_inspection_results.json
+scripts/spike.py
+
+# Explicitly preserve curated documentation screenshots
+!docs/screenshots/*.png
 
 # Test & coverage caches
 .pytest_cache/
@@ -47,4 +60,3 @@ Thumbs.db
 venv/
 .venv/
 env/
-

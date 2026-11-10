@@ -18,7 +18,21 @@ Traditional automated systems either blindly approve variances (risking financia
 
 ---
 
-## 2. The Four Pillars of LedgerMind
+## 2. Key Capabilities & Screenshots
+
+| 1. Discrepancy Queue & Inspector | 2. Resolution Workbench & Precedent Citations |
+| :---: | :---: |
+| ![Queue Inspector](docs/screenshots/01_overview.png) | ![Resolution Workbench](docs/screenshots/02_workbench.png) |
+| *Multi-document reconciliation with instant exception badging.* | *Precedent grounding with Policy Supremacy conflict overrides.* |
+
+| 3. Memory OFF vs ON Comparative Evaluation |
+| :---: |
+| ![Comparative Evaluation](docs/screenshots/03_comparison.png) |
+| *Side-by-side empirical confidence uplift and evidentiary audit trails.* |
+
+---
+
+## 3. The Four Pillars of LedgerMind
 
 1. **Deterministic 3-Way Matcher (Zero Hallucination)**:
    - Performs exact arithmetic verification of line-item prices, received quantities, statutory Indian GST calculations, duplicate invoice detection, and purchase order expiration dates using Python's `Decimal`.
@@ -31,17 +45,18 @@ Traditional automated systems either blindly approve variances (risking financia
 
 ---
 
-## 3. Technology Stack
+## 4. Technology Stack
 
 - **Application Framework**: Python 3.10+ / Streamlit
-- **Agent Memory**: [Vectorize Hindsight](https://hindsight.vectorize.io/) (Docker container on port `8888`) with fallback to local JSONL store
-- **Large Language Model**: Groq API (`openai/gpt-oss-120b` or `llama-3.3-70b-versatile`)
-- **Persistence Layer**: SQLite (`data/ledgermind.db`) with Foreign Keys & Decimal-safe string serialization
-- **Video & Multimedia**: Playwright (Headless UI screen recording), Edge TTS (`en-IN-PrabhatNeural`), FFmpeg 7.1
+- **Agent Memory Engine**: [Vectorize Hindsight](https://hindsight.vectorize.io/) (Docker container on port `8888`) with resilient fallback to local JSONL store
+- **Large Language Model (LLM)**: Groq API (`openai/gpt-oss-120b` with automatic fallback to `openai/gpt-oss-20b`)
+- **Persistence Layer**: SQLite (`data/ledgermind.db`) with Decimal-safe string serialization
+- **Policy Engine**: In-memory temporal policy corpus with strict version-scoping
+- **Test Suite**: Pytest (75 unit and integration tests)
 
 ---
 
-## 4. System Architecture & Workflow
+## 5. System Architecture & Workflow
 
 ```mermaid
 flowchart TD
@@ -82,7 +97,7 @@ flowchart TD
 
 ---
 
-## 5. Live Hindsight vs. Offline JSONL Fallback Provenance
+## 6. Live Hindsight vs. Offline JSONL Fallback Provenance
 
 LedgerMind is architected for continuous resilience:
 
@@ -92,13 +107,13 @@ LedgerMind is architected for continuous resilience:
 | **Retrieval Method** | Semantic vector similarity + tag-filtered recall | Tag-based keyword and metadata exact filtering |
 | **Longitudinal Insights** | Dynamic `reflect()` behavioral summaries | Local cached reflection summaries (`reflect_cache.json`) |
 | **Provenance Indication** | `Hindsight Bank: ledgermind-live-demo` (Green chip in UI) | `Offline JSONL Fallback Store` (Amber chip in UI) |
-| **Automatic Fallback** | Automatically falls back to JSONL if container is unreachable or times out | Operates completely air-gapped without Docker or network |
+| **Automatic Fallback** | Automatically falls back to JSONL if container is unreachable or times out (>30s) | Operates completely air-gapped without Docker or network |
 
 Every memory card displayed in the Resolution Workbench explicitly discloses its data lineage so the human auditor knows whether evidence was retrieved via semantic vector search or offline fallback.
 
 ---
 
-## 6. How LedgerMind Uses Hindsight Agent Memory
+## 7. How LedgerMind Uses Hindsight Agent Memory
 
 LedgerMind leverages all three core primitives of Hindsight:
 
@@ -122,7 +137,7 @@ LedgerMind leverages all three core primitives of Hindsight:
        limit=5
    )
    ```
-   *Deduplication & Circular-Evidence Guard*: Facts belonging to the same review document are deduplicated. The system strictly excludes an invoice's own historical review from being used as precedent against itself.
+   *Deduplication & Circular-Evidence Guard*: Facts belonging to the same review document are deduplicated into a single logical evidence card. The system strictly excludes an invoice's own historical review from being used as precedent against itself.
 3. **`reflect()` — Longitudinal Vendor Behavioral Profiling**:
    Hindsight synthesizes cross-invoice patterns to provide context on recurring supplier billing behaviors:
    ```python
@@ -134,7 +149,7 @@ LedgerMind leverages all three core primitives of Hindsight:
 
 ---
 
-## 7. Benchmark Scenarios (Policy vs. Precedent)
+## 8. Benchmark Scenarios (Policy vs. Precedent)
 
 LedgerMind includes three benchmark scenarios demonstrating its core differentiator:
 
@@ -161,7 +176,7 @@ LedgerMind includes three benchmark scenarios demonstrating its core differentia
 
 ---
 
-## 8. Hindsight Docker Setup
+## 9. Hindsight Docker Setup
 
 LedgerMind integrates with [Hindsight](https://hindsight.vectorize.io/) (Agent Memory by Vectorize).
 
@@ -189,7 +204,7 @@ docker run -d --name hindsight \
 
 ---
 
-## 9. Quickstart Installation & Execution
+## 10. Quickstart Installation & Execution
 
 ### Prerequisites
 - Python 3.10 or higher
@@ -231,9 +246,9 @@ Open [http://localhost:8501](http://localhost:8501) in your browser.
 
 ---
 
-## 10. Automated Tests & Evaluation Suite
+## 11. Automated Tests & Evaluation Suite
 
-### Run Regression Test Suite
+### Run 75-Test Regression Suite
 ```bash
 python -m pytest -v
 ```
@@ -266,17 +281,14 @@ python eval/evaluate_held_out.py --client-mode local
 
 ---
 
-## 11. Innovation Showcase Video
+## 12. Demonstration Video & Technical Audit
 
-A narrated 1080p demonstration video of LedgerMind is available in the repository:
-- **Video File**: `submission/video/ledgermind_showcase.mp4` (10.7 MB, 1080p @ 30fps, AAC audio)
-- **Subtitles**: `submission/video/subtitles.srt` (40 synchronized caption cues)
-- **Narration Script**: `submission/video/narration_script.md`
-- **YouTube Metadata & Timestamps**: `submission/video/youtube_description.md`
+- **Demonstration Video**: A narrated 1080p walkthrough demonstrating the end-to-end operational flow, Hindsight memory recall, and policy conflict resolution is available on [YouTube](https://youtu.be/0C8oH0s6iEw).
+- **Technical Architecture Audit**: For a comprehensive diagnostic inspection covering database schemas, data flow analysis, and production roadmap, refer to [LEDGERMIND_TECHNICAL_AUDIT.md](LEDGERMIND_TECHNICAL_AUDIT.md).
 
 ---
 
-## 12. Prototype Disclaimers & Known Limitations
+## 13. Prototype Disclaimers & Known Limitations
 
 1. **Synthetic Data Disclaimer**: All 8 vendors (e.g., *Prabhav Infosystems*, *Bhavna Textile Traders*, *Patel Hardware & Tools*), GSTINs, invoice line items, purchase orders, and corporate policies (`POL-AP-001` through `POL-AP-006`) are synthetically generated for demonstration and evaluation purposes.
 2. **Prototype Scope & Intake Format**: LedgerMind is an experimental prototype designed to validate agentic memory in financial exception resolution. It currently accepts structured manual invoice input and tabular data rather than raw OCR scans of arbitrary unstructured PDF formats.
