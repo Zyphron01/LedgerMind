@@ -52,19 +52,22 @@ def init_session_state() -> None:
 
 def get_all_invoices() -> List[Any]:
     """
-    Load all active invoices:
-    1. Newly created / imported user invoices from SQLite (is_user_created=True).
+    Load all active operational invoices from SQLite:
+    1. Newly created / imported user invoices (is_user_created=True).
     2. The 20 baseline synthetic benchmark invoices (is_user_created=False).
+    Fallback to load_held_out_invoices() if database query encounters an unexpected issue.
     """
-    sample_invoices = load_held_out_invoices()
-
     try:
-        from data.store import get_user_invoices_reconciled
-        user_invoices = get_user_invoices_reconciled()
+        from data.store import get_all_reconciled_invoices
+        return get_all_reconciled_invoices()
     except Exception:
-        user_invoices = []
-
-    return user_invoices + sample_invoices
+        sample_invoices = load_held_out_invoices()
+        try:
+            from data.store import get_user_invoices_reconciled
+            user_invoices = get_user_invoices_reconciled()
+        except Exception:
+            user_invoices = []
+        return user_invoices + sample_invoices
 
 
 def get_held_out_invoices() -> List[Any]:
@@ -73,7 +76,15 @@ def get_held_out_invoices() -> List[Any]:
 
 
 def get_held_out_by_id(invoice_number: str) -> Optional[Any]:
-    """Retrieve an invoice by its invoice number across sample and user records."""
+    """Retrieve an invoice by its invoice number across all operational records in SQLite."""
+    try:
+        from data.store import get_invoice_record_by_id
+        res = get_invoice_record_by_id(invoice_number)
+        if res:
+            return res
+    except Exception:
+        pass
+
     invoices = get_all_invoices()
     for inv in invoices:
         if inv.invoice.invoice_number == invoice_number:

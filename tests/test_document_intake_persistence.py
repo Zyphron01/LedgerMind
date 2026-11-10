@@ -179,6 +179,21 @@ def test_clean_match_invoice(temp_db):
 
 def test_human_review_persistence(temp_db):
     """Test recording and reloading a human review in SQLite."""
+    inv = Invoice.create(
+        invoice_number="INV-TEST-008",
+        vendor_name="Zenith Industrial Components",
+        gstin="27AAACZ1111A1Z2",
+        invoice_date=date(2025, 10, 10),
+        po_number="PO-TEST-008",
+        grn_number=None,
+        item_description="Precision Bearings",
+        hsn_code="8482",
+        unit_price_inr=Decimal("1080.00"),
+        quantity=10,
+        gst_rate=Decimal("0.18"),
+    )
+    save_invoice(inv, is_user_created=True, db_path=temp_db)
+
     save_human_review(
         invoice_number="INV-TEST-008",
         decision="ESCALATED",

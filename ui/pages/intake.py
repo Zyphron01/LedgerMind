@@ -22,6 +22,7 @@ from data.store import (
     list_goods_receipts,
     list_purchase_orders,
     list_vendors,
+    save_document_bundle,
     save_goods_receipt,
     save_invoice,
     save_purchase_order,
@@ -310,10 +311,7 @@ def render_intake_page() -> None:
                 return
 
             try:
-                # 1. Save Vendor
-                save_vendor(vendor_name_final, vendor_gstin_final)
-
-                # 2. Save PO
+                # 1. Prepare PO Object
                 if not is_new_po and existing_po:
                     po_obj = existing_po
                 else:
@@ -329,9 +327,8 @@ def render_intake_page() -> None:
                         quantity=int(po_qty_val),
                         gst_rate=Decimal(str(po_gst_rate_val)),
                     )
-                    save_purchase_order(po_obj)
 
-                # 3. Save GRN (if applicable)
+                # 2. Prepare GRN Object (if applicable)
                 grn_obj = None
                 if grn_number_val:
                     grn_obj = GoodsReceiptNote(
@@ -343,9 +340,8 @@ def render_intake_page() -> None:
                         rejected_quantity=0,
                         inspection_notes="Standard warehouse goods intake verification.",
                     )
-                    save_goods_receipt(grn_obj)
 
-                # 4. Save Invoice
+                # 3. Prepare Invoice Object
                 inv_obj = Invoice.create(
                     invoice_number=inv_number_val,
                     vendor_name=vendor_name_final,
@@ -359,7 +355,15 @@ def render_intake_page() -> None:
                     quantity=int(inv_qty_val),
                     gst_rate=Decimal(str(inv_gst_rate_val)),
                 )
-                save_invoice(inv_obj, is_user_created=True)
+
+                # 4. Save entire document bundle atomically into SQLite
+                save_document_bundle(
+                    vendor={"name": vendor_name_final, "gstin": vendor_gstin_final},
+                    po=po_obj,
+                    grn=grn_obj,
+                    invoice=inv_obj,
+                    is_user_created=True,
+                )
 
                 # 5. Run Match
                 match_res = match_invoice(invoice=inv_obj, po=po_obj, grn=grn_obj)

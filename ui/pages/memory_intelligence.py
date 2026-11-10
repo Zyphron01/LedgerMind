@@ -8,10 +8,13 @@ token budget guard telemetry with modern Bento and Aceternity-inspired styling.
 """
 
 from collections import Counter
+from decimal import Decimal
 import json
 import streamlit as st
 
 from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
+from data.models import ApproverDecision, Vendor
+from data.store import list_all_vendor_names, list_vendors
 from data.vendors import ALL_VENDORS, VENDORS_BY_SLUG
 from memory.operations import get_vendor_profile
 from ui.components.cards import render_advisory_banner
@@ -45,9 +48,32 @@ def render_memory_intelligence_page() -> None:
     mem_client = get_memory_client()
 
     # 1. VENDOR SELECTOR & DOSSIER
-    vendor_names = [v.name for v in ALL_VENDORS]
+    db_vendor_names = list_all_vendor_names()
+    vendor_names = db_vendor_names if db_vendor_names else [v.name for v in ALL_VENDORS]
     selected_name = st.selectbox("Select Supplier / Vendor:", vendor_names)
-    selected_vendor = next(v for v in ALL_VENDORS if v.name == selected_name)
+
+    synth_vendor = next((v for v in ALL_VENDORS if v.name == selected_name), None)
+    if synth_vendor:
+        selected_vendor = synth_vendor
+    else:
+        all_v_dicts = {v["name"]: v for v in list_vendors()}
+        v_info = all_v_dicts.get(selected_name, {})
+        v_gstin = v_info.get("gstin", "27AABCA0000A1Z0")
+        v_cat = v_info.get("category", "General Procurement")
+        v_slug = v_info.get("slug", selected_name.lower().replace(" ", "-").replace(".", ""))
+        selected_vendor = Vendor(
+            name=selected_name,
+            slug=v_slug,
+            gstin=v_gstin,
+            city="Operating City",
+            state="India",
+            state_code=v_gstin[:2] if len(v_gstin) >= 2 else "27",
+            category=v_cat,
+            standard_hsn="General",
+            standard_gst_rate=Decimal("0.18"),
+            quirk_description="User-registered enterprise supplier.",
+            dominant_action=ApproverDecision.APPROVED,
+        )
     slug = selected_vendor.slug
 
     # VENDOR INFO CARD (Bento Style)
