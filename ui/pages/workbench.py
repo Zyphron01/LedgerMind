@@ -190,6 +190,7 @@ def render_workbench_page() -> None:
     with col_prop3:
         token_info = active_proposal.token_usage.get("total_tokens", 0)
         mode_pill = '<span class="lm-badge lm-badge-emerald">MEMORY ON</span>' if active_proposal.memory_enabled else '<span class="lm-badge lm-badge-gray">MEMORY OFF</span>'
+        fallback_pill = ' <span class="lm-badge lm-badge-amber" title="Synthesized via deterministic rule engine due to offline/unavailable LLM">FALLBACK</span>' if getattr(active_proposal, "llm_fallback", False) else ''
         st.markdown(
             f"""
             <div class="lm-card" style="padding: 18px 20px;">
@@ -197,12 +198,15 @@ def render_workbench_page() -> None:
                     Inference Telemetry
                 </div>
                 <div style="font-size: 0.88rem; color: #cbd5e1;">
-                    Tokens: <strong style="color: #f8fafc;">{token_info}</strong> &nbsp;|&nbsp; {mode_pill}
+                    Tokens: <strong style="color: #f8fafc;">{token_info}</strong> &nbsp;|&nbsp; {mode_pill}{fallback_pill}
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
+
+    if getattr(active_proposal, "llm_fallback", False):
+        st.info("⚡ **Deterministic Fallback Active:** Groq inference was unavailable or offline. This resolution proposal was synthesized deterministically using LedgerMind's 3-way match rules and corporate policy constraints.")
 
     st.markdown(
         f"""
@@ -288,18 +292,47 @@ def render_workbench_page() -> None:
         unsafe_allow_html=True,
     )
 
-    # Check if already reviewed in session
+    # Check if already reviewed in database or session
+    from data.store import get_review_history
     reviewed_map = st.session_state.get("reviewed_invoices", {})
     already_reviewed = inv.invoice_number in reviewed_map
+    review_history = get_review_history(inv.invoice_number)
 
     if already_reviewed:
         rev_info = reviewed_map[inv.invoice_number]
-        st.success(
-            f"✅ **Invoice Reviewed in this Session:** {rev_info['decision']} by {rev_info['role']} "
-            f"at ₹{rev_info['amount']:,.2f} on {rev_info['timestamp']}\n\n"
-            f"• **Retained Document ID:** `{rev_info['document_id']}`\n\n"
-            f"• **Rationale:** {rev_info['reason']}"
+        hstat = rev_info.get('hindsight_status', 'UNKNOWN')
+        status_badge = "🟢 SYNCED" if hstat == "SYNCED" else ("🟡 PENDING SYNC" if hstat == "PENDING_SYNC" else f"⚪ {hstat}")
+        st.markdown(
+            f"""
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.35); border-left: 4px solid #10b981; border-radius: 6px; padding: 14px 16px; margin: 12px 0 16px 0;">
+                <div style="font-weight: 700; color: #34d399; font-size: 0.95rem; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>📋 Active Review on Record: {rev_info['decision']}</span>
+                    <span style="font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.06);">{status_badge}</span>
+                </div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">
+                    <strong>Reviewer:</strong> {rev_info['role']} &bull; <strong>Payable Amount:</strong> ₹{rev_info['amount']:,.2f} &bull; <strong>Recorded:</strong> {rev_info['timestamp']}<br/>
+                    <strong>Document ID:</strong> <code>{rev_info['document_id']}</code><br/>
+                    <strong>Audit Rationale:</strong> {rev_info['reason']}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
+
+    if review_history:
+        with st.expander(f"📜 View Superseded Review Version History ({len(review_history)} previous version{'s' if len(review_history) > 1 else ''})"):
+            for prev in review_history:
+                st.markdown(
+                    f"**Version {prev.get('version', 1)}** &bull; Decision: `{prev.get('decision')}` &bull; "
+                    f"Amount: ₹{Decimal(str(prev.get('approved_amount_inr', '0.00'))):,.2f} &bull; "
+                    f"Superseded At: {prev.get('superseded_at')}\n\n"
+                    f"*Rationale:* {prev.get('rationale')}\n\n"
+                    f"*Doc ID:* `{prev.get('hindsight_doc_id')}` | *Status:* `{prev.get('hindsight_status')}`"
+                )
+                st.divider()
+
+    if already_reviewed:
+        st.warning("⚠️ **Notice:** An active review exists for this invoice. Submitting this form will supersede the current review, increment the version, and archive previous decisions to the immutable audit log.")
 
     with st.form(key=f"human_review_form_{inv.invoice_number}"):
         col_act1, col_act2 = st.columns(2)
@@ -376,8 +409,7 @@ def render_workbench_page() -> None:
                     memory_client=mem_client,
                     bank_id=LIVE_DEMO_BANK_ID,
                 )
-                hindsight_online = mem_client.is_healthy()
-                hstatus = "CONFIRMED_IN_HINDSIGHT" if hindsight_online else "SAVED_LOCAL_PENDING_SYNC"
+                hstatus = getattr(feedback_res, "hindsight_status", getattr(mem_client, "last_retain_status", "SYNCED"))
 
                 # 2. Persist in authoritative SQLite database
                 from data.store import save_human_review
@@ -393,7 +425,18 @@ def render_workbench_page() -> None:
                     reviewed_at=feedback_res.retained_at.strftime("%Y-%m-%d %H:%M:%S UTC"),
                 )
 
-                # Record in session state
+                # 3. Invalidate proposal cache and comparison cache for this invoice
+                p_cache = st.session_state.get("proposal_cache", {})
+                keys_to_remove = [k for k in list(p_cache.keys()) if k.startswith(f"{inv.invoice_number}_")]
+                for k in keys_to_remove:
+                    p_cache.pop(k, None)
+                st.session_state["proposal_cache"] = p_cache
+
+                comp_cache = st.session_state.get("comparison_cache", {})
+                comp_cache.pop(inv.invoice_number, None)
+                st.session_state["comparison_cache"] = comp_cache
+
+                # 4. Record in session state
                 reviewed_map[inv.invoice_number] = {
                     "decision": human_decision.value,
                     "role": approver_role.value,
@@ -406,24 +449,32 @@ def render_workbench_page() -> None:
                 }
                 st.session_state["reviewed_invoices"] = reviewed_map
 
-                if hindsight_online:
+                if hstatus == "SYNCED":
                     st.success(
                         f"🎉 **Outcome Successfully Retained into Persistent Hindsight Memory & Local Ledger!**\n\n"
                         f"• **Document ID:** `{feedback_res.document_id}`\n\n"
                         f"• **Bank ID:** `{LIVE_DEMO_BANK_ID}`\n\n"
-                        f"• **Memory Engine Status:** `CONFIRMED IN HINDSIGHT`\n\n"
+                        f"• **Memory Engine Status:** `SYNCED (Live Hindsight Cluster)`\n\n"
                         f"• **Database Ledger:** `SAVED (SQLite)`\n\n"
                         f"• **Timestamp:** {feedback_res.retained_at.strftime('%Y-%m-%d %H:%M:%S UTC')}\n\n"
                         f"This decision is now permanently stored and will be recalled as precedent in subsequent resolutions."
                     )
-                else:
+                elif hstatus == "PENDING_SYNC":
                     st.info(
                         f"💾 **Decision Saved to Persistent Ledger (Pending Hindsight Sync)**\n\n"
                         f"• **Invoice:** `{inv.invoice_number}`\n\n"
                         f"• **Decision:** `{human_decision.value}` by `{approver_role.value}` at ₹{final_amount_dec:,.2f}\n\n"
                         f"• **Database Ledger:** `SAVED (SQLite)`\n\n"
-                        f"• **Offline Document ID:** `{feedback_res.document_id}`\n\n"
-                        f"Note: Hindsight container was unreachable during this save; decision preserved locally in SQLite."
+                        f"• **Retention Status:** `PENDING_SYNC` (Hindsight service offline; saved in SQLite audit log for auto-sync)\n\n"
+                        f"• **Offline Document ID:** `{feedback_res.document_id}`"
+                    )
+                else:
+                    st.info(
+                        f"💾 **Decision Saved to Persistent Ledger (Offline Mode)**\n\n"
+                        f"• **Invoice:** `{inv.invoice_number}`\n\n"
+                        f"• **Decision:** `{human_decision.value}` by `{approver_role.value}` at ₹{final_amount_dec:,.2f}\n\n"
+                        f"• **Database Ledger:** `SAVED (SQLite)`\n\n"
+                        f"• **Retention Status:** `{hstatus}`"
                     )
 
             except Exception as e:

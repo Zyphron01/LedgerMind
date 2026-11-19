@@ -153,8 +153,10 @@ class Invoice(BaseModel):
     vendor_name: str = Field(description="Supplier legal name")
     gstin: str = Field(description="Supplier GSTIN")
     invoice_date: date = Field(description="Date stated on invoice")
-    po_number: str = Field(description="Referenced PO number")
+    po_number: Optional[str] = Field(default=None, description="Referenced PO number")
     grn_number: Optional[str] = Field(default=None, description="Linked GRN reference if any")
+    is_incomplete: bool = Field(default=False, description="Whether invoice is awaiting authentic PO documentation")
+    is_archived: bool = Field(default=False, description="Whether invoice is soft-deleted/archived")
     item_description: str = Field(description="Description of line items")
     hsn_code: str = Field(description="HSN / SAC code on invoice")
     unit_price_inr: Decimal = Field(description="Billed unit price in INR")
@@ -192,13 +194,15 @@ class Invoice(BaseModel):
         vendor_name: str,
         gstin: str,
         invoice_date: date,
-        po_number: str,
-        grn_number: Optional[str],
-        item_description: str,
-        hsn_code: str,
-        unit_price_inr: Decimal,
-        quantity: int,
-        gst_rate: Decimal,
+        po_number: Optional[str] = None,
+        grn_number: Optional[str] = None,
+        item_description: str = "",
+        hsn_code: str = "",
+        unit_price_inr: Decimal = Decimal("0.00"),
+        quantity: int = 1,
+        gst_rate: Decimal = Decimal("0.18"),
+        is_incomplete: bool = False,
+        is_archived: bool = False,
     ) -> "Invoice":
         subtotal = (unit_price_inr * Decimal(quantity)).quantize(Decimal("0.01"))
         tax = (subtotal * gst_rate).quantize(Decimal("0.01"))
@@ -210,6 +214,8 @@ class Invoice(BaseModel):
             invoice_date=invoice_date,
             po_number=po_number,
             grn_number=grn_number,
+            is_incomplete=is_incomplete,
+            is_archived=is_archived,
             item_description=item_description,
             hsn_code=hsn_code,
             unit_price_inr=unit_price_inr.quantize(Decimal("0.01")),

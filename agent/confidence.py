@@ -135,7 +135,7 @@ def deduplicate_historical_decisions(
     for mem in historical_memories:
         # Require verifiable source document identity
         doc_id = mem.document_id
-        if not doc_id:
+        if not doc_id or doc_id.startswith("fact-") or getattr(mem, "is_ungrouped", False):
             total_excluded += 1
             continue
 

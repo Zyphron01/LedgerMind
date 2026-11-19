@@ -92,6 +92,21 @@ class ReflectSummary(BaseModel):
     summary: str
     generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     cached: bool = False
+    is_error: bool = False
+    error_message: Optional[str] = None
+    bank_id: Optional[str] = None
+
+    def __getattr__(self, name: str) -> Any:
+        # Backward compatibility for stale in-memory or deserialized instances
+        if name.startswith("_"):
+            raise AttributeError(name)
+        if name == "is_error":
+            return False
+        if name == "error_message":
+            return None
+        if name == "bank_id":
+            return None
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
 
 class FeedbackRecord(BaseModel):

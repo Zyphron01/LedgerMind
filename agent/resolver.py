@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
 from agent.confidence import calculate_confidence, ConfidenceBand, ConfidenceScore
-from agent.llm import GroqClient
+from agent.llm import GroqClient, LLMError
 from agent.prompts import SYSTEM_PROMPT, build_user_prompt
 from data.models import ApproverDecision, ExceptionType, GoodsReceiptNote, Invoice, MatchResult, PurchaseOrder
 from data.vendors import get_vendor_slug
@@ -22,7 +22,7 @@ from memory.client import MemoryClient
 from memory.operations import get_vendor_profile, recall_for_confidence, recall_for_exception
 from memory.schema import RecalledMemory
 from policy.conflict import evaluate_policy_precedent_conflict
-from policy.models import ConflictStatus, PolicyConflictEvaluation
+from policy.models import CompanyPolicy, ConflictStatus, PolicyConflictEvaluation
 from policy.retriever import PolicyRetriever
 
 
@@ -51,6 +51,10 @@ class ResolutionProposal(BaseModel):
     conflict_explanation: Optional[str] = None
     requires_escalation: bool = False
     escalation_path: Optional[str] = None
+
+    # Offline & LLM Resiliency (Milestone 2)
+    llm_fallback: bool = False
+    fallback_reason: Optional[str] = None
 
     @field_validator("confidence", mode="before")
     @classmethod
@@ -211,12 +215,157 @@ class ResolutionAgent:
         self.bank_id = default_bank_id or os.getenv("HINDSIGHT_BANK_ID", "ledgermind-ap-exceptions")
         self.policy_retriever = policy_retriever or PolicyRetriever()
 
+    def _generate_deterministic_fallback(
+        self,
+        invoice: Invoice,
+        po: Optional[PurchaseOrder],
+        grn: Optional[GoodsReceiptNote],
+        match_result: MatchResult,
+        conflict_eval: PolicyConflictEvaluation,
+        recalled_memories: List[RecalledMemory],
+        governing_policy: Optional[CompanyPolicy],
+    ) -> Dict[str, Any]:
+        """
+        Deterministic, policy-grounded fallback resolution generator.
+        Activates when Groq LLM is unavailable, offline, rate-limited, or raises LLMError.
+        Reconciles 3-way match exceptions and corporate policy directives deterministically.
+        """
+        cited_ids: List[str] = []
+        for m in recalled_memories[:3]:
+            cid = m.document_id or m.id
+            if cid:
+                cited_ids.append(cid)
+
+        # 0. Missing Purchase Order documentation (Incomplete Invoice)
+        if po is None or getattr(invoice, "is_incomplete", False) or "pending po documentation" in (match_result.explanation or "").lower():
+            return {
+                "proposed_action": ApproverDecision.ESCALATED.value,
+                "proposed_amount_inr": str(invoice.total_inr),
+                "reasoning": f"[DETERMINISTIC FALLBACK] Missing purchase order documentation for invoice {invoice.invoice_number}. Invoice is marked incomplete; procurement escalation required.",
+                "cited_memory_ids": cited_ids,
+            }
+
+        # 1. Clean match
+        if match_result.is_match:
+            return {
+                "proposed_action": ApproverDecision.APPROVED.value,
+                "proposed_amount_inr": str(invoice.total_inr),
+                "reasoning": "Deterministic Fallback: Clean three-way match verified. Zero variances detected between invoice, PO, and GRN.",
+                "cited_memory_ids": [],
+            }
+
+        # 2. Policy-precedent conflict or policy version shift: Corporate policy takes absolute supremacy
+        if conflict_eval.status in (ConflictStatus.POLICY_PRECEDENT_CONFLICT, ConflictStatus.POLICY_VERSION_CHANGED):
+            rec_action = conflict_eval.recommended_action or ApproverDecision.ESCALATED
+            if rec_action == ApproverDecision.REJECTED:
+                rec_amount = Decimal("0.00")
+            elif match_result.expected_amount_inr is not None:
+                rec_amount = match_result.expected_amount_inr
+            else:
+                rec_amount = invoice.total_inr
+
+            return {
+                "proposed_action": rec_action.value,
+                "proposed_amount_inr": str(rec_amount),
+                "reasoning": f"[DETERMINISTIC POLICY FALLBACK] {conflict_eval.explanation}. Corporate policy supersedes precedent.",
+                "cited_memory_ids": cited_ids,
+            }
+
+        # 3. Duplicate invoice
+        if match_result.exception_type == ExceptionType.DUPLICATE_INVOICE:
+            return {
+                "proposed_action": ApproverDecision.REJECTED.value,
+                "proposed_amount_inr": "0.00",
+                "reasoning": f"[DETERMINISTIC FALLBACK] Duplicate invoice detected ({match_result.explanation}). Automated rejection mandated to prevent duplicate disbursement.",
+                "cited_memory_ids": cited_ids,
+            }
+
+        # 4. Expired Purchase Order
+        if match_result.exception_type == ExceptionType.PO_EXPIRED:
+            return {
+                "proposed_action": ApproverDecision.REJECTED.value,
+                "proposed_amount_inr": "0.00",
+                "reasoning": f"[DETERMINISTIC FALLBACK] Purchase order validity expired ({match_result.explanation}). Automated rejection mandated per procurement policy.",
+                "cited_memory_ids": cited_ids,
+            }
+
+        # 5. HSN mismatch (Statutory Tax Compliance)
+        if match_result.exception_type == ExceptionType.HSN_MISMATCH:
+            return {
+                "proposed_action": ApproverDecision.REJECTED.value,
+                "proposed_amount_inr": "0.00",
+                "reasoning": f"[DETERMINISTIC FALLBACK] Statutory GST HSN code discrepancy detected ({match_result.explanation}). Statutory tax integrity requires rejection and vendor re-billing.",
+                "cited_memory_ids": cited_ids,
+            }
+
+        # 6. GST Rate Error (Statutory Tax Compliance)
+        if match_result.exception_type == ExceptionType.GST_RATE_ERROR:
+            return {
+                "proposed_action": ApproverDecision.REJECTED.value,
+                "proposed_amount_inr": "0.00",
+                "reasoning": f"[DETERMINISTIC FALLBACK] Statutory GST tax rate mismatch detected ({match_result.explanation}). Non-compliant tax rates mandate rejection.",
+                "cited_memory_ids": cited_ids,
+            }
+
+        # 7. Quantity Shortfall
+        if match_result.exception_type == ExceptionType.QUANTITY_SHORTFALL:
+            if grn and getattr(grn, "accepted_quantity", 0) > 0 and match_result.expected_amount_inr:
+                return {
+                    "proposed_action": ApproverDecision.EDITED.value,
+                    "proposed_amount_inr": str(match_result.expected_amount_inr),
+                    "reasoning": f"[DETERMINISTIC FALLBACK] Quantity shortfall detected ({match_result.explanation}). Proposing adjustment to pay only for physical goods received (₹{match_result.expected_amount_inr:,.2f}) per GRN {grn.grn_number}.",
+                    "cited_memory_ids": cited_ids,
+                }
+            return {
+                "proposed_action": ApproverDecision.ESCALATED.value,
+                "proposed_amount_inr": str(invoice.total_inr),
+                "reasoning": f"[DETERMINISTIC FALLBACK] Quantity shortfall detected ({match_result.explanation}). Receiving verification requires procurement escalation.",
+                "cited_memory_ids": cited_ids,
+            }
+
+        # 8. Price Mismatch
+        if match_result.exception_type == ExceptionType.PRICE_MISMATCH:
+            # Check if precedent supports EDITED to contracted PO price
+            has_edit_precedent = any(
+                str(getattr(m, "metadata", {}).get("decision", "")).upper() == "EDITED"
+                for m in recalled_memories
+            )
+            if has_edit_precedent and match_result.expected_amount_inr:
+                return {
+                    "proposed_action": ApproverDecision.EDITED.value,
+                    "proposed_amount_inr": str(match_result.expected_amount_inr),
+                    "reasoning": f"[DETERMINISTIC FALLBACK] Unit price variance ({match_result.explanation}). Proposing adjustment to contracted PO unit price (₹{match_result.expected_amount_inr:,.2f}) per institutional precedent.",
+                    "cited_memory_ids": cited_ids,
+                }
+            # Fallback to PO contracted price if expected amount exists
+            if match_result.expected_amount_inr:
+                return {
+                    "proposed_action": ApproverDecision.EDITED.value,
+                    "proposed_amount_inr": str(match_result.expected_amount_inr),
+                    "reasoning": f"[DETERMINISTIC FALLBACK] Unit price variance ({match_result.explanation}). Proposing adjustment to contracted PO price (₹{match_result.expected_amount_inr:,.2f}).",
+                    "cited_memory_ids": cited_ids,
+                }
+            return {
+                "proposed_action": ApproverDecision.REJECTED.value,
+                "proposed_amount_inr": "0.00",
+                "reasoning": f"[DETERMINISTIC FALLBACK] Unit price variance ({match_result.explanation}) exceeds tolerance without authorized waiver. Mandating rejection.",
+                "cited_memory_ids": cited_ids,
+            }
+
+        # 9. Default Fallback: Escalate
+        return {
+            "proposed_action": ApproverDecision.ESCALATED.value,
+            "proposed_amount_inr": str(invoice.total_inr),
+            "reasoning": f"[DETERMINISTIC FALLBACK] AP exception ({match_result.explanation}) requires human approver resolution.",
+            "cited_memory_ids": cited_ids,
+        }
+
     def resolve(
         self,
         invoice: Invoice,
-        po: PurchaseOrder,
-        grn: Optional[GoodsReceiptNote],
-        match_result: MatchResult,
+        po: Optional[PurchaseOrder] = None,
+        grn: Optional[GoodsReceiptNote] = None,
+        match_result: Optional[MatchResult] = None,
         memory_enabled: bool = True,
         bank_id: Optional[str] = None,
         force_profile_refresh: bool = False,
@@ -238,6 +387,9 @@ class ResolutionAgent:
             Validated ResolutionProposal with action, amount, explanation, citations, and confidence.
         """
         target_bank = bank_id or self.bank_id
+        if match_result is None:
+            from agent.matcher import match_invoice
+            match_result = match_invoice(invoice, po, grn)
         vendor_slug = get_vendor_slug(invoice.vendor_name)
         recalled_mems: List[RecalledMemory] = []
         prior_audit_reviews: List[RecalledMemory] = []
@@ -408,7 +560,7 @@ class ResolutionAgent:
             historical_memories=recalled_mems if memory_enabled else [],
         )
 
-        # 3. BUILD PROMPT & CALL GROQ LLM
+        # 3. BUILD PROMPT & CALL GROQ LLM (WITH RESILIENT DETERMINISTIC FALLBACK)
         user_prompt = build_user_prompt(
             invoice=invoice,
             po=po,
@@ -426,7 +578,34 @@ class ResolutionAgent:
             {"role": "user", "content": user_prompt},
         ]
 
-        parsed_json, usage = self.llm.call_json(messages=messages, temperature=0.0)
+        is_llm_fallback = False
+        llm_fallback_reason: Optional[str] = None
+        parsed_json: Dict[str, Any] = {}
+        usage: Dict[str, int] = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+
+        is_llm_usable = False
+        if self.llm:
+            if hasattr(self.llm, "is_available") and callable(self.llm.is_available):
+                is_llm_usable = self.llm.is_available()
+            elif hasattr(self.llm, "call_json"):
+                is_llm_usable = True
+
+        try:
+            if not is_llm_usable:
+                raise LLMError("Groq client unavailable: GROQ_API_KEY is not configured or client is uninitialized.")
+            parsed_json, usage = self.llm.call_json(messages=messages, temperature=0.0)
+        except Exception as e:
+            is_llm_fallback = True
+            llm_fallback_reason = f"{type(e).__name__}: {e}"
+            parsed_json = self._generate_deterministic_fallback(
+                invoice=invoice,
+                po=po,
+                grn=grn,
+                match_result=match_result,
+                conflict_eval=conflict_eval,
+                recalled_memories=recalled_mems,
+                governing_policy=governing_policy,
+            )
 
         # 4. PARSE AND VALIDATE PROPOSED ACTION & AMOUNT
         raw_action = str(parsed_json.get("proposed_action", "ESCALATE")).upper()
@@ -468,7 +647,10 @@ class ResolutionAgent:
                     )
             elif conflict_eval.status == ConflictStatus.POLICY_UNKNOWN:
                 proposed_action = ApproverDecision.ESCALATED
-                reasoning = f"[UNVERIFIED POLICY] {conflict_eval.explanation}"
+                if po is None or getattr(invoice, "is_incomplete", False):
+                    reasoning = f"[DETERMINISTIC FALLBACK] Missing purchase order documentation for invoice {invoice.invoice_number}. Invoice is marked incomplete; procurement escalation required."
+                else:
+                    reasoning = f"[UNVERIFIED POLICY] {conflict_eval.explanation}"
 
         requires_escalation = conflict_eval.requires_escalation or (proposed_action == ApproverDecision.ESCALATED)
 
@@ -517,5 +699,7 @@ class ResolutionAgent:
             conflict_explanation=conflict_eval.explanation,
             requires_escalation=requires_escalation,
             escalation_path=conflict_eval.escalation_path or (governing_policy.authorized_escalation_path if governing_policy else "Finance Controller"),
+            llm_fallback=is_llm_fallback,
+            fallback_reason=llm_fallback_reason,
         )
 

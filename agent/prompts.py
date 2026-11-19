@@ -43,7 +43,7 @@ Do NOT include markdown formatting outside JSON or conversational filler.
 
 def build_user_prompt(
     invoice: Invoice,
-    po: PurchaseOrder,
+    po: Optional[PurchaseOrder],
     grn: Optional[GoodsReceiptNote],
     match_result: MatchResult,
     recalled_memories: List[RecalledMemory],
@@ -55,6 +55,14 @@ def build_user_prompt(
     """Construct the comprehensive context prompt for the LLM resolver."""
     lines: List[str] = []
 
+    po_num = po.po_number if po else "N/A (Missing Purchase Order)"
+    po_validity = f"{po.issue_date} to {po.valid_until}" if po else "N/A"
+    po_hsn = po.hsn_code if po else "N/A"
+    po_qty = po.quantity if po else "N/A"
+    po_price = f"₹{po.unit_price_inr:,.2f}" if po else "N/A"
+    po_gst = f"{po.gst_rate * 100:.1f}%" if po else "N/A"
+    po_total = f"(PO Contracted: ₹{po.total_inr:,.2f})" if po else "(PO Contracted: N/A)"
+
     lines.append("══════════════════════════════════════════════════════════════════")
     lines.append("CURRENT INVOICE & MATCH RESULT (DETERMINISTIC RECONCILIATION)")
     lines.append("══════════════════════════════════════════════════════════════════")
@@ -62,15 +70,15 @@ def build_user_prompt(
     lines.append(f"Vendor GSTIN:    {invoice.gstin}")
     lines.append(f"Invoice Number:  {invoice.invoice_number}")
     lines.append(f"Invoice Date:    {invoice.invoice_date}")
-    lines.append(f"PO Number:       {po.po_number}")
-    lines.append(f"PO Validity:     {po.issue_date} to {po.valid_until}")
+    lines.append(f"PO Number:       {po_num}")
+    lines.append(f"PO Validity:     {po_validity}")
     lines.append(f"GRN Number:      {grn.grn_number if grn else 'N/A (Pure Service Transaction)'}")
     lines.append(f"Billed Item:     {invoice.item_description}")
-    lines.append(f"HSN Code:        Invoice: {invoice.hsn_code} vs PO: {po.hsn_code}")
-    lines.append(f"Quantity:        Invoice: {invoice.quantity} vs PO: {po.quantity} vs GRN Accepted: {grn.accepted_quantity if grn else 'N/A'}")
-    lines.append(f"Unit Price:      Invoice: ₹{invoice.unit_price_inr:,.2f} vs PO: ₹{po.unit_price_inr:,.2f}")
-    lines.append(f"GST Rate:        Invoice: {invoice.gst_rate * 100:.1f}% vs PO: {po.gst_rate * 100:.1f}%")
-    lines.append(f"Total Billed:    ₹{invoice.total_inr:,.2f} (PO Contracted: ₹{po.total_inr:,.2f})")
+    lines.append(f"HSN Code:        Invoice: {invoice.hsn_code} vs PO: {po_hsn}")
+    lines.append(f"Quantity:        Invoice: {invoice.quantity} vs PO: {po_qty} vs GRN Accepted: {grn.accepted_quantity if grn else 'N/A'}")
+    lines.append(f"Unit Price:      Invoice: ₹{invoice.unit_price_inr:,.2f} vs PO: {po_price}")
+    lines.append(f"GST Rate:        Invoice: {invoice.gst_rate * 100:.1f}% vs PO: {po_gst}")
+    lines.append(f"Total Billed:    ₹{invoice.total_inr:,.2f} {po_total}")
     lines.append(f"Primary Issue:   {match_result.exception_type.value}")
     lines.append(f"Match Summary:   {match_result.explanation}")
 

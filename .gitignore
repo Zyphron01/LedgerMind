@@ -25,9 +25,12 @@ budget_log.jsonl
 seed_ledger.json
 data/seed_ledger.json
 data/seed_ledger*.json
-reflect_cache.json
+reflect_cache*.json
 offline_memory.jsonl
 *.log
+*.backup.*
+*.bak
+README.backup.md
 
 # Multimedia, raw recordings, and submission assets
 submission/
@@ -44,6 +47,7 @@ scripts/spike.py
 
 # Explicitly preserve curated documentation screenshots
 !docs/screenshots/*.png
+!docs/assets/screenshots/*.png
 
 # Test & coverage caches
 .pytest_cache/

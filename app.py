@@ -73,12 +73,21 @@ def main() -> None:
             "Memory Intelligence",
         ]
 
-        if "current_page" not in st.session_state:
+        # Stage any pending programmatic navigation BEFORE radio widget instantiation
+        if st.session_state.get("pending_page"):
+            target_page = st.session_state.pop("pending_page")
+            if target_page in pages:
+                st.session_state["current_page"] = target_page
+
+        if "current_page" not in st.session_state or st.session_state["current_page"] not in pages:
             st.session_state["current_page"] = "Overview"
+
+        current_idx = pages.index(st.session_state["current_page"])
 
         selected_page = st.radio(
             "Navigation:",
             pages,
+            index=current_idx,
             key="current_page",
         )
 

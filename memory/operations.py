@@ -122,16 +122,70 @@ def retain_human_feedback(
     )
 
 
+def recall_vendor_history(
+    client: MemoryClient,
+    bank_id: str,
+    vendor_name: str,
+    vendor_slug: Optional[str] = None,
+    limit: int = 15,
+) -> List[RecalledMemory]:
+    """
+    Retrieve all historical memories and decisions for a given vendor.
+    Resilient across both canonical slugs and raw slugs (e.g. zenith-precision-engineering
+    vs zenith-precision-engineering-pvt-ltd).
+    """
+    canonical_slug = get_vendor_slug(vendor_name)
+    raw_slug = vendor_name.lower().replace(" ", "-").replace(".", "")
+    provided_slug = (vendor_slug or "").strip().lower()
+
+    candidate_slugs: List[str] = []
+    for s in [canonical_slug, provided_slug, raw_slug]:
+        if s and s not in candidate_slugs:
+            candidate_slugs.append(s)
+
+    query = f"Historical decisions, approvals, rejections, and reviews for {vendor_name}"
+
+    # Search with all candidate vendor tags (SDK matches any)
+    tags = [f"vendor:{s}" for s in candidate_slugs]
+    results = client.recall(
+        bank_id=bank_id,
+        query=query,
+        tags=tags,
+        limit=limit,
+    )
+
+    # Fallback to broader recall across bank if tag search yielded no results
+    if not results:
+        broad_results = client.recall(
+            bank_id=bank_id,
+            query=f"{vendor_name} historical AP review feedback precedent",
+            tags=None,
+            limit=limit,
+        )
+        if broad_results:
+            filtered = [
+                m for m in broad_results
+                if any(s in " ".join(m.tags).lower() or s in m.text.lower() for s in candidate_slugs)
+                or vendor_name.lower() in m.text.lower()
+            ]
+            if filtered:
+                results = filtered
+
+    return results
+
+
 def get_vendor_profile(
     client: MemoryClient,
     bank_id: str,
     vendor_slug: str,
+    vendor_name: Optional[str] = None,
     force_refresh: bool = False,
 ) -> ReflectSummary:
-    """Fetch synthesized vendor profile with automatic disk caching."""
+    """Fetch synthesized vendor profile with automatic disk caching and canonical slug resolution."""
+    target_slug = get_vendor_slug(vendor_name) if vendor_name else vendor_slug
     return client.reflect(
         bank_id=bank_id,
-        vendor_slug=vendor_slug,
+        vendor_slug=target_slug,
         force_refresh=force_refresh,
     )
 

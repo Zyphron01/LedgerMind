@@ -19,7 +19,9 @@ from data.store import (
     get_goods_receipt_by_po,
     get_purchase_order,
     init_db,
+    link_invoice_po,
     list_goods_receipts,
+    list_incomplete_invoices,
     list_purchase_orders,
     list_vendors,
     save_document_bundle,
@@ -40,6 +42,11 @@ INV-USR-2025-002,Kiran Steel & Fabricators,27AABCK5678E1Z4,2025-10-18,PO-USR-202
 SAMPLE_PO_CSV_TEMPLATE = """po_number,vendor_name,gstin,issue_date,valid_until,item_description,hsn_code,unit_price_inr,quantity,gst_rate
 PO-USR-2025-001,Prabhav Infosystems,27AABCP1234D1Z5,2025-09-01,2025-11-30,Server Motherboards Supermicro,8471,1000.00,10,0.18
 PO-USR-2025-002,Kiran Steel & Fabricators,27AABCK5678E1Z4,2025-09-10,2025-12-10,Structural Steel Beams ISMB 300,7216,4200.00,5,0.18
+"""
+
+SAMPLE_GRN_CSV_TEMPLATE = """grn_number,po_number,receipt_date,received_quantity,accepted_quantity,rejected_quantity,inspection_notes
+GRN-USR-2025-001,PO-USR-2025-001,2025-10-10,10,10,0,Standard warehouse intake inspection verified clean.
+GRN-USR-2025-002,PO-USR-2025-002,2025-10-12,5,5,0,Received in full and verified against specifications.
 """
 
 GST_RATE_MAP = {
@@ -392,15 +399,14 @@ def render_intake_page() -> None:
                         unsafe_allow_html=True,
                     )
 
+                from ui.state import navigate_to
                 col_btn1, col_btn2 = st.columns(2)
                 with col_btn1:
                     if st.button("📋 View in Invoice Queue", use_container_width=True):
-                        st.session_state["current_page"] = "Invoice Queue"
-                        st.rerun()
+                        navigate_to("Invoice Queue")
                 with col_btn2:
                     if st.button("🤖 Open in Resolution Workbench", type="primary", use_container_width=True):
-                        st.session_state["current_page"] = "Resolution Workbench"
-                        st.rerun()
+                        navigate_to("Resolution Workbench", selected_invoice_id=inv_number_val)
 
             except Exception as e:
                 st.error(f"Failed to record invoice: {e}")
@@ -413,112 +419,329 @@ def render_intake_page() -> None:
             """
             <div style="background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 16px 20px 8px 20px; margin-bottom: 18px;">
                 <div style="font-weight: 700; font-size: 0.95rem; color: #f8fafc; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-                    <span>📂</span> Batch Upload Invoices via CSV
+                    <span>📂</span> Batch Upload Procurement & Billing Documents via CSV
                 </div>
                 <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 8px;">
-                    Upload structured supplier invoices. Each invoice line is matched against existing or newly imported POs.
+                    Upload authentic supplier invoices, purchase orders, or goods receipt notes. Invoices lacking POs are safely recorded as Incomplete without synthetic fabrication.
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        uploaded_file = st.file_uploader("Select Invoices CSV File", type=["csv"], help="Structured CSV matching the template.")
+        doc_type_choice = st.radio(
+            "Select Document Type to Upload:",
+            ["📄 Supplier Invoices (.csv)", "📋 Purchase Orders (.csv)", "📦 Goods Receipt Notes (.csv)"],
+            horizontal=True,
+        )
+
+        uploaded_file = st.file_uploader(f"Select {doc_type_choice} File", type=["csv"], help="Structured CSV matching the template.")
 
         if uploaded_file is not None:
             try:
                 df = pd.read_csv(uploaded_file)
-                required_cols = [
-                    "invoice_number", "vendor_name", "gstin", "invoice_date",
-                    "po_number", "item_description", "hsn_code",
-                    "unit_price_inr", "quantity", "gst_rate"
-                ]
-                missing = [c for c in required_cols if c not in df.columns]
 
-                if missing:
-                    st.error(f"Malformed CSV: Missing required columns: {missing}")
-                else:
-                    st.markdown(f"Found **{len(df)}** rows in uploaded file. Validating records...")
-
-                    valid_records = []
-                    validation_errors = []
-
-                    for idx, row in df.iterrows():
-                        row_num = idx + 2
-                        try:
-                            inv_num = str(row["invoice_number"]).strip()
-                            v_name = str(row["vendor_name"]).strip()
-                            gstin = str(row["gstin"]).strip().upper()
-                            inv_dt = date.fromisoformat(str(row["invoice_date"]).strip())
-                            po_num = str(row["po_number"]).strip()
-                            grn_num = str(row["grn_number"]).strip() if "grn_number" in row and pd.notna(row["grn_number"]) else None
-                            desc = str(row["item_description"]).strip()
-                            hsn = str(row["hsn_code"]).strip()
-                            price = Decimal(str(round(float(row["unit_price_inr"]), 2)))
-                            qty = int(row["quantity"])
-                            gst = Decimal(str(round(float(row["gst_rate"]), 4)))
-
-                            if qty <= 0:
-                                validation_errors.append(f"Row {row_num}: Quantity must be > 0")
-                                continue
-                            if price <= Decimal("0"):
-                                validation_errors.append(f"Row {row_num}: Unit price must be > 0")
-                                continue
-
-                            inv_obj = Invoice.create(
-                                invoice_number=inv_num,
-                                vendor_name=v_name,
-                                gstin=gstin,
-                                invoice_date=inv_dt,
-                                po_number=po_num,
-                                grn_number=grn_num,
-                                item_description=desc,
-                                hsn_code=hsn,
-                                unit_price_inr=price,
-                                quantity=qty,
-                                gst_rate=gst,
-                            )
-                            valid_records.append(inv_obj)
-
-                        except Exception as ex:
-                            validation_errors.append(f"Row {row_num}: Parse error ({ex})")
-
-                    col_s1, col_s2 = st.columns(2)
-                    with col_s1:
-                        st.metric("Valid Rows Parsed", len(valid_records))
-                    with col_s2:
-                        st.metric("Validation Errors", len(validation_errors))
-
-                    if validation_errors:
-                        with st.expander("⚠ View Validation Errors", expanded=True):
-                            for err in validation_errors:
-                                st.write(f"• {err}")
-
-                    # Preview table
-                    st.markdown("#### Preview Parsed Invoices:")
-                    preview_data = [
-                        {
-                            "Invoice No": inv.invoice_number,
-                            "Vendor": inv.vendor_name,
-                            "PO Number": inv.po_number,
-                            "Total Payable": f"₹{inv.total_inr:,.2f}",
-                            "Date": inv.invoice_date.isoformat(),
-                        }
-                        for inv in valid_records
+                # ── 1. INVOICE CSV IMPORT ──
+                if doc_type_choice == "📄 Supplier Invoices (.csv)":
+                    required_cols = [
+                        "invoice_number", "vendor_name", "gstin", "invoice_date",
+                        "item_description", "hsn_code", "unit_price_inr", "quantity", "gst_rate"
                     ]
-                    st.dataframe(pd.DataFrame(preview_data), use_container_width=True)
+                    missing = [c for c in required_cols if c not in df.columns]
 
-                    if valid_records and st.button(f"📥 Confirm & Save {len(valid_records)} Valid Invoices to Persistent Store", type="primary"):
-                        saved_count = 0
-                        for inv in valid_records:
-                            save_vendor(inv.vendor_name, inv.gstin)
-                            save_invoice(inv, is_user_created=True)
-                            saved_count += 1
-                        st.success(f"✓ Successfully imported {saved_count} invoices into persistent storage!")
-                        st.session_state["selected_invoice_id"] = valid_records[0].invoice_number
+                    if missing:
+                        st.error(f"Malformed CSV: Missing required columns: {missing}")
+                    else:
+                        st.markdown(f"Found **{len(df)}** invoice row(s). Validating records...")
+                        valid_records = []
+                        validation_errors = []
+
+                        for idx, row in df.iterrows():
+                            row_num = idx + 2
+                            try:
+                                inv_num = str(row["invoice_number"]).strip()
+                                v_name = str(row["vendor_name"]).strip()
+                                gstin = str(row["gstin"]).strip().upper()
+                                inv_dt = date.fromisoformat(str(row["invoice_date"]).strip())
+                                raw_po = str(row["po_number"]).strip() if "po_number" in row and pd.notna(row["po_number"]) and str(row["po_number"]).strip() else None
+                                grn_num = str(row["grn_number"]).strip() if "grn_number" in row and pd.notna(row["grn_number"]) and str(row["grn_number"]).strip() else None
+                                desc = str(row["item_description"]).strip()
+                                hsn = str(row["hsn_code"]).strip()
+                                price = Decimal(str(round(float(row["unit_price_inr"]), 2)))
+                                qty = int(row["quantity"])
+                                gst = Decimal(str(round(float(row["gst_rate"]), 4)))
+
+                                if qty <= 0:
+                                    validation_errors.append(f"Row {row_num}: Quantity must be > 0")
+                                    continue
+                                if price <= Decimal("0"):
+                                    validation_errors.append(f"Row {row_num}: Unit price must be > 0")
+                                    continue
+
+                                # Safe verification: check if authentic PO exists in repository
+                                existing_po = get_purchase_order(raw_po) if raw_po else None
+                                is_inc = (existing_po is None)
+
+                                inv_obj = Invoice.create(
+                                    invoice_number=inv_num,
+                                    vendor_name=v_name,
+                                    gstin=gstin,
+                                    invoice_date=inv_dt,
+                                    po_number=raw_po,
+                                    grn_number=grn_num,
+                                    item_description=desc,
+                                    hsn_code=hsn,
+                                    unit_price_inr=price,
+                                    quantity=qty,
+                                    gst_rate=gst,
+                                )
+                                inv_obj.is_incomplete = is_inc
+                                valid_records.append((inv_obj, is_inc, raw_po))
+
+                            except Exception as ex:
+                                validation_errors.append(f"Row {row_num}: Parse error ({ex})")
+
+                        col_s1, col_s2 = st.columns(2)
+                        with col_s1:
+                            st.metric("Valid Rows Parsed", len(valid_records))
+                        with col_s2:
+                            st.metric("Validation Errors", len(validation_errors))
+
+                        if validation_errors:
+                            with st.expander("⚠ View Validation Errors", expanded=True):
+                                for err in validation_errors:
+                                    st.write(f"• {err}")
+
+                        st.markdown("#### Preview Parsed Invoices:")
+                        preview_data = [
+                            {
+                                "Invoice No": inv.invoice_number,
+                                "Vendor": inv.vendor_name,
+                                "Referenced PO": raw_po or "(None)",
+                                "Total Payable": f"₹{inv.total_inr:,.2f}",
+                                "Status": "⚠️ Incomplete (PO Missing)" if is_inc else "✓ Verified PO Linked",
+                                "Date": inv.invoice_date.isoformat(),
+                            }
+                            for inv, is_inc, raw_po in valid_records
+                        ]
+                        st.dataframe(pd.DataFrame(preview_data), use_container_width=True)
+
+                        if valid_records and st.button(f"📥 Confirm & Save {len(valid_records)} Invoices to Persistent Store", type="primary"):
+                            saved_count = 0
+                            incomplete_count = 0
+                            for inv, is_inc, raw_po in valid_records:
+                                save_vendor(inv.vendor_name, inv.gstin)
+                                save_invoice(inv, is_user_created=True)
+                                saved_count += 1
+                                if is_inc:
+                                    incomplete_count += 1
+                            if incomplete_count > 0:
+                                st.warning(
+                                    f"✓ Imported {saved_count} invoices into persistent storage ({incomplete_count} flagged as Incomplete pending authentic PO upload). "
+                                    f"Zero synthetic POs were created."
+                                )
+                            else:
+                                st.success(f"✓ Successfully imported {saved_count} verified invoices into persistent storage!")
+                            st.session_state["selected_invoice_id"] = valid_records[0][0].invoice_number
+
+                # ── 2. PURCHASE ORDER CSV IMPORT ──
+                elif doc_type_choice == "📋 Purchase Orders (.csv)":
+                    required_cols = [
+                        "po_number", "vendor_name", "gstin", "issue_date", "valid_until",
+                        "item_description", "hsn_code", "unit_price_inr", "quantity", "gst_rate"
+                    ]
+                    missing = [c for c in required_cols if c not in df.columns]
+
+                    if missing:
+                        st.error(f"Malformed CSV: Missing required columns: {missing}")
+                    else:
+                        st.markdown(f"Found **{len(df)}** purchase order row(s). Validating records...")
+                        valid_pos = []
+                        validation_errors = []
+
+                        for idx, row in df.iterrows():
+                            row_num = idx + 2
+                            try:
+                                po_num = str(row["po_number"]).strip()
+                                v_name = str(row["vendor_name"]).strip()
+                                gstin = str(row["gstin"]).strip().upper()
+                                issue_dt = date.fromisoformat(str(row["issue_date"]).strip())
+                                valid_dt = date.fromisoformat(str(row["valid_until"]).strip())
+                                desc = str(row["item_description"]).strip()
+                                hsn = str(row["hsn_code"]).strip()
+                                price = Decimal(str(round(float(row["unit_price_inr"]), 2)))
+                                qty = int(row["quantity"])
+                                gst = Decimal(str(round(float(row["gst_rate"]), 4)))
+
+                                if qty <= 0:
+                                    validation_errors.append(f"Row {row_num}: Quantity must be > 0")
+                                    continue
+                                if price <= Decimal("0"):
+                                    validation_errors.append(f"Row {row_num}: Unit price must be > 0")
+                                    continue
+
+                                po_obj = PurchaseOrder.create(
+                                    po_number=po_num,
+                                    vendor_name=v_name,
+                                    gstin=gstin,
+                                    issue_date=issue_dt,
+                                    valid_until=valid_dt,
+                                    item_description=desc,
+                                    hsn_code=hsn,
+                                    unit_price_inr=price,
+                                    quantity=qty,
+                                    gst_rate=gst,
+                                )
+                                valid_pos.append(po_obj)
+
+                            except Exception as ex:
+                                validation_errors.append(f"Row {row_num}: Parse error ({ex})")
+
+                        col_s1, col_s2 = st.columns(2)
+                        with col_s1:
+                            st.metric("Valid Rows Parsed", len(valid_pos))
+                        with col_s2:
+                            st.metric("Validation Errors", len(validation_errors))
+
+                        if validation_errors:
+                            with st.expander("⚠ View Validation Errors", expanded=True):
+                                for err in validation_errors:
+                                    st.write(f"• {err}")
+
+                        st.markdown("#### Preview Parsed Purchase Orders:")
+                        preview_data = [
+                            {
+                                "PO Number": po.po_number,
+                                "Vendor": po.vendor_name,
+                                "Item": po.item_description,
+                                "Total Contracted": f"₹{po.total_inr:,.2f}",
+                                "Valid Until": po.valid_until.isoformat(),
+                            }
+                            for po in valid_pos
+                        ]
+                        st.dataframe(pd.DataFrame(preview_data), use_container_width=True)
+
+                        if valid_pos and st.button(f"📥 Confirm & Save {len(valid_pos)} Purchase Orders to Persistent Store", type="primary"):
+                            saved_count = 0
+                            for po in valid_pos:
+                                save_vendor(po.vendor_name, po.gstin)
+                                save_purchase_order(po, is_user_created=True)
+                                saved_count += 1
+                            st.success(
+                                f"✓ Successfully imported {saved_count} purchase orders into persistent storage! "
+                                f"Any waiting incomplete invoices matching these PO numbers have been automatically linked and marked complete."
+                            )
+
+                # ── 3. GOODS RECEIPT NOTE CSV IMPORT ──
+                elif doc_type_choice == "📦 Goods Receipt Notes (.csv)":
+                    required_cols = [
+                        "grn_number", "po_number", "receipt_date", "received_quantity", "accepted_quantity"
+                    ]
+                    missing = [c for c in required_cols if c not in df.columns]
+
+                    if missing:
+                        st.error(f"Malformed CSV: Missing required columns: {missing}")
+                    else:
+                        st.markdown(f"Found **{len(df)}** GRN row(s). Validating records...")
+                        valid_grns = []
+                        validation_errors = []
+
+                        for idx, row in df.iterrows():
+                            row_num = idx + 2
+                            try:
+                                grn_num = str(row["grn_number"]).strip()
+                                po_num = str(row["po_number"]).strip()
+                                rec_dt = date.fromisoformat(str(row["receipt_date"]).strip())
+                                rec_qty = int(row["received_quantity"])
+                                acc_qty = int(row["accepted_quantity"])
+                                rej_qty = int(row.get("rejected_quantity", 0)) if pd.notna(row.get("rejected_quantity")) else 0
+                                notes = str(row.get("inspection_notes", "Standard warehouse verification verified clean.")).strip()
+
+                                grn_obj = GoodsReceiptNote(
+                                    grn_number=grn_num,
+                                    po_number=po_num,
+                                    receipt_date=rec_dt,
+                                    received_quantity=rec_qty,
+                                    accepted_quantity=acc_qty,
+                                    rejected_quantity=rej_qty,
+                                    inspection_notes=notes,
+                                )
+                                valid_grns.append(grn_obj)
+
+                            except Exception as ex:
+                                validation_errors.append(f"Row {row_num}: Parse error ({ex})")
+
+                        col_s1, col_s2 = st.columns(2)
+                        with col_s1:
+                            st.metric("Valid Rows Parsed", len(valid_grns))
+                        with col_s2:
+                            st.metric("Validation Errors", len(validation_errors))
+
+                        if validation_errors:
+                            with st.expander("⚠ View Validation Errors", expanded=True):
+                                for err in validation_errors:
+                                    st.write(f"• {err}")
+
+                        st.markdown("#### Preview Parsed Goods Receipt Notes:")
+                        preview_data = [
+                            {
+                                "GRN Number": grn.grn_number,
+                                "PO Number": grn.po_number,
+                                "Receipt Date": grn.receipt_date.isoformat(),
+                                "Received Qty": grn.received_quantity,
+                                "Accepted Qty": grn.accepted_quantity,
+                            }
+                            for grn in valid_grns
+                        ]
+                        st.dataframe(pd.DataFrame(preview_data), use_container_width=True)
+
+                        if valid_grns and st.button(f"📥 Confirm & Save {len(valid_grns)} GRNs to Persistent Store", type="primary"):
+                            saved_count = 0
+                            for grn in valid_grns:
+                                save_goods_receipt(grn, is_user_created=True)
+                                saved_count += 1
+                            st.success(f"✓ Successfully imported {saved_count} Goods Receipt Notes into persistent storage!")
 
             except Exception as e:
                 st.error(f"Failed to read CSV: {e}")
+
+        # ── Incomplete Invoices & PO Linking Section ──
+        st.markdown("<hr style='border: 0; border-top: 1px solid #1f2937; margin: 28px 0 20px 0;'/>", unsafe_allow_html=True)
+        st.markdown("### 🔗 Incomplete Invoices & PO Linking Workbench")
+        incomplete_invs = list_incomplete_invoices()
+        if not incomplete_invs:
+            st.success("✓ All invoices in the repository have verified matching Purchase Orders. Zero incomplete invoices pending documentation.")
+        else:
+            st.warning(f"⚠️ Found **{len(incomplete_invs)}** incomplete invoice(s) awaiting authentic Purchase Order documentation.")
+            available_pos = list_purchase_orders()
+            po_options = [po.po_number for po in available_pos]
+
+            with st.expander("🛠️ Link Authentic Purchase Order to Incomplete Invoice", expanded=True):
+                col_link_inv, col_link_po = st.columns(2)
+                with col_link_inv:
+                    sel_inv = st.selectbox(
+                        "Select Incomplete Invoice:",
+                        [inv.invoice_number for inv in incomplete_invs],
+                        format_func=lambda x: f"{x} ({next(i.vendor_name for i in incomplete_invs if i.invoice_number == x)} - ₹{next(i.total_inr for i in incomplete_invs if i.invoice_number == x):,.2f})"
+                    )
+                with col_link_po:
+                    if po_options:
+                        sel_po = st.selectbox(
+                            "Select Authentic Existing PO to Link:",
+                            po_options,
+                            format_func=lambda x: f"{x} ({next(p.vendor_name for p in available_pos if p.po_number == x)} - ₹{next(p.total_inr for p in available_pos if p.po_number == x):,.2f})"
+                        )
+                    else:
+                        st.info("No Purchase Orders available in repository to link. Please import authentic POs above.")
+                        sel_po = None
+
+                if sel_po and st.button("🔗 Link Purchase Order & Re-Verify Match", type="primary"):
+                    try:
+                        link_invoice_po(sel_inv, sel_po)
+                        st.success(f"✓ Successfully linked authentic PO '{sel_po}' to Invoice '{sel_inv}'. Incomplete status cleared!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Failed to link PO: {e}")
 
     # ═════════════════════════════════════════════════════════════════════════
     # TAB 3: DOWNLOADABLE TEMPLATES
@@ -531,14 +754,14 @@ def render_intake_page() -> None:
                     <span>📋</span> Standard CSV Schema Templates
                 </div>
                 <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 8px;">
-                    Download verified sample CSV templates pre-populated with compliant column definitions and test rows.
+                    Download verified sample CSV templates pre-populated with compliant column definitions and authentic test rows for Invoices, Purchase Orders, and GRNs.
                 </div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        col_t1, col_t2 = st.columns(2)
+        col_t1, col_t2, col_t3 = st.columns(3)
         with col_t1:
             st.markdown("##### 📄 Supplier Invoices Template")
             st.download_button(
@@ -560,3 +783,14 @@ def render_intake_page() -> None:
                 use_container_width=True,
             )
             st.code(SAMPLE_PO_CSV_TEMPLATE, language="csv")
+
+        with col_t3:
+            st.markdown("##### 📦 Goods Receipt Notes Template")
+            st.download_button(
+                label="📥 Download sample_goods_receipts.csv",
+                data=SAMPLE_GRN_CSV_TEMPLATE,
+                file_name="sample_goods_receipts.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+            st.code(SAMPLE_GRN_CSV_TEMPLATE, language="csv")

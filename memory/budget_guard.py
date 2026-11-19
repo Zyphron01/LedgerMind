@@ -48,6 +48,12 @@ class BudgetGuard:
         self.cumulative_retain_tokens = 0
         self.cumulative_reflect_calls = 0
         self.cumulative_retain_calls = 0
+        self.cloud_reflect_calls = 0
+        self.local_reflect_calls = 0
+        self.cloud_retain_tokens = 0
+        self.local_retain_tokens = 0
+        self.cloud_retain_calls = 0
+        self.local_retain_calls = 0
         self._replay_log()
 
     def _replay_log(self) -> None:
@@ -64,11 +70,23 @@ class BudgetGuard:
                         record = json.loads(line)
                         if record.get("allowed", False):
                             op = record.get("operation")
+                            mode = str(record.get("mode", "")).lower()
                             if op == "retain":
+                                est_tokens = record.get("estimated_tokens", 0)
                                 self.cumulative_retain_calls += 1
-                                self.cumulative_retain_tokens += record.get("estimated_tokens", 0)
+                                self.cumulative_retain_tokens += est_tokens
+                                if mode == "cloud":
+                                    self.cloud_retain_calls += 1
+                                    self.cloud_retain_tokens += est_tokens
+                                else:
+                                    self.local_retain_calls += 1
+                                    self.local_retain_tokens += est_tokens
                             elif op == "reflect":
                                 self.cumulative_reflect_calls += 1
+                                if mode == "cloud":
+                                    self.cloud_reflect_calls += 1
+                                else:
+                                    self.local_reflect_calls += 1
                     except Exception:
                         pass
         except Exception:
@@ -99,7 +117,7 @@ class BudgetGuard:
         est_tokens = self.estimate_tokens(content)
         is_cloud = mode.lower() == "cloud"
 
-        if is_cloud and (self.cumulative_retain_tokens + est_tokens > self.max_retain_tokens):
+        if is_cloud and (self.cloud_retain_tokens + est_tokens > self.max_retain_tokens):
             self._append_log({
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "mode": mode,
@@ -107,15 +125,21 @@ class BudgetGuard:
                 "bank_id": bank_id,
                 "estimated_tokens": est_tokens,
                 "allowed": False,
-                "reason": f"Exceeded retain token cap ({self.cumulative_retain_tokens} + {est_tokens} > {self.max_retain_tokens})",
+                "reason": f"Exceeded retain token cap ({self.cloud_retain_tokens} + {est_tokens} > {self.max_retain_tokens})",
             })
             raise BudgetExceededError(
                 f"Cloud budget guard refused retain: limit {self.max_retain_tokens} tokens exceeded "
-                f"(current: {self.cumulative_retain_tokens}, requested: +{est_tokens})."
+                f"(current: {self.cloud_retain_tokens}, requested: +{est_tokens})."
             )
 
         self.cumulative_retain_calls += 1
         self.cumulative_retain_tokens += est_tokens
+        if is_cloud:
+            self.cloud_retain_calls += 1
+            self.cloud_retain_tokens += est_tokens
+        else:
+            self.local_retain_calls += 1
+            self.local_retain_tokens += est_tokens
 
         self._append_log({
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -136,7 +160,7 @@ class BudgetGuard:
         """
         is_cloud = mode.lower() == "cloud"
 
-        if is_cloud and (self.cumulative_reflect_calls + 1 > self.max_reflect_calls):
+        if is_cloud and (self.cloud_reflect_calls + 1 > self.max_reflect_calls):
             self._append_log({
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "mode": mode,
@@ -144,14 +168,18 @@ class BudgetGuard:
                 "bank_id": bank_id,
                 "query": query[:100],
                 "allowed": False,
-                "reason": f"Exceeded reflect calls cap ({self.cumulative_reflect_calls} + 1 > {self.max_reflect_calls})",
+                "reason": f"Exceeded reflect calls cap ({self.cloud_reflect_calls} + 1 > {self.max_reflect_calls})",
             })
             raise BudgetExceededError(
                 f"Cloud budget guard refused reflect: limit {self.max_reflect_calls} calls exceeded "
-                f"(current: {self.cumulative_reflect_calls})."
+                f"(current: {self.cloud_reflect_calls})."
             )
 
         self.cumulative_reflect_calls += 1
+        if is_cloud:
+            self.cloud_reflect_calls += 1
+        else:
+            self.local_reflect_calls += 1
 
         self._append_log({
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -169,9 +197,21 @@ class BudgetGuard:
             "cumulative_retain_tokens": self.cumulative_retain_tokens,
             "cumulative_retain_calls": self.cumulative_retain_calls,
             "cumulative_reflect_calls": self.cumulative_reflect_calls,
+            "cloud_reflect_calls": self.cloud_reflect_calls,
+            "local_reflect_calls": self.local_reflect_calls,
+            "cloud_retain_tokens": self.cloud_retain_tokens,
+            "local_retain_tokens": self.local_retain_tokens,
+            "cloud_retain_calls": self.cloud_retain_calls,
+            "local_retain_calls": self.local_retain_calls,
             "max_retain_tokens": self.max_retain_tokens,
             "max_reflect_calls": self.max_reflect_calls,
-            "remaining_retain_tokens": max(0, self.max_retain_tokens - self.cumulative_retain_tokens),
-            "remaining_reflect_calls": max(0, self.max_reflect_calls - self.cumulative_reflect_calls),
+            "remaining_retain_tokens": max(0, self.max_retain_tokens - self.cloud_retain_tokens),
+            "remaining_reflect_calls": max(0, self.max_reflect_calls - self.cloud_reflect_calls),
         }
+
+    @property
+    def remaining_reflect_budget(self) -> int:
+        """Remaining cloud reflect calls budget before cap is enforced."""
+        return max(0, self.max_reflect_calls - self.cloud_reflect_calls)
+
 

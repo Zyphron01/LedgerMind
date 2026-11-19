@@ -14,7 +14,7 @@ Guarantees:
 
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import List, Optional
+from typing import Any, List, Optional, Union
 from pydantic import BaseModel, Field
 
 from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
@@ -40,7 +40,8 @@ class FeedbackSubmission(BaseModel):
 class FeedbackResult(BaseModel):
     """Result of human feedback retention into institutional memory."""
     document_id: str
-    status: str
+    status: str = "RETAINED"
+    hindsight_status: str = "NOT_ATTEMPTED"
     invoice_number: str
     human_decision: ApproverDecision
     retained_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -84,10 +85,12 @@ def process_human_feedback(
     )
 
     doc_id = retain_human_feedback(client=memory_client, bank_id=bank_id, feedback=record)
+    hstatus = getattr(memory_client, "last_retain_status", "SYNCED")
 
     return FeedbackResult(
         document_id=doc_id,
         status="RETAINED",
+        hindsight_status=hstatus,
         invoice_number=submission.invoice_number,
         human_decision=submission.human_decision,
     )

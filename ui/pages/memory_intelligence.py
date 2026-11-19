@@ -13,10 +13,13 @@ import json
 import streamlit as st
 
 from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
+from agent.confidence import extract_decision_from_memory
+from agent.resolver import normalize_and_deduplicate_memories
 from data.models import ApproverDecision, Vendor
 from data.store import list_all_vendor_names, list_vendors
-from data.vendors import ALL_VENDORS, VENDORS_BY_SLUG
-from memory.operations import get_vendor_profile
+from data.vendors import ALL_VENDORS, VENDORS_BY_SLUG, get_vendor_slug
+from memory.operations import get_vendor_profile, recall_vendor_history
+from memory.reflect_cache import ReflectCache
 from ui.components.cards import render_advisory_banner
 from ui.state import (
     get_hindsight_document_count,
@@ -52,6 +55,9 @@ def render_memory_intelligence_page() -> None:
     vendor_names = db_vendor_names if db_vendor_names else [v.name for v in ALL_VENDORS]
     selected_name = st.selectbox("Select Supplier / Vendor:", vendor_names)
 
+    canonical_slug = get_vendor_slug(selected_name)
+    raw_slug = selected_name.lower().replace(" ", "-").replace(".", "")
+
     synth_vendor = next((v for v in ALL_VENDORS if v.name == selected_name), None)
     if synth_vendor:
         selected_vendor = synth_vendor
@@ -60,7 +66,7 @@ def render_memory_intelligence_page() -> None:
         v_info = all_v_dicts.get(selected_name, {})
         v_gstin = v_info.get("gstin", "27AABCA0000A1Z0")
         v_cat = v_info.get("category", "General Procurement")
-        v_slug = v_info.get("slug", selected_name.lower().replace(" ", "-").replace(".", ""))
+        v_slug = v_info.get("slug", canonical_slug)
         selected_vendor = Vendor(
             name=selected_name,
             slug=v_slug,
@@ -74,7 +80,11 @@ def render_memory_intelligence_page() -> None:
             quirk_description="User-registered enterprise supplier.",
             dominant_action=ApproverDecision.APPROVED,
         )
-    slug = selected_vendor.slug
+    slug = canonical_slug
+
+    slug_pill_html = f'<code style="color: #60a5fa; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.82rem;">{slug}</code>'
+    if raw_slug != slug:
+        slug_pill_html += f' <code style="color: #94a3b8; background: rgba(148, 163, 184, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.78rem;" title="Database alias slug">alias: {raw_slug}</code>'
 
     # VENDOR INFO CARD (Bento Style)
     st.markdown(
@@ -84,7 +94,7 @@ def render_memory_intelligence_page() -> None:
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 1.3rem;">🏢</span>
                     <span style="font-weight: 800; font-size: 1.15rem; color: #f8fafc;">{selected_vendor.name}</span>
-                    <code style="color: #60a5fa; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.82rem;">{slug}</code>
+                    {slug_pill_html}
                 </div>
                 <span class="lm-badge lm-badge-emerald">{selected_vendor.category}</span>
             </div>
@@ -123,61 +133,133 @@ def render_memory_intelligence_page() -> None:
             horizontal=True,
         )
 
-    # Retrieve vendor memories
+    # Retrieve vendor memories with multi-slug resilience
     with st.spinner("Retrieving historical records from memory..."):
-        recalled = mem_client.recall(
+        recalled = recall_vendor_history(
+            client=mem_client,
             bank_id=chosen_bank,
-            query=f"Historical decisions and reviews for {selected_vendor.name} {slug}",
-            tags=[f"vendor:{slug}"],
+            vendor_name=selected_name,
+            vendor_slug=selected_vendor.slug,
             limit=15,
         )
 
+    # Determine provenance and fallback reasons
+    is_offline = (
+        mem_client.last_recall_source == "offline"
+        or (recalled and any(m.is_offline_fallback for m in recalled))
+    )
+    fallback_reason = mem_client.last_fallback_reason
+
     if not recalled:
-        st.warning(f"No records found in bank `{chosen_bank}` for vendor `{slug}`.")
-    else:
-        # Deduplicate and extract decisions
-        decisions_list = []
-        unique_docs_seen = set()
-
-        for m in recalled:
-            doc_id = m.document_id or m.id
-            if doc_id not in unique_docs_seen:
-                unique_docs_seen.add(doc_id)
-                dec = m.metadata.get("decision")
-                if not dec:
-                    for t in m.tags:
-                        if t.startswith("decision:"):
-                            dec = t.split(":", 1)[1].upper()
-                            break
-                if dec:
-                    decisions_list.append(dec)
-
-        col_m1, col_m2 = st.columns(2)
-        with col_m1:
-            st.metric("Unique Historical Decisions in Memory", f"{len(unique_docs_seen)}")
-        with col_m2:
-            if decisions_list:
-                counts = Counter(decisions_list)
-                summary_str = " • ".join([f"{k}: {v}" for k, v in counts.items()])
-                st.metric("Historical Decision Pattern", summary_str)
+        if chosen_bank == BASELINE_EVAL_BANK_ID and not synth_vendor:
+            st.info(
+                f"ℹ️ **No baseline benchmark records**: Vendor `{selected_name}` is a live-demo / user-created supplier. "
+                f"Historical review records are stored in **🟡 Live Demo Bank ({LIVE_DEMO_BANK_ID})**."
+            )
+        else:
+            if fallback_reason:
+                st.warning(f"⚠️ Hindsight retrieval notice ({fallback_reason}). Local offline store contains 0 records for `{selected_name}` in bank `{chosen_bank}`.")
             else:
-                st.metric("Historical Decision Pattern", "Pending categorization")
-
+                st.info(f"No precedent review records currently recorded in bank `{chosen_bank}` for vendor `{selected_name}`.")
+    else:
+        prov_label = "🟠 OFFLINE AUDIT STORE (Deterministic Local Fallback)" if is_offline else "🟢 LIVE HINDSIGHT ENGINE (Active Container)"
         st.markdown(
             f"""
-            <div style="font-weight: 700; font-size: 1rem; color: #f8fafc; margin: 16px 0 10px 0;">
-                Retrieved Precedent Records ({len(recalled)}):
+            <div style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <span>Provenance:</span>
+                <strong style="color: {'#fb923c' if is_offline else '#4ade80'};">{prov_label}</strong>
+                <span>• Bank: <code>{chosen_bank}</code></span>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        for idx, m in enumerate(recalled, 1):
+        # Source-level grouping: collapse extracted fact fragments under originating decisions
+        grouped_memories = normalize_and_deduplicate_memories(recalled, max_items=len(recalled))
+        verified_decisions = [
+            m for m in grouped_memories
+            if not getattr(m, "is_ungrouped", False) and not (m.document_id or "").startswith("fact-")
+        ]
+        ungrouped_facts = [
+            m for m in grouped_memories
+            if getattr(m, "is_ungrouped", False) or (m.document_id or "").startswith("fact-")
+        ]
+
+        decisions_list = []
+        for m in verified_decisions:
+            dec = extract_decision_from_memory(m)
+            if dec:
+                decisions_list.append(dec.value)
+            else:
+                for t in m.tags:
+                    if t.startswith("decision:"):
+                        decisions_list.append(t.split(":", 1)[1].upper())
+                        break
+
+        # Display distinct metrics for raw records and verified source decisions
+        col_m1, col_m2, col_m3 = st.columns([1, 1, 2])
+        with col_m1:
+            st.metric("Raw Memory Records", f"{len(recalled)}")
+        with col_m2:
+            st.metric("Unique Source Decisions", f"{len(verified_decisions)}")
+        with col_m3:
+            if decisions_list:
+                counts = Counter(decisions_list)
+                summary_str = " • ".join([f"{k}: {v}" for k, v in counts.items()])
+                st.metric("Historical Decision Pattern", summary_str)
+            else:
+                st.metric("Historical Decision Pattern", "No verified decisions" if not verified_decisions else "Pending categorization")
+
+        if ungrouped_facts:
+            st.caption(
+                f"ℹ️ {len(recalled)} raw record(s) consolidated into {len(verified_decisions)} verified precedent review(s) "
+                f"and {len(ungrouped_facts)} unattributed observation(s)."
+            )
+
+        st.markdown(
+            f"""
+            <div style="font-weight: 700; font-size: 1rem; color: #f8fafc; margin: 16px 0 10px 0;">
+                Verified Precedent Reviews ({len(verified_decisions)}):
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        if not verified_decisions:
+            st.info("No verified historical decision reviews identified for this supplier.")
+
+        for idx, m in enumerate(verified_decisions, 1):
             doc = m.document_id or m.id[:12]
-            with st.expander(f"[{idx}] Record: {doc} (Score: {m.score or 'N/A'})", expanded=(idx <= 2)):
+            source_badge = "Offline Fallback" if m.is_offline_fallback else "Hindsight Online"
+            dec = extract_decision_from_memory(m)
+            dec_badge = f" • Decision: {dec.value}" if dec else ""
+            fact_count = len(getattr(m, "supporting_facts", []))
+            facts_badge = f" • {fact_count} extracted fact{'s' if fact_count != 1 else ''}" if fact_count > 0 else ""
+
+            with st.expander(f"[{idx}] Precedent: {doc} ({source_badge}{dec_badge}{facts_badge})", expanded=(idx <= 2)):
+                st.markdown("**Primary Decision Review:**")
                 st.write(m.text)
+                if m.supporting_facts:
+                    st.markdown("**Extracted Memory Facts & Observations:**")
+                    for f in m.supporting_facts:
+                        st.markdown(f"- {f}")
+                if m.metadata:
+                    clean_meta = {k: v for k, v in m.metadata.items() if k not in ("text", "content")}
+                    if clean_meta:
+                        st.caption(
+                            "Metadata: " + " • ".join([f"**{k}**: `{v}`" for k, v in clean_meta.items()])
+                        )
                 if m.tags:
                     st.caption("Tags: " + " • ".join([f"`{t}`" for t in m.tags]))
+                st.caption(f"Citation: `{m.to_citation_summary()}`")
+
+        if ungrouped_facts:
+            with st.expander(f"Unattributed Memory Facts ({len(ungrouped_facts)})", expanded=False):
+                st.caption("These individual memory observations lack a verified source document ID and could not be linked to a known review.")
+                for u_idx, u in enumerate(ungrouped_facts, 1):
+                    st.markdown(f"- **Fact [{u_idx}]:** {u.text}")
+                    if u.tags:
+                        st.caption("  Tags: " + " • ".join([f"`{t}`" for t in u.tags]))
 
     st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
@@ -197,37 +279,65 @@ def render_memory_intelligence_page() -> None:
     with col_refresh:
         st.write("")
         st.write("")
-        refresh_btn = st.button("🔄 Refresh Vendor Profile", help="Triggers a fresh Hindsight reflect() operation and updates disk cache.")
+        refresh_btn = st.button("🔄 Generate / Refresh Profile", help="Triggers a fresh Hindsight reflect() operation and updates disk cache.")
 
     try:
-        reflect_prof = get_vendor_profile(
-            client=mem_client,
-            bank_id=chosen_bank,
-            vendor_slug=slug,
-            force_refresh=refresh_btn,
+        # Check cache first to avoid automatic model invocations on page navigation / dropdown changes
+        cached_prof = mem_client.reflect_cache.get(canonical_slug, bank_id=chosen_bank)
+        reflect_prof = None
+
+        if refresh_btn:
+            with st.spinner("Synthesizing longitudinal vendor profile with Hindsight reflect()..."):
+                reflect_prof = get_vendor_profile(
+                    client=mem_client,
+                    bank_id=chosen_bank,
+                    vendor_slug=canonical_slug,
+                    vendor_name=selected_name,
+                    force_refresh=True,
+                )
+        elif cached_prof and not getattr(cached_prof, "is_error", False) and not mem_client.reflect_cache.is_failed_summary(getattr(cached_prof, "summary", "")):
+            reflect_prof = cached_prof
+
+        is_err = (
+            getattr(reflect_prof, "is_error", False)
+            or (reflect_prof and ReflectCache.is_failed_summary(getattr(reflect_prof, "summary", "")))
         )
-        if reflect_prof and reflect_prof.summary:
+        summary_val = getattr(reflect_prof, "summary", "") if reflect_prof else ""
+
+        if reflect_prof and not is_err and summary_val:
+            is_cached = getattr(reflect_prof, "cached", False)
+            gen_at = getattr(reflect_prof, "generated_at", None)
+            gen_str = gen_at.strftime('%Y-%m-%d %H:%M:%S UTC') if gen_at else "Just now"
             st.markdown(
                 f"""
                 <div class="lm-callout lm-callout-policy" style="margin-bottom: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <span style="font-weight: 700; color: #f8fafc; font-size: 0.95rem;">Synthesized Vendor Longitudinal Profile</span>
-                        <span class="lm-badge lm-badge-violet">{'Disk Cached' if reflect_prof.cached else 'Fresh Synthesis'}</span>
+                        <span class="lm-badge lm-badge-violet">{'Disk Cached' if is_cached else 'Fresh Synthesis'}</span>
                     </div>
                     <div style="color: #e2e8f0; font-size: 0.92rem; line-height: 1.6;">
-                        {reflect_prof.summary}
+                        {summary_val}
                     </div>
                     <div style="margin-top: 8px; font-size: 0.78rem; color: #94a3b8;">
-                        Generated at: {reflect_prof.generated_at.strftime('%Y-%m-%d %H:%M:%S UTC')}
+                        Bank: <code>{chosen_bank}</code> • Generated at: {gen_str}
                     </div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
+        elif reflect_prof and is_err:
+            err_msg = getattr(reflect_prof, "error_message", None) or summary_val
+            st.info(
+                f"ℹ️ **Hindsight Reflect Synthesis Notice**: Longitudinal synthesis is unavailable ({err_msg or 'LLM inference provider not configured'}). "
+                f"Direct decision precedents and reviewer rationale are recalled above."
+            )
         else:
-            st.info("No reflect summary currently available for this supplier. Click 'Refresh Vendor Profile' to synthesize.")
+            st.info(
+                f"ℹ️ **No Synthesized Profile Cached**: A longitudinal reflection for `{selected_name}` in bank `{chosen_bank}` is not currently cached on disk. "
+                "Click **'🔄 Generate / Refresh Profile'** above to perform synthesis, or review direct decision precedents above."
+            )
     except Exception as e:
-        st.caption(f"Reflect profile synthesis info: {e}")
+        st.info(f"ℹ️ Reflect synthesis notice: {e}. Direct historical recall remains fully operational.")
 
     st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
@@ -242,13 +352,19 @@ def render_memory_intelligence_page() -> None:
     )
 
     budget = mem_client.budget_guard
+    summary = budget.get_usage_summary()
 
-    col_b1, col_b2, col_b3 = st.columns(3)
+    col_b1, col_b2, col_b3, col_b4 = st.columns(4)
     with col_b1:
-        st.metric("Retain Calls Recorded", f"{budget.cumulative_retain_calls}")
+        st.metric("Cloud Retain Tokens", f"{budget.cloud_retain_tokens:,} / {budget.max_retain_tokens:,}")
     with col_b2:
-        st.metric("Reflect Calls (Cloud Mode)", f"{budget.cumulative_reflect_calls} / {budget.max_reflect_calls}")
+        st.metric("Cloud Reflect Calls", f"{budget.cloud_reflect_calls} / {budget.max_reflect_calls}")
     with col_b3:
-        st.metric("Retained Tokens (Cloud Mode)", f"{budget.cumulative_retain_tokens:,} / {budget.max_retain_tokens:,}")
+        st.metric("Remaining Cloud Budget", f"{summary['remaining_reflect_calls']} calls")
+    with col_b4:
+        st.metric("Local Calls Logged", f"{budget.local_reflect_calls} calls")
 
-    st.caption("🛡️ *The Token Budget Guard tracks retain/reflect calls in cloud mode to prevent accidental credit exhaustion.*")
+    st.caption(
+        f"🛡️ **Budget Guard & Audit Telemetry**: Cloud caps apply strictly to chargeable Hindsight Cloud operations ({budget.cloud_reflect_calls} used). "
+        f"Local operations ({budget.local_reflect_calls} reflect calls logged) run via the local container for observability without consuming cloud API quotas."
+    )

@@ -31,7 +31,7 @@ EXCEPTION_PRIORITY = [
 
 def match_invoice(
     invoice: Invoice,
-    po: PurchaseOrder,
+    po: Optional[PurchaseOrder] = None,
     grn: Optional[GoodsReceiptNote] = None,
     paid_invoice_numbers: Optional[Collection[str]] = None,
 ) -> MatchResult:
@@ -40,7 +40,7 @@ def match_invoice(
 
     Args:
         invoice: Billed supplier invoice.
-        po: Contracted purchase order.
+        po: Contracted purchase order (optional).
         grn: Warehouse goods receipt note (optional for pure services).
         paid_invoice_numbers: Collection of previously processed invoice numbers to detect duplicates.
 
@@ -48,6 +48,28 @@ def match_invoice(
         MatchResult with match status, primary exception, list of all discrepancies, and explanations.
     """
     discrepancies: List[Discrepancy] = []
+
+    # 0. MISSING PURCHASE ORDER CHECK
+    if po is None:
+        return MatchResult(
+            is_match=False,
+            exception_type=ExceptionType.NONE,
+            invoice_number=invoice.invoice_number,
+            po_number=invoice.po_number or "MISSING_PO",
+            vendor_name=invoice.vendor_name,
+            primary_discrepancy=Discrepancy(
+                exception_type=ExceptionType.NONE,
+                field="po_number",
+                invoice_value=invoice.po_number or "None",
+                expected_value="VALID_PURCHASE_ORDER",
+                delta_inr=invoice.total_inr,
+                message=f"Missing purchase order documentation: Invoice {invoice.invoice_number} has no verified matching Purchase Order in repository.",
+            ),
+            all_discrepancies=[],
+            invoice_amount_inr=invoice.total_inr,
+            expected_amount_inr=Decimal("0.00"),
+            explanation=f"Missing purchase order documentation: Invoice {invoice.invoice_number} cannot be matched without a valid Purchase Order.",
+        )
 
     # 1. DUPLICATE INVOICE CHECK
     if paid_invoice_numbers:

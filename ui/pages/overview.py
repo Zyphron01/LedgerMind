@@ -8,6 +8,7 @@ with modern Bento-grid and Tremor-inspired styling.
 """
 
 from collections import Counter
+import os
 import streamlit as st
 
 from config import BASELINE_EVAL_BANK_ID, LIVE_DEMO_BANK_ID
@@ -202,6 +203,14 @@ def render_overview_page() -> None:
 
     status_icon = "🟢" if health.get("connected") else "🟠"
 
+    groq_configured = bool(os.getenv("GROQ_API_KEY", "").strip())
+    groq_status = "⚪ CONFIGURED (API Key Present)" if groq_configured else "🟠 NOT CONFIGURED"
+    groq_details = (
+        "Configured for Groq API (Deterministic fallback active when offline)"
+        if groq_configured
+        else "Deterministic policy-grounded resolution fallback active"
+    )
+
     status_data = [
         {
             "Service": "Hindsight Memory Engine",
@@ -212,8 +221,8 @@ def render_overview_page() -> None:
         {
             "Service": "Groq LLM Engine",
             "Endpoint": "https://api.groq.com",
-            "Status": "🟢 CONFIGURED",
-            "Details": "openai/gpt-oss-120b (Failover: openai/gpt-oss-20b)",
+            "Status": groq_status,
+            "Details": groq_details,
         },
         {
             "Service": "Deterministic 3-Way Matcher",
@@ -243,16 +252,14 @@ def render_overview_page() -> None:
         unsafe_allow_html=True,
     )
 
+    from ui.state import navigate_to
     col_nav1, col_nav2, col_nav3 = st.columns(3)
     with col_nav1:
         if st.button("📋 Inspect Invoice Queue", use_container_width=True):
-            st.session_state["current_page"] = "Invoice Queue"
-            st.rerun()
+            navigate_to("Invoice Queue")
     with col_nav2:
         if st.button("⚡ Open Resolution Workbench", use_container_width=True, type="primary"):
-            st.session_state["current_page"] = "Resolution Workbench"
-            st.rerun()
+            navigate_to("Resolution Workbench")
     with col_nav3:
         if st.button("⚖️ Compare Memory OFF vs ON", use_container_width=True):
-            st.session_state["current_page"] = "Memory OFF vs ON Comparison"
-            st.rerun()
+            navigate_to("Memory OFF vs ON Comparison")

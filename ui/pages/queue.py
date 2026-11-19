@@ -117,7 +117,15 @@ def render_queue_page() -> None:
         inv = item.invoice
         match = item.match_result
         is_rev = inv.invoice_number in reviewed_map
-        status_str = f"✅ {reviewed_map[inv.invoice_number]['decision']}" if is_rev else "⏳ Pending Review"
+        is_inc = getattr(inv, "is_incomplete", False) or item.po is None
+
+        if is_inc:
+            status_str = "⚠️ Incomplete (PO Missing)"
+        elif is_rev:
+            status_str = f"✅ {reviewed_map[inv.invoice_number]['decision']}"
+        else:
+            status_str = "⏳ Pending Review"
+
         origin_str = "🟢 USER" if getattr(item, "is_user_created", False) else "⚪ SAMPLE"
 
         rows.append({
@@ -171,8 +179,8 @@ def render_queue_page() -> None:
         st.write("")
         st.write("")
         if st.button("🚀 Resolve in Workbench", type="primary", use_container_width=True):
-            st.session_state["current_page"] = "Resolution Workbench"
-            st.rerun()
+            from ui.state import navigate_to
+            navigate_to("Resolution Workbench", selected_invoice_id=selected_id)
 
     # Discrepancy Banner
     render_discrepancy_banner(match)

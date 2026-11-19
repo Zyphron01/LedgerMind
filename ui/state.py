@@ -49,6 +49,21 @@ def init_session_state() -> None:
     if "submission_feedback_msg" not in st.session_state:
         st.session_state["submission_feedback_msg"] = None
 
+    if "pending_page" not in st.session_state:
+        st.session_state["pending_page"] = None
+
+
+def navigate_to(page_name: str, selected_invoice_id: Optional[str] = None) -> None:
+    """
+    Safely transition to a target page in Streamlit.
+    Avoids StreamlitWidgetAlreadyInstantiatedError by staging navigation in pending_page
+    and triggering rerun so the radio widget initializes with the new page at the top of the run.
+    """
+    st.session_state["pending_page"] = page_name
+    if selected_invoice_id:
+        st.session_state["selected_invoice_id"] = selected_invoice_id
+    st.rerun()
+
 
 def get_all_invoices() -> List[Any]:
     """
@@ -163,7 +178,7 @@ def get_hindsight_document_count(bank_id: str) -> Tuple[int, int]:
         return len(unique_docs), len(all_records)
 
     try:
-        mems = client._sdk_client.list_memories(bank_id=bank_id)
+        mems = client.list_memories(bank_id=bank_id) if hasattr(client, "list_memories") else client._sdk_client.list_memories(bank_id=bank_id)
         if mems and hasattr(mems, "items") and mems.items:
             doc_ids = set()
             for item in mems.items:

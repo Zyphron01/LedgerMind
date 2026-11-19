@@ -41,18 +41,22 @@ class GroqClient:
         api_key: Optional[str] = None,
         model: Optional[str] = None,
     ) -> None:
-        self.api_key = api_key or os.getenv("GROQ_API_KEY", "")
+        self.api_key = api_key if api_key is not None else os.getenv("GROQ_API_KEY", "")
         self.model = model or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
-        self.client = groq_sdk.Groq(api_key=self.api_key) if self.api_key else None
+        self.client = groq_sdk.Groq(api_key=self.api_key) if (self.api_key and self.api_key.strip()) else None
 
         self.last_prompt_tokens = 0
         self.last_completion_tokens = 0
         self.last_total_tokens = 0
 
+    def is_available(self) -> bool:
+        """Returns True if the Groq client is initialized with a valid non-empty API key."""
+        return bool(self.client and self.api_key and self.api_key.strip())
+
     @retry(
         retry=retry_if_exception_type((groq_sdk.RateLimitError, groq_sdk.APIConnectionError, groq_sdk.InternalServerError)),
-        wait=wait_exponential(multiplier=2, min=3, max=30),
-        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=1, max=10),
+        stop=stop_after_attempt(3),
         reraise=True,
     )
     def call_json(
@@ -67,7 +71,7 @@ class GroqClient:
         Returns:
             Tuple of (parsed_json_dict, usage_dict)
         """
-        if not self.client:
+        if not self.is_available():
             raise LLMError("Groq client cannot be initialized without a valid GROQ_API_KEY.")
 
         try:

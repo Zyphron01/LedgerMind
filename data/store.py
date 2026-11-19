@@ -45,6 +45,87 @@ def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:
     return conn
 
 
+def _migrate_milestone3(conn: sqlite3.Connection) -> None:
+    """
+    Milestone 3 Migration:
+      1. Protect human review history by changing human_reviews FK from ON DELETE CASCADE to ON DELETE RESTRICT.
+      2. Introduce review_audit_log table to preserve historical review versions on supersede.
+      3. Add is_archived and is_incomplete columns to invoices table.
+      4. Ensure indexes and run PRAGMA foreign_key_check.
+    Idempotent and safe on repeated executions.
+    """
+    tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+    if "invoices" not in tables:
+        return
+
+    # 1. Check and add columns to invoices
+    inv_cols = [r["name"] for r in conn.execute("PRAGMA table_info(invoices)").fetchall()]
+    with conn:
+        if "is_archived" not in inv_cols:
+            conn.execute("ALTER TABLE invoices ADD COLUMN is_archived INTEGER NOT NULL DEFAULT 0")
+        if "is_incomplete" not in inv_cols:
+            conn.execute("ALTER TABLE invoices ADD COLUMN is_incomplete INTEGER NOT NULL DEFAULT 0")
+
+    # 2. Check human_reviews FK constraint action
+    if "human_reviews" in tables:
+        hr_ddl_row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='human_reviews'").fetchone()
+        if hr_ddl_row and "ON DELETE CASCADE" in hr_ddl_row[0].upper():
+            conn.execute("PRAGMA foreign_keys = OFF;")
+            with conn:
+                conn.execute("""
+                    CREATE TABLE human_reviews_m3 (
+                        invoice_number TEXT PRIMARY KEY,
+                        decision TEXT NOT NULL,
+                        approver_role TEXT NOT NULL,
+                        approved_amount_inr TEXT NOT NULL,
+                        rationale TEXT NOT NULL,
+                        hindsight_doc_id TEXT,
+                        hindsight_bank_id TEXT,
+                        hindsight_status TEXT NOT NULL,
+                        reviewed_at TEXT NOT NULL,
+                        FOREIGN KEY (invoice_number) REFERENCES invoices(invoice_number) ON UPDATE CASCADE ON DELETE RESTRICT
+                    );
+                """)
+                conn.execute("""
+                    INSERT INTO human_reviews_m3 (
+                        invoice_number, decision, approver_role, approved_amount_inr,
+                        rationale, hindsight_doc_id, hindsight_bank_id, hindsight_status, reviewed_at
+                    )
+                    SELECT
+                        invoice_number, decision, approver_role, approved_amount_inr,
+                        rationale, hindsight_doc_id, hindsight_bank_id, hindsight_status, reviewed_at
+                    FROM human_reviews;
+                """)
+                conn.execute("DROP TABLE human_reviews;")
+                conn.execute("ALTER TABLE human_reviews_m3 RENAME TO human_reviews;")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_human_reviews_invoice ON human_reviews(invoice_number);")
+            conn.execute("PRAGMA foreign_keys = ON;")
+            fk_errs = conn.execute("PRAGMA foreign_key_check").fetchall()
+            if fk_errs:
+                raise RuntimeError(f"Foreign key check failed after Milestone 3 migration: {fk_errs}")
+
+    # 3. Create review_audit_log table if not exists
+    with conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS review_audit_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                invoice_number TEXT NOT NULL,
+                version INTEGER NOT NULL,
+                decision TEXT NOT NULL,
+                approver_role TEXT NOT NULL,
+                approved_amount_inr TEXT NOT NULL,
+                rationale TEXT NOT NULL,
+                hindsight_doc_id TEXT,
+                hindsight_bank_id TEXT,
+                hindsight_status TEXT NOT NULL,
+                reviewed_at TEXT NOT NULL,
+                superseded_at TEXT NOT NULL,
+                FOREIGN KEY (invoice_number) REFERENCES invoices(invoice_number) ON UPDATE CASCADE ON DELETE RESTRICT
+            );
+        """)
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_review_audit_log_inv ON review_audit_log(invoice_number);")
+
+
 def init_db(db_path: Path = DB_PATH) -> None:
     """
     Initialize SQLite schema with relational integrity and idempotent migrations.
@@ -293,6 +374,8 @@ def init_db(db_path: Path = DB_PATH) -> None:
                     total_inr TEXT NOT NULL,
                     is_user_created INTEGER NOT NULL DEFAULT 1,
                     is_benchmark INTEGER NOT NULL DEFAULT 0,
+                    is_incomplete INTEGER NOT NULL DEFAULT 0,
+                    is_archived INTEGER NOT NULL DEFAULT 0,
                     created_at TEXT NOT NULL,
                     FOREIGN KEY (vendor_name) REFERENCES vendors(name) ON UPDATE CASCADE,
                     FOREIGN KEY (po_number) REFERENCES purchase_orders(po_number) ON UPDATE CASCADE ON DELETE SET NULL,
@@ -309,7 +392,7 @@ def init_db(db_path: Path = DB_PATH) -> None:
                     hindsight_bank_id TEXT,
                     hindsight_status TEXT NOT NULL,
                     reviewed_at TEXT NOT NULL,
-                    FOREIGN KEY (invoice_number) REFERENCES invoices(invoice_number) ON UPDATE CASCADE ON DELETE CASCADE
+                    FOREIGN KEY (invoice_number) REFERENCES invoices(invoice_number) ON UPDATE CASCADE ON DELETE RESTRICT
                 );
             """)
 
@@ -325,6 +408,9 @@ def init_db(db_path: Path = DB_PATH) -> None:
             CREATE INDEX IF NOT EXISTS idx_goods_receipts_po ON goods_receipts(po_number);
             CREATE INDEX IF NOT EXISTS idx_human_reviews_invoice ON human_reviews(invoice_number);
         """)
+
+    # Always execute idempotent Milestone 3 schema hardening
+    _migrate_milestone3(conn)
 
     # Seed benchmark dataset if not already present in SQLite
     bench_cnt = conn.execute("SELECT count(*) FROM invoices WHERE is_benchmark = 1").fetchone()[0]
@@ -490,6 +576,16 @@ def save_purchase_order(po: PurchaseOrder, db_path: Path = DB_PATH) -> None:
             ),
         )
 
+        # Auto-link any waiting invoices that reference this PO
+        conn.execute(
+            """
+            UPDATE invoices
+            SET po_number = ?, is_incomplete = 0
+            WHERE raw_po_number = ? AND (po_number IS NULL OR po_number = '')
+            """,
+            (po.po_number, po.po_number),
+        )
+
 
 def get_purchase_order(po_number: str, db_path: Path = DB_PATH) -> Optional[PurchaseOrder]:
     init_db(db_path)
@@ -574,6 +670,16 @@ def save_goods_receipt(grn: GoodsReceiptNote, db_path: Path = DB_PATH) -> None:
             ),
         )
 
+        # Auto-link GRN to any invoice sharing this po_number that lacks a GRN
+        conn.execute(
+            """
+            UPDATE invoices
+            SET grn_number = ?
+            WHERE po_number = ? AND (grn_number IS NULL OR grn_number = '')
+            """,
+            (grn.grn_number, grn.po_number),
+        )
+
 
 def get_goods_receipt(grn_number: str, db_path: Path = DB_PATH) -> Optional[GoodsReceiptNote]:
     init_db(db_path)
@@ -656,6 +762,7 @@ def save_invoice(inv: Invoice, is_user_created: bool = True, db_path: Path = DB_
         if inv.po_number:
             po_exists = conn.execute("SELECT 1 FROM purchase_orders WHERE po_number = ?", (inv.po_number,)).fetchone()
         resolved_po = inv.po_number if po_exists else None
+        is_incomplete = 1 if resolved_po is None else 0
 
         # Check if GRN exists
         grn_exists = None
@@ -668,8 +775,9 @@ def save_invoice(inv: Invoice, is_user_created: bool = True, db_path: Path = DB_
             INSERT INTO invoices (
                 invoice_number, vendor_name, gstin, invoice_date, po_number, raw_po_number, grn_number,
                 item_description, hsn_code, unit_price_inr, quantity,
-                total_excl_tax_inr, gst_rate, gst_amount_inr, total_inr, is_user_created, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                total_excl_tax_inr, gst_rate, gst_amount_inr, total_inr, is_user_created,
+                is_incomplete, is_archived, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
             ON CONFLICT(invoice_number) DO UPDATE SET
                 vendor_name=excluded.vendor_name,
                 gstin=excluded.gstin,
@@ -684,7 +792,8 @@ def save_invoice(inv: Invoice, is_user_created: bool = True, db_path: Path = DB_
                 total_excl_tax_inr=excluded.total_excl_tax_inr,
                 gst_rate=excluded.gst_rate,
                 gst_amount_inr=excluded.gst_amount_inr,
-                total_inr=excluded.total_inr
+                total_inr=excluded.total_inr,
+                is_incomplete=excluded.is_incomplete
             """,
             (
                 inv.invoice_number,
@@ -703,6 +812,7 @@ def save_invoice(inv: Invoice, is_user_created: bool = True, db_path: Path = DB_
                 str(inv.gst_amount_inr),
                 str(inv.total_inr),
                 1 if is_user_created else 0,
+                is_incomplete,
                 now_iso,
             ),
         )
@@ -813,14 +923,16 @@ def save_document_bundle(
             po_num_to_link = po.po_number if po else None
             grn_num_to_link = grn.grn_number if grn else None
             raw_po = invoice.po_number or (po.po_number if po else "")
+            is_incomplete = 1 if po_num_to_link is None else 0
 
             conn.execute(
                 """
                 INSERT INTO invoices (
                     invoice_number, vendor_name, gstin, invoice_date, po_number, raw_po_number, grn_number,
                     item_description, hsn_code, unit_price_inr, quantity,
-                    total_excl_tax_inr, gst_rate, gst_amount_inr, total_inr, is_user_created, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    total_excl_tax_inr, gst_rate, gst_amount_inr, total_inr, is_user_created,
+                    is_incomplete, is_archived, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
                 ON CONFLICT(invoice_number) DO UPDATE SET
                     vendor_name=excluded.vendor_name,
                     gstin=excluded.gstin,
@@ -835,7 +947,8 @@ def save_document_bundle(
                     total_excl_tax_inr=excluded.total_excl_tax_inr,
                     gst_rate=excluded.gst_rate,
                     gst_amount_inr=excluded.gst_amount_inr,
-                    total_inr=excluded.total_inr
+                    total_inr=excluded.total_inr,
+                    is_incomplete=excluded.is_incomplete
                 """,
                 (
                     invoice.invoice_number,
@@ -854,6 +967,7 @@ def save_document_bundle(
                     str(invoice.gst_amount_inr),
                     str(invoice.total_inr),
                     1 if is_user_created else 0,
+                    is_incomplete,
                     now_iso,
                 ),
             )
@@ -873,6 +987,8 @@ class UserInvoiceBundle:
         match_result: MatchResult,
         is_user_created: bool = True,
         expected_resolution: Optional[Any] = None,
+        is_incomplete: bool = False,
+        is_archived: bool = False,
     ):
         self.invoice = invoice
         self.po = po
@@ -880,6 +996,8 @@ class UserInvoiceBundle:
         self.match_result = match_result
         self.is_user_created = is_user_created
         self.expected_resolution = expected_resolution
+        self.is_incomplete = is_incomplete
+        self.is_archived = is_archived
 
 
 ReconciledInvoiceBundle = UserInvoiceBundle
@@ -988,6 +1106,9 @@ def _reconcile_bundle_from_row(
         )
 
     exp_res = eval_labels.get(inv.invoice_number)
+    is_inc = bool(r["is_incomplete"]) if "is_incomplete" in r.keys() else (po is None)
+    is_arc = bool(r["is_archived"]) if "is_archived" in r.keys() else False
+
     return UserInvoiceBundle(
         invoice=inv,
         po=po,
@@ -995,6 +1116,8 @@ def _reconcile_bundle_from_row(
         match_result=match_res,
         is_user_created=bool(r["is_user_created"]),
         expected_resolution=exp_res,
+        is_incomplete=is_inc,
+        is_archived=is_arc,
     )
 
 
@@ -1072,34 +1195,199 @@ def save_human_review(
     init_db(db_path)
     now_iso = reviewed_at or datetime.now(timezone.utc).isoformat()
     with get_connection(db_path) as conn:
-        conn.execute(
-            """
-            INSERT INTO human_reviews (
-                invoice_number, decision, approver_role, approved_amount_inr,
-                rationale, hindsight_doc_id, hindsight_bank_id, hindsight_status, reviewed_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(invoice_number) DO UPDATE SET
-                decision=excluded.decision,
-                approver_role=excluded.approver_role,
-                approved_amount_inr=excluded.approved_amount_inr,
-                rationale=excluded.rationale,
-                hindsight_doc_id=excluded.hindsight_doc_id,
-                hindsight_bank_id=excluded.hindsight_bank_id,
-                hindsight_status=excluded.hindsight_status,
-                reviewed_at=excluded.reviewed_at
-            """,
-            (
-                invoice_number,
-                decision,
-                approver_role,
-                str(approved_amount_inr),
-                rationale,
-                hindsight_doc_id,
-                hindsight_bank_id,
-                hindsight_status,
-                now_iso,
-            ),
+        with conn:
+            # Check if an existing review is already present for this invoice
+            existing = conn.execute(
+                "SELECT * FROM human_reviews WHERE invoice_number = ?",
+                (invoice_number,)
+            ).fetchone()
+
+            if existing:
+                # Preserve existing review in review_audit_log before updating (audit trail preservation)
+                ver_count = conn.execute(
+                    "SELECT COUNT(*) FROM review_audit_log WHERE invoice_number = ?",
+                    (invoice_number,)
+                ).fetchone()[0]
+                version = ver_count + 1
+
+                conn.execute(
+                    """
+                    INSERT INTO review_audit_log (
+                        invoice_number, version, decision, approver_role, approved_amount_inr,
+                        rationale, hindsight_doc_id, hindsight_bank_id, hindsight_status,
+                        reviewed_at, superseded_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        existing["invoice_number"],
+                        version,
+                        existing["decision"],
+                        existing["approver_role"],
+                        existing["approved_amount_inr"],
+                        existing["rationale"],
+                        existing["hindsight_doc_id"],
+                        existing["hindsight_bank_id"],
+                        existing["hindsight_status"],
+                        existing["reviewed_at"],
+                        now_iso,
+                    ),
+                )
+
+            conn.execute(
+                """
+                INSERT INTO human_reviews (
+                    invoice_number, decision, approver_role, approved_amount_inr,
+                    rationale, hindsight_doc_id, hindsight_bank_id, hindsight_status, reviewed_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(invoice_number) DO UPDATE SET
+                    decision=excluded.decision,
+                    approver_role=excluded.approver_role,
+                    approved_amount_inr=excluded.approved_amount_inr,
+                    rationale=excluded.rationale,
+                    hindsight_doc_id=excluded.hindsight_doc_id,
+                    hindsight_bank_id=excluded.hindsight_bank_id,
+                    hindsight_status=excluded.hindsight_status,
+                    reviewed_at=excluded.reviewed_at
+                """,
+                (
+                    invoice_number,
+                    decision,
+                    approver_role,
+                    str(approved_amount_inr),
+                    rationale,
+                    hindsight_doc_id,
+                    hindsight_bank_id,
+                    hindsight_status,
+                    now_iso,
+                ),
+            )
+
+
+def get_review_history(invoice_number: str, db_path: Path = DB_PATH) -> List[Dict[str, Any]]:
+    """Retrieve historical superseded review versions for an invoice."""
+    init_db(db_path)
+    with get_connection(db_path) as conn:
+        rows = conn.execute(
+            "SELECT * FROM review_audit_log WHERE invoice_number = ? ORDER BY version ASC",
+            (invoice_number,)
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def archive_invoice(invoice_number: str, db_path: Path = DB_PATH) -> bool:
+    """Soft-delete/archive an invoice while strictly preserving its record and human reviews."""
+    init_db(db_path)
+    with get_connection(db_path) as conn:
+        res = conn.execute(
+            "UPDATE invoices SET is_archived = 1 WHERE invoice_number = ?",
+            (invoice_number,)
         )
+        return res.rowcount > 0
+
+
+def unarchive_invoice(invoice_number: str, db_path: Path = DB_PATH) -> bool:
+    """Unarchive an invoice."""
+    init_db(db_path)
+    with get_connection(db_path) as conn:
+        res = conn.execute(
+            "UPDATE invoices SET is_archived = 0 WHERE invoice_number = ?",
+            (invoice_number,)
+        )
+        return res.rowcount > 0
+
+
+def link_invoice_po(invoice_number: str, po_number: str, db_path: Path = DB_PATH) -> bool:
+    """Manually link an incomplete invoice to an authentic existing Purchase Order."""
+    init_db(db_path)
+    with get_connection(db_path) as conn:
+        po_exists = conn.execute("SELECT 1 FROM purchase_orders WHERE po_number = ?", (po_number,)).fetchone()
+        if not po_exists:
+            raise ValueError(f"Purchase Order '{po_number}' does not exist in repository. Cannot link unverified PO.")
+        res = conn.execute(
+            "UPDATE invoices SET po_number = ?, raw_po_number = ?, is_incomplete = 0 WHERE invoice_number = ?",
+            (po_number, po_number, invoice_number)
+        )
+        return res.rowcount > 0
+
+
+def link_invoice_grn(invoice_number: str, grn_number: str, db_path: Path = DB_PATH) -> bool:
+    """Manually link an invoice to an authentic existing Goods Receipt Note."""
+    init_db(db_path)
+    with get_connection(db_path) as conn:
+        grn_exists = conn.execute("SELECT 1 FROM goods_receipts WHERE grn_number = ?", (grn_number,)).fetchone()
+        if not grn_exists:
+            raise ValueError(f"Goods Receipt Note '{grn_number}' does not exist in repository. Cannot link unverified GRN.")
+        res = conn.execute(
+            "UPDATE invoices SET grn_number = ? WHERE invoice_number = ?",
+            (grn_number, invoice_number)
+        )
+        return res.rowcount > 0
+
+
+def list_incomplete_invoices(db_path: Path = DB_PATH) -> List[Invoice]:
+    """List all invoices that currently lack a verified Purchase Order."""
+    init_db(db_path)
+    with get_connection(db_path) as conn:
+        rows = conn.execute(
+            "SELECT * FROM invoices WHERE is_incomplete = 1 OR po_number IS NULL ORDER BY invoice_date DESC"
+        ).fetchall()
+        return [_row_to_invoice(r) for r in rows]
+
+
+def sync_pending_reviews(memory_client: Any, db_path: Path = DB_PATH) -> Dict[str, Any]:
+    """
+    Scans for human reviews in PENDING_SYNC, FAILED, or SAVED_LOCAL_PENDING_SYNC state
+    and attempts synchronization if Hindsight is online. Idempotent and safe.
+    """
+    init_db(db_path)
+    if not memory_client or not getattr(memory_client, "is_healthy", lambda: False)():
+        return {"synced": 0, "failed": 0, "total_attempted": 0, "message": "Hindsight engine is offline. Sync deferred."}
+
+    with get_connection(db_path) as conn:
+        rows = conn.execute(
+            """
+            SELECT * FROM human_reviews
+            WHERE hindsight_status IN ('PENDING_SYNC', 'FAILED', 'SAVED_LOCAL_PENDING_SYNC')
+            """
+        ).fetchall()
+
+        synced_count = 0
+        failed_count = 0
+
+        for r in rows:
+            try:
+                from agent.feedback import FeedbackSubmission, process_human_feedback
+                from data.models import ApproverDecision, ApproverRole
+
+                submission = FeedbackSubmission(
+                    invoice_number=r["invoice_number"],
+                    vendor_name="Pending Review",
+                    exception_type="PENDING_REVIEW",
+                    agent_proposal="Manual sync",
+                    human_decision=ApproverDecision(r["decision"]),
+                    approver_role=ApproverRole(r["approver_role"]),
+                    human_explanation=r["rationale"],
+                    final_amount_inr=Decimal(r["approved_amount_inr"]),
+                    cited_memory_ids=[],
+                )
+                target_bank = r["hindsight_bank_id"] or LIVE_DEMO_BANK_ID
+                res = process_human_feedback(
+                    submission=submission,
+                    memory_client=memory_client,
+                    bank_id=target_bank,
+                )
+                if getattr(res, "hindsight_status", None) == "SYNCED" or getattr(memory_client, "last_retain_status", None) == "SYNCED":
+                    conn.execute(
+                        "UPDATE human_reviews SET hindsight_status = 'SYNCED', hindsight_doc_id = ? WHERE invoice_number = ?",
+                        (res.document_id, r["invoice_number"])
+                    )
+                    synced_count += 1
+                else:
+                    failed_count += 1
+            except Exception:
+                failed_count += 1
+
+        return {"synced": synced_count, "failed": failed_count, "total_attempted": len(rows)}
 
 
 def get_all_human_reviews(db_path: Path = DB_PATH) -> Dict[str, Dict[str, Any]]:
